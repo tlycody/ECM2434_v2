@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import Home from './components/Home';
 import BingoBoard from './components/BingoBoard';
 import Leaderboard from './components/Leaderboard';
 import Login from './components/Login';
@@ -15,9 +16,9 @@ function App() {
       <div className="container">
         <h1>Bingo Game</h1>
         <Routes>
+          <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/" element={<PrivateRoute><BingoBoard /></PrivateRoute>} />
           <Route path="/leaderboard" element={<PrivateRoute><Leaderboard /></PrivateRoute>} />
         </Routes>
       </div>
