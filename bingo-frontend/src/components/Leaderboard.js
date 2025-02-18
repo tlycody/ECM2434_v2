@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 const Leaderboard = () => {
   const [players, setPlayers] = useState([]);
 
   useEffect(() => {
-    axios.get("http://127.0.0.1:8000/api/leaderboard/")
+    axios.get(`${API_URL}/leaderboard/`)
       .then(response => setPlayers(response.data))
       .catch(error => console.log(error));
   }, []);

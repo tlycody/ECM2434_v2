@@ -1,29 +1,25 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import Home from './components/Home';
-import BingoBoard from './components/BingoBoard';
-import Leaderboard from './components/Leaderboard';
+import Profile from './components/Profile';
 import Login from './components/Login';
 import Register from './components/Register';
+import Leaderboard from './components/Leaderboard';
+import BingoBoard from './components/BingoBoard';
 
-const PrivateRoute = ({ children }) => {
-  return localStorage.getItem('token') ? children : <Navigate to="/login" />;
-};
-
-function App() {
+const App = () => {
   return (
-    <Router>
-      <div className="container">
-        <h1>Bingo Game</h1>
-        <Routes>
-          <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/leaderboard" element={<PrivateRoute><Leaderboard /></PrivateRoute>} />
-        </Routes>
-      </div>
-    </Router>
+    <div>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/leaderboard" element={<Leaderboard />} />
+        <Route path="/bingo" element={<BingoBoard />} />
+      </Routes>
+    </div>
   );
-}
+};
 
 export default App;
