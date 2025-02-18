@@ -1,7 +1,9 @@
 from django.shortcuts import render
-
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import User
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
 from django.core.files.storage import default_storage
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
@@ -14,10 +16,26 @@ from django.contrib.auth import authenticate
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 
+def email_validation(email):
+    """To validate, this is particularly for University of Exeter"""
+    try:
+        validate_email(email)
+        if not email.lower().endswith('@exeter.ac.uk'):
+           return False
+        return True
+    except ValidationError:
+        return False
+        
 @api_view(['POST'])
 def login_user(request):
     """Authenticates a user and returns JWT tokens"""
     data = request.data
+
+    """To make sure there is a validate input"""
+    if not data.get("username") or not data.get("password"):
+        return Response({"error": "You need to fill out both username and password."}, status=status.HTTP_400_BAD_REQUEST)
+
+    """This is to authenticate the user"""
     user = authenticate(username=data['username'], password=data['password'])
 
     if user is not None:
@@ -29,18 +47,35 @@ def login_user(request):
     else:
         return Response({"error": "Invalid username or password"}, status=status.HTTP_401_UNAUTHORIZED)
 
-
 @api_view(['POST'])
 def register_user(request):
     """Registers a new user"""
     data = request.data
 
+    """To make sure there is a validate input"""
+
+    if not data.get('username'):
+        return Response({"error": "Username is required. "},status=status.HTTP_400_BAD_REQUEST)
+
+    if not data.get("username") or not data.get("password"):
+        return Response({"error": "Both username and password are required."}, status=status.HTTP_400_BAD_REQUEST)
+    
+    email = data.get('email','').strip()
+    if not email:
+        return Response({"error": "Email is required. "},status=status.HTTP_400_BAD_REQUEST)
+    
+    if not validate_email(email):
+        return Response({"error": "Please use your @exeter.ac.uk email for account registration."},status=status.HTTP_400_BAD_REQUEST)
+
     if User.objects.filter(username=data['username']).exists():
         return Response({"error": "Username already taken"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    if User.objects.filter(email=email).exists():
+        return Response({"error": "This email has already registered."}, status=status.HTTP_400_BAD_REQUEST)
 
     user = User.objects.create(
         username=data['username'],
-        password=make_password(data['password'])  # Hash the password
+        password=make_password(data['password'])  
     )
 
     return Response({"message": "User registered successfully"}, status=status.HTTP_201_CREATED)
