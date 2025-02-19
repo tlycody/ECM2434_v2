@@ -65,7 +65,7 @@ def register_user(request):
         return Response({"error": "Email is required. "},status=status.HTTP_400_BAD_REQUEST)
     
     if not validate_email(email):
-        return Response({"error": "Please use your @exeter.ac.uk email for account registration."},status=status.HTTP_400_BAD_REQUEST)
+        return Response({"error": "Please use your @exeter.ac.uk email only."},status=status.HTTP_400_BAD_REQUEST)
 
     if User.objects.filter(username=data['username']).exists():
         return Response({"error": "Username already taken"}, status=status.HTTP_400_BAD_REQUEST)
@@ -73,12 +73,36 @@ def register_user(request):
     if User.objects.filter(email=email).exists():
         return Response({"error": "This email has already registered."}, status=status.HTTP_400_BAD_REQUEST)
 
-    user = User.objects.create(
+    try:
+        validate_password(data.get('password'))
+    except ValidationError as e:
+        return Response({"error": "This password is weak. Make a stronger one."},status=status.HTTP_400_BAD_REQUEST)
+
+    if data.get('password') != data.get('passwordagain'):
+        return Response({"error": "Passwords do not match."},status=status.HTTP_400_BAD_REQUEST)
+    
+    #user account 
+    try:
+        user = User.objects.create(
         username=data['username'],
+        email = email,
         password=make_password(data['password'])  
     )
+        #user_leaderboard_entry
+        Leaderboard.objects.create(user=user)
 
-    return Response({"message": "User registered successfully"}, status=status.HTTP_201_CREATED)
+        refresh = RefreshToken.for_user(user) 
+        return Response({
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+        'user': user.username,
+        'email': user.email,
+        }, status=status.HTTP_201_CREATED)
+
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SEVER_ERROR)
+    
+    #user_Leaderboard_entry
 
 
 @api_view(['GET'])
@@ -118,10 +142,20 @@ def get_user_profile(request):
     user = request.user
     completed_tasks = BingoTask.objects.filter(completed_by=user).count()
     total_points = sum(task.points for task in BingoTask.objects.filter(completed_by=user))
+    total_points = leaderboard.points
 
     return Response({
         "username": user.username,
         "total_points": total_points,
-        "completed_tasks": completed_tasks
+        "completed_tasks": completed_tasks,
+        "leaderboard-rank": user_rank(total_points)
     })
 
+def user_rank(points):
+    if points < 50:
+        return "Beginner"
+    elif points > 1250:
+        return "Expert"
+    else:
+        return None 
+        
