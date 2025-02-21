@@ -9,6 +9,7 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'your-secret-key')
 DEBUG = True  # Change to False in production
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+TIME_ZONE = 'Europe/London'
 
 # 3️⃣ Installed Apps
 INSTALLED_APPS = [
@@ -30,9 +31,9 @@ INSTALLED_APPS = [
 
 # 4️⃣ Middleware
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware', 
     'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',  # Allow frontend requests
+    'django.contrib.sessions.middleware.SessionMiddleware', # Allow frontend requests
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -42,8 +43,12 @@ MIDDLEWARE = [
 
 # 5️⃣ CORS Settings (Allow Frontend to Access Backend)
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",  # React Frontend
+    "http://localhost:3000",  
+    "http://127.0.0.1:3000",
+    "http://localhost:3002",
 ]
+
+CORS_ALLOWED_ALL_ORGINS = True
 
 # 6️⃣ Django REST Framework Config
 REST_FRAMEWORK = {
@@ -100,5 +105,11 @@ TEMPLATES = [
         },
     },
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES':(
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
 
 ROOT_URLCONF = 'ECM2434_A_2_202425.urls'
