@@ -9,12 +9,20 @@ const Profile = () => {
   const [tasks, setTasks] = useState([]);
   const navigate = useNavigate();
 
+
+  const emptyGrid = Array(9).fill({
+    id: 'empty',
+    description: 'Empty Task',
+    completed: false
+  });
+
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         const response = await axios.get(`${API_URL}/user/`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+          headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` },
         });
+        console.log('User Data:', response.data);
         setUserData(response.data);
       } catch (error) {
         console.error('Error fetching user data:', error);
@@ -26,7 +34,7 @@ const Profile = () => {
         const response = await axios.get(`${API_URL}/tasks/`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
-        setTasks(response.data.filter(task => task.completed));
+        setTasks(response.data);
       } catch (error) {
         console.error('Error fetching tasks:', error);
       }
@@ -34,13 +42,13 @@ const Profile = () => {
 
     fetchUserData();
     fetchCompletedTasks();
-  }, []);
+  }, [navigate]);
 
   return (
     <div className="profile-container">
       <h1>Player Profile</h1>
       <div className="profile-info">
-        <h2>Welcome, {userData.username}!</h2>
+        <h2>Welcome, {userData.username}</h2>
         <p><strong>Total Points:</strong> {userData.total_points || 0}</p>
         <p><strong>Completed Tasks:</strong> {tasks.length}</p>
       </div>
@@ -58,8 +66,9 @@ const Profile = () => {
         )}
       </div>
 
+
       <div className="buttons">
-        <button onClick={() => navigate('/')}>Back to Bingo Board</button>
+        <button onClick={() => navigate('/bingoboard')}>Back to Bingo Board</button>
         <button
           onClick={() => {
             localStorage.removeItem('token');

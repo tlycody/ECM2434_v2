@@ -35,19 +35,36 @@ def login_user(request):
     """Authenticates a user and returns JWT tokens"""
     data = request.data
     logger.info(f"Incoming Registration request:{data}")
+    username = data.get('username')
+    password = data.get('password')
+
+    #To check the user exists
+    user_exists = User.objects.filter(username=username).exists()
+    logger.info(f"User exists:{user_exists}")
+
 
     """To make sure there is a validate input"""
     if not data.get("username") or not data.get("password"):
         return Response({"error": "You need to fill out both username and password."}, status=status.HTTP_400_BAD_REQUEST)
 
+    """To check the user exists"""
+    if not User.objects.filter(username=username).exists():
+        logger.warning(f"Login attempt for non-existent user: {username}")
+        return Response(
+            {"error": "Invalid username or password"}, 
+            status=status.HTTP_401_UNAUTHORIZED
+        )
+    
     """This is to authenticate the user"""
-    user = authenticate(username=data['username'], password=data['password'])
+    user = authenticate(username=username, password=password)
+    logger.info(f"Authentication result for user {username}: {'success' if user else 'failed'}")
 
     if user is not None:
         refresh = RefreshToken.for_user(user)
         return Response({
             'refresh': str(refresh),
             'access': str(refresh.access_token),
+            'user':username
         }, status=status.HTTP_200_OK)
     else:
         return Response({"error": "Invalid username or password"}, status=status.HTTP_401_UNAUTHORIZED)
@@ -61,47 +78,47 @@ def register_user(request):
 
     def log_error(error_message, status_code):
         logger.error(f"Registration error: {error_message}")
-        return Response({"error": error_message}, status_code)
+        return Response({"detail": error_message}, status_code)
 
     """To make sure there is a validate input"""
 
     if not data.get('username'):
         error_message = "Username is required. "
         logger.error(error_message)
-        return log_error({"error": error_message },status.HTTP_400_BAD_REQUEST)
+        return log_error({"detail": error_message },status.HTTP_400_BAD_REQUEST)
 
     if not data.get("username") or not data.get("password"):
 
-        return log_error({"error": "Both username and password are required."}, status.HTTP_400_BAD_REQUEST)
+        return log_error({"detail": "Both username and password are required."}, status.HTTP_400_BAD_REQUEST)
     
     email = data.get('email','').strip()
     if not email:
         error_message = "Email is required. "
         logger.error(error_message)
-        return log_error({"error": error_message},status.HTTP_400_BAD_REQUEST)
+        return log_error({"detail": error_message},status.HTTP_400_BAD_REQUEST)
     
     if not email_validation(email):
         error_message = "Please use your @exeter.ac.uk email only."
         logger.error(error_message)
-        return log_error({"error": error_message},status.HTTP_400_BAD_REQUEST)
+        return log_error({"detail": error_message},status.HTTP_400_BAD_REQUEST)
 
     if User.objects.filter(username=data['username']).exists():
-        return log_error({"error": "Username already taken"}, status.HTTP_400_BAD_REQUEST)
+        return log_error({"detail": "Username already taken"}, status.HTTP_400_BAD_REQUEST)
     
     if User.objects.filter(email=email).exists():
-        return log_error({"error": "This email has already registered."}, status.HTTP_400_BAD_REQUEST)
+        return log_error({"detail": "This email has already registered."}, status.HTTP_400_BAD_REQUEST)
 
     try:
         validate_password(data.get('password'))
     except ValidationError as e:
         error_message = f"Password validation failed: {str(e)}"
         logger.error(error_message)
-        return log_error({"error": "This password is weak. Make a stronger one."},status.HTTP_400_BAD_REQUEST)
+        return log_error({"detail": "This password is weak. Make a stronger one."},status.HTTP_400_BAD_REQUEST)
 
     if data.get('password') != data.get('passwordagain'):
         error_message = "Passwords do not match."
         logger.error(error_message)
-        return log_error({"error": error_message },status.HTTP_400_BAD_REQUEST)
+        return log_error({"detail": error_message },status.HTTP_400_BAD_REQUEST)
     
     #user account 
     try:
@@ -127,12 +144,22 @@ def register_user(request):
         
     except Exception as e:
         logger.exception(f"Error creating user account: {str(e)}")
-        return log_error({"error": str(e)}, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return log_error({"detail": str(e)}, status.HTTP_500_INTERNAL_SERVER_ERROR)
   
         #task_serializer = UserTaskSerializer(data = get_tasks)
     
     
     #user_Leaderboard_entry
+
+@api_view(['GET'])
+def check_user(request,username):
+    user = User.objects.filter(username = username).first()
+    if user:
+        return Response({
+            'exists': True,
+            'email':user.email
+        })
+    return Response({'exists': False})
 
 
 @api_view(['GET'])
@@ -164,7 +191,6 @@ def leaderboard(request):
     players = Leaderboard.objects.order_by('-points')[:10]
     serializer = LeaderboardSerializer(players, many=True)
     return Response(serializer.data)
-
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])

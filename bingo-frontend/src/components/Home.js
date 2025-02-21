@@ -28,15 +28,9 @@ const Home = () => {
       <h1>Bingo Game Board</h1>
       <p>Complete tasks to earn points and win!</p>
 
-      <div className="bingo-board">
-        {tasks.map((task) => (
-          <div key={task.id} className={`bingo-cell ${task.completed ? 'completed' : ''}`}>{task.description}</div>
-        ))}
-      </div>
-
       <div className="buttons">
         <button onClick={() => navigate('/leaderboard')}>View Leaderboard</button>
-        <button onClick={() => navigate('/profile')}>Profile</button>
+        <button onClick={() => navigate('/login')}>Login</button>
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import register_user, login_user, get_user_profile, get_tasks, complete_task, leaderboard
+from .views import register_user, login_user, get_user_profile, get_tasks, complete_task,leaderboard
 from rest_framework_simplejwt.views import TokenRefreshView
 
 urlpatterns = [

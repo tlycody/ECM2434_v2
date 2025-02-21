@@ -46,14 +46,20 @@ const Register = () => {
         localStorage.setItem('refresh_token',response.data.refresh);
         navigate('/login')
     }
-  } catch (err) {
-      console.error('Full error object',err);
-      console.error('Response data:', err.response?.data);
-      console.error('Response status:', err.response?.status);
-      setError(`Network error occurred: ${err.message}`);
-  }
-};
+  } catch (error) {
+      console.error('Full error object',error);
+      console.error('Response data:', error.response?.data);
+      console.error('Response status:', error.response?.status);
 
+      if (error.response && error.response.data && error.response.data.detail) {
+        setError(error.response.data.detail);  // Show the specific error message
+      } else if (error.response) {
+        setError("An error occurred during registration.");  // Default error response
+      } else {
+        setError(`Network error occurred: ${error.message}`);
+      }
+    }
+  };
 
   return (
     <div className="register-container">

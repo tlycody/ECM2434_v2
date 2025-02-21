@@ -12,13 +12,27 @@ const BingoBoard = () => {
       .catch(error => console.log(error));
   }, []);
 
-  return (
-    <div className="bingo-board">
-      {tasks.map((task) => (
-        <div key={task.id} className={`bingo-cell ${task.completed ? 'completed' : ''}`}>{task.description}</div>
-      ))}
-    </div>
-  );
+  const getRows = () => {
+    const rows = [];
+  for (let i = 0; i < tasks.length; i += 3){
+    rows.push(tasks.slice(i,i+3));
+  }  
+  return rows;
 };
+
+return (
+  <div className="bingo-board">
+    {getRows().map((row, rowIndex) => (
+      <div key={rowIndex} className="bingo-row">
+        {row.map((task) => (
+          <div key={task.id} className={`bingo-cell ${task.completed ? 'completed' : ''}`}>
+            {task.description}
+          </div>
+        ))}
+      </div>
+    ))}
+  </div>
+);
+}
 
 export default BingoBoard;

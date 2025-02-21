@@ -15,13 +15,20 @@ const Login = () => {
     setError('');
 
     try {
-      const response = await axios.post(`${API_URL}/login/`, { username, password });
-      localStorage.setItem('token', response.data.token);
-      navigate('/');
-    } catch (err) {
-      setError('Invalid username or password');
+      const response = await axios.post('http://localhost:8000/api/login/', { username, password });
+
+      if(response.data.access){
+        localStorage.setItem('access_token', response.data.access);
+        localStorage.setItem('refresh_token',response.data.refresh);
+        localStorage.setItem('user',response.data.user)
+        navigate('/userprofile')
+      }
+    }catch (err) {
+      const errorMessage = err.response?.data?.error || 'Invalid username or password';
+      setError(errorMessage);
+      console.error('Login error:', err.response?.data); 
     }
-  };
+  }
 
   return (
     <div className="login-container">

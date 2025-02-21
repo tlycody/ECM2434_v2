@@ -1,7 +1,7 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Home from './components/Home';
-import Profile from './components/Profile';
+import Userprofile from './components/Userprofile';
 import Login from './components/Login';
 import Register from './components/Register';
 import Leaderboard from './components/Leaderboard';
@@ -12,7 +12,7 @@ const App = () => {
     <div>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/profile" element={<Profile />} />
+        <Route path="/userprofile" element={<Userprofile />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/leaderboard" element={<Leaderboard />} />
