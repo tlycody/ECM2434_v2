@@ -1,76 +1,165 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
 const Register = () => {
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [passwordagain, setPasswordagain] = useState('');
+  const [formData, setFormData] = useState({
+    username: '',
+    email: '',
+    password: '',
+    passwordagain: '',
+    profile: 'Player',
+    extraPassword: ''  
+  });
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleRegister = async (e) => {
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleProfileChange = (e) => {
+    const { value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      profile: value,
+      extraPassword: value === 'Player' ? '' : prev.extraPassword,
+    }));
+  };
+
+  const validateForm = () => {
+    if (!formData.username.trim()) return 'Username is required';
+    if (!formData.email.trim()) return 'Email is required';
+    if (!formData.email.endsWith('@exeter.ac.uk')) return 'Please use your @exeter.ac.uk email';
+    if (!formData.password) return 'Password is required';
+    if (formData.password !== formData.passwordagain) return 'Passwords do not match. Please enter again';
+    if (['Game Keeper', 'Developer'].includes(formData.profile) && !formData.extraPassword) {
+      return `Special password required for ${formData.profile}`;
+    }
+    return null;
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    if (password !== passwordagain) {
-      setError('Passwords do not match!');
-      return;
+    setLoading(true);
+
+    const validationError = validateForm();
+    if (validationError) {
+        setError(validationError);
+        setLoading(false);
+        return;
     }
 
-    try{
-      console.log("Attempting to register user with:",
-      {
-        username,
-        email,
-        password,
-        passwordagain
-      });
+    try {
+        console.log('Sending request to:', `${API_URL}/register_user/`); // Debug log
+        console.log('Request body:', JSON.stringify(formData)); // Debug log
 
-      const response = await axios.post('http://localhost:8000/api/register_user/',
-      {
-        username,
-        email,
-        password,
-        passwordagain,
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-    
-      if (response.data.access){
-        localStorage.setItem('access_token',response.data.access);
-        localStorage.setItem('refresh_token',response.data.refresh);
-        navigate('/login')
-    }
-  } catch (error) {
-      console.error('Full error object',error);
-      console.error('Response data:', error.response?.data);
-      console.error('Response status:', error.response?.status);
+        const response = await fetch(`${API_URL}/register_user/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData),
+        });
 
-      if (error.response && error.response.data && error.response.data.detail) {
-        setError(error.response.data.detail);  // Show the specific error message
-      } else if (error.response) {
-        setError("An error occurred during registration.");  // Default error response
-      } else {
-        setError(`Network error occurred: ${error.message}`);
-      }
+        console.log('Response status:', response.status); // Debug log
+
+        const data = await response.json();
+        console.log('Response data:', data); // Debug log
+
+        if (!response.ok) {
+            throw new Error(data.detail || data.error || 'Registration failed');
+        }
+
+        // Registration successful
+        navigate('/login');
+    } catch (err) {
+        console.error('Registration error:', err);
+        setError(err.message || 'An error occurred during registration');
+    } finally {
+        setLoading(false);
     }
-  };
+};
 
   return (
     <div className="register-container">
       <h2>Register</h2>
-      {error && <p>{error}</p>}
-      <form onSubmit={handleRegister}>
-        <input type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} required />
-        <input type="email" placeholder="university email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-        <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-        <input type="password" placeholder="Confirm Password" value={passwordagain} onChange={(e) => setPasswordagain(e.target.value)} required />
-        <button type="submit">Register</button>
+      {error && <div className="error-message">{error}</div>}
+      <form onSubmit={handleSubmit}>
+        <div className="form-group">
+          <input
+            type="text"
+            placeholder="Username"
+            name="username"
+            value={formData.username}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <input
+            type="email"
+            placeholder="University email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <input
+            type="password"
+            placeholder="Password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <input
+            type="password"
+            placeholder="Confirm Password"
+            name="passwordagain"
+            value={formData.passwordagain}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="form-group">
+          <select 
+            name="profile" 
+            value={formData.profile}   
+            onChange={handleProfileChange}  
+            required
+          >
+            <option value="Player">Player</option>
+            <option value="Game Keeper">Game Keeper</option>
+            <option value="Developer">Developer</option>
+          </select>
+        </div>
+        {(formData.profile === 'Game Keeper' || formData.profile === 'Developer') && (
+          <div className="form-group">
+            <input
+              type="password"
+              placeholder="Special Password"
+              name="extraPassword"
+              value={formData.extraPassword}
+              onChange={handleChange}
+              required
+            />
+          </div>
+        )}
+        <button type="submit" disabled={loading}>
+          {loading ? 'Registering...' : 'Register'}
+        </button>
       </form>
     </div>
   );
