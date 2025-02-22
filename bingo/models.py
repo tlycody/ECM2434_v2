@@ -11,8 +11,11 @@ class User(AbstractUser):
     profile = models.CharField(
         max_length=20,
         choices=PROFILE_CHOICES,
-        default='Player'
+        default='Player',
+        blank=True,  # Make the field optional
+        null=True    # Allow NULL in the database
     )
+    email = models.EmailField(unique=True)
 
     def __str__(self):
         return self.username

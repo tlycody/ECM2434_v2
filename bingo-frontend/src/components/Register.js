@@ -9,8 +9,6 @@ const Register = () => {
     email: '',
     password: '',
     passwordagain: '',
-    profile: 'Player',
-    extraPassword: ''  
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -24,24 +22,11 @@ const Register = () => {
     }));
   };
 
-  const handleProfileChange = (e) => {
-    const { value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      profile: value,
-      extraPassword: value === 'Player' ? '' : prev.extraPassword,
-    }));
-  };
-
   const validateForm = () => {
     if (!formData.username.trim()) return 'Username is required';
     if (!formData.email.trim()) return 'Email is required';
     if (!formData.email.endsWith('@exeter.ac.uk')) return 'Please use your @exeter.ac.uk email';
     if (!formData.password) return 'Password is required';
-    if (formData.password !== formData.passwordagain) return 'Passwords do not match. Please enter again';
-    if (['Game Keeper', 'Developer'].includes(formData.profile) && !formData.extraPassword) {
-      return `Special password required for ${formData.profile}`;
-    }
     return null;
   };
 
@@ -133,30 +118,6 @@ const Register = () => {
             required
           />
         </div>
-        <div className="form-group">
-          <select 
-            name="profile" 
-            value={formData.profile}   
-            onChange={handleProfileChange}  
-            required
-          >
-            <option value="Player">Player</option>
-            <option value="Game Keeper">Game Keeper</option>
-            <option value="Developer">Developer</option>
-          </select>
-        </div>
-        {(formData.profile === 'Game Keeper' || formData.profile === 'Developer') && (
-          <div className="form-group">
-            <input
-              type="password"
-              placeholder="Special Password"
-              name="extraPassword"
-              value={formData.extraPassword}
-              onChange={handleChange}
-              required
-            />
-          </div>
-        )}
         <button type="submit" disabled={loading}>
           {loading ? 'Registering...' : 'Register'}
         </button>

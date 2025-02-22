@@ -69,7 +69,10 @@ CORS_ALLOWED_ALL_ORGINS = True
 # 6️⃣ Django REST Framework Config
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',  # Use JWT tokens
+        'rest_framework_simplejwt.authentication.JWTAuthentication', 
+        'rest_framework.authentication.TokenAuthentication',  # If using token-based auth
+        'rest_framework.authentication.SessionAuthentication',  # If using session-based auth
+          # Use JWT tokens
     ),
 }
 

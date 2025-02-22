@@ -23,6 +23,8 @@ from rest_framework.views import APIView
 from .serializers import RegisterUserSerializer
 from django.contrib.auth import get_user_model
 
+from bingo import models
+
 User = get_user_model()
 
 logger = logging.getLogger(__name__)
@@ -44,6 +46,12 @@ def login_user(request):
     logger.info(f"Incoming Registration request:{data}")
     username = data.get('username')
     password = data.get('password')
+    profile=data.get('profile') 
+    extra_password = data.get('extraPassword','')
+
+    def log_error(error_message, status_code):
+        logger.error(f"Registration error: {error_message}")
+        return Response({"detail": error_message}, status_code)
 
     #To check the user exists
     user_exists = User.objects.filter(username=username).exists()
@@ -53,6 +61,10 @@ def login_user(request):
     """To make sure there is a validate input"""
     if not data.get("username") or not data.get("password"):
         return Response({"error": "You need to fill out both username and password."}, status=status.HTTP_400_BAD_REQUEST)
+    
+    valid_profiles = ['Player', 'Game Keeper', 'Developer']
+    if profile not in valid_profiles:
+        return Response({"error": "Invalid profile."}, status=status.HTTP_400_BAD_REQUEST)
 
     """To check the user exists"""
     if not User.objects.filter(username=username).exists():
@@ -66,9 +78,18 @@ def login_user(request):
     user = authenticate(username=username, password=password)
     logger.info(f"Authentication result for user {username}: {'success' if user else 'failed'}")
 
-    if user is not None:
-        refresh = RefreshToken.for_user(user)
-        return Response({
+    if user is not None:  
+      GK_PASSWORD = os.environ.get('GK_PASSWORD','GKFeb2025BINGO#')
+      DV_PASSWORD = os.environ.get('DV_PASSWORD','DVFeb2025BINGO@')
+
+      if profile == 'Game Keeper' and extra_password != GK_PASSWORD:
+        return log_error("Invalid special password.",status.HTTP_400_BAD_REQUEST)
+       
+      if profile == 'Developer' and extra_password != DV_PASSWORD:
+        return log_error("Invalid special password.",status.HTTP_400_BAD_REQUEST)
+    
+      refresh = RefreshToken.for_user(user)
+      return Response({
             'refresh': str(refresh),
             'access': str(refresh.access_token),
             'user':username
@@ -80,7 +101,10 @@ def login_user(request):
 def register_user(request):
     """Registers a new user"""
     data = request.data
-    print(f"Request data:{data}")
+    username = data.get("username")
+    password = data.get("password")
+    password_again = data.get("passwordagain")
+    email = request.data.get("email")
     logger.info(f"Incoming registration request: {data}")
 
     def log_error(error_message, status_code):
@@ -90,10 +114,8 @@ def register_user(request):
     """To make sure there is a validate input"""
 
     if not data.get("username") or not data.get("password"):
-
         return log_error("Both username and password are required.", status.HTTP_400_BAD_REQUEST)
     
-    email = data.get('email','').strip()
     if not email:
         return log_error("Email is required. ",status.HTTP_400_BAD_REQUEST)
     
@@ -115,34 +137,14 @@ def register_user(request):
         error_message = "Passwords do not match."
         logger.error(error_message)
         return log_error(error_message,status.HTTP_400_BAD_REQUEST)
-    
-    profile = data.get('profile','Player')
-    extra_password = data.get('extraPassword','')
-    
-    GK_PASSWORD = os.environ.get('GK_PASSWORD','GKFeb2025BINGO#')
-    DV_PASSWORD = os.environ.get('DV_PASSWORD','DVFeb2025BINGO@')
 
-    if profile == 'Game Keeper' and extra_password != GK_PASSWORD:
-        return log_error("Invalid special password.",status.HTTP_400_BAD_REQUEST)
-       
-    if profile == 'Developer' and extra_password != DV_PASSWORD:
-        return log_error("Invalid special password.",status.HTTP_400_BAD_REQUEST)
-    
-    #user account 
-    try:
-        user = create_user(data, email, profile)
-        return Response({"message": "User registered successfully.", "user_id": user.id}, status=status.HTTP_201_CREATED)
-    except Exception as e:
-        return log_error(str(e), status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
-def create_user(data, email, profile):
+def create_user(data, email):
     try:
         logger.info(f"Creating user account for {data['username']}")
         user = User.objects.create_user(
             username=data['username'],
             email=email,
             password=data['password'],
-            profile=data.get('profile', 'Player') 
         )
         # Create leaderboard entry
         try:
@@ -164,35 +166,26 @@ class RegisterUserView(APIView):
     def post(self, request):
         logger.info(f"Received registration request: {request.data}")
         serializer = RegisterUserSerializer(data=request.data)
+        
         if not serializer.is_valid():
             logger.error(f"Validation errors: {serializer.errors}")
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
-        data = serializer.validated_data
-        logger.info(f"Validated data: {data}")
-
-        # Add special password validation
-        profile = data.get('profile', 'Player')
-        extra_password = request.data.get('extraPassword', '')
-
-        GK_PASSWORD = os.environ.get('GK_PASSWORD', 'GKFeb2025BINGO#')
-        DV_PASSWORD = os.environ.get('DV_PASSWORD', 'DVFeb2025BINGO@')
-
-        if profile == 'Game Keeper' and extra_password != GK_PASSWORD:
-            logger.error("Invalid special password for Game Keeper")
-            return Response({"error": "Invalid special password."}, status=400)
-        if profile == 'Developer' and extra_password != DV_PASSWORD:
-            logger.error("Invalid special password for Developer")
-            return Response({"error": "Invalid special password."}, status=400)
-
         try:
-            # Create user
             user = serializer.save()
             logger.info(f"User created successfully: {user.username}")
-            return Response({"message": "User registered!"}, status=201)
+            return Response({
+                "message": "User registered successfully!",
+                "username": user.username,
+                "email": user.email,
+                "profile": user.profile
+            }, status=status.HTTP_201_CREATED)
         except Exception as e:
             logger.error(f"Error creating user: {str(e)}")
-            return Response({"error": str(e)}, status=500)
+            return Response(
+                {"error": "Failed to create user account"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 @api_view(['GET'])
 def check_user(request,username):
@@ -203,8 +196,6 @@ def check_user(request,username):
             'email':user.email
         })
     return Response({'exists': False, 'error': 'User not found'})
-
-
 
 @api_view(['GET'])
 def get_tasks(request):
