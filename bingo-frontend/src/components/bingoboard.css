@@ -1,53 +1,73 @@
 /* bingoboard.css */
 .container {
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 20px;
-  }
-  
-  .bingo-board {
-    border: none !important;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 80vh; /* Centers vertically */
-    }
-  
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1px;
-    background-color: #000;
-    border: 2px solid #000;
-    width: 90%;  /* Adjust width to fit the page */
-    max-width: 600px; /* Limit max size */
-    height: auto; /* Auto height */
-    aspect-ratio: 1; /* Keeps it square */
-    margin: 0 auto;
+  max-width: 1000px;
+  margin: 20px auto;
+  padding: 20px;
 }
 
-  
-  .cell {
-    aspect-ratio: 1;
-    background-color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    text-align: center;
-    border: 1px solid #000;
-  }
-  
-  .cell-content {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 16px;
-  }
-  
-  h1 {
-    text-align: center;
-    margin-bottom: 20px;
-  }
+.bingo-header{
+  text-align: center;
+}
+.bingo-board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  background-color: #000;
+  border: 2px solid #000;
+  width: 100%;  /* Adjust width to fit the page */
+  max-width: 650px; /* Limit max size */
+  margin: 0 auto;
+}
+
+
+.bingo-cell {
+  aspect-ratio: 1;
+  background-color: white;
+  border: 2px solid #ddd;
+  display: flex;
+  padding: 10px;
+  border-radius: 5px ;
+  width: 180px;
+  height: 200px;
+}
+
+.bingo-cell:hover {
+ box-shadow: 0 2px 8px white;
+}
+
+.bingo-cell.completed {
+ background-color: green;
+ border-color: #90ee90;
+}
+
+.cell-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 16px;
+}
+
+.points {
+  font-weight: bold;
+  color: #666;
+  align-items: center;
+  margin-left: 100px;
+  margin-bottom: -120px;
+}
+
+.description {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  margin-left: -120px;
+  margin-bottom: 100px;
+
+}
+
+.upload-indicator {
+  margin-top: 10px;
+  font-size: 20px
+}

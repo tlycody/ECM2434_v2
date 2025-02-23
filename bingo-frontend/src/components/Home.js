@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 const API_URL = process.env.REACT_APP_API_URL;
 
 const Home = () => {
-  const [tasks, setTasks] = useState([]);
+  const [setTasks] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {

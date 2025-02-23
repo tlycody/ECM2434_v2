@@ -6,7 +6,6 @@ from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.core.files.storage import default_storage
 from django.http import JsonResponse
-from django.test import TransactionTestCase
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -198,10 +197,66 @@ def check_user(request,username):
     return Response({'exists': False, 'error': 'User not found'})
 
 @api_view(['GET'])
-def get_tasks(request):
-    tasks = Task.objects.all()
-    serializer = TaskSerializer(tasks, many=True)
-    return Response(serializer.data)
+def tasks(request):
+    tasks =     [{
+      'id': 1,
+      'description': "Finish Green Consultant training",
+      'points': 10,
+      'requiresUpload': True,
+    },
+    {
+      'id': 2,
+      'description':  "Join a 'Green' society",
+      'points': 7,
+      'requiresUpload': True,
+    },
+    {
+      'id': 3,
+      'description':  "Get involved in Gift it, Reuse it scheme",
+      'points': 10,
+      'requiresUpload': False,
+    },
+    {
+      'id': 4,
+      'description': "Use British Heart Foundation Banks on campus to recycle clothes",
+      'points': 8,
+      'requiresUpload':False,
+    },
+    {
+      'id': 5,
+      'description': "Sign up to university sustainability newsletter",
+      'points': 5,
+      'requiresUpload': True,
+    },
+    {
+      'id': 6,
+      'description': "Refill your reusable water bottle from one of over 100 free water refill stations on campus",
+      'points': 8,
+      'requiresUpload': True,
+    },
+    {
+      'id': 7,
+      'description': "Shopping at Exeter's zero waste shops, Nourish and Zero",
+      'points': 10,
+      'requiresUpload': False,
+    },
+    {
+      'id': 8,
+      'description': "Empty glasses put in nearest glass bottle bank",
+      'points': 8,
+      'requiresUpload': True,
+    },
+    {
+      'id': 9,
+      'description': "Getting involved in ESV - Environmental Project",
+      'points': 10,
+      'requiresUpload':False,
+    }]
+    return Response(tasks)
+
+class TasksView(APIView):
+    def get(self, request):
+        return Response({"message": "Tasks endpoint reached"})
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

@@ -9,13 +9,6 @@ const Profile = () => {
   const [tasks, setTasks] = useState([]);
   const navigate = useNavigate();
 
-
-  const emptyGrid = Array(9).fill({
-    id: 'empty',
-    description: 'Empty Task',
-    completed: false
-  });
-
   useEffect(() => {
     const fetchUserData = async () => {
       try {
