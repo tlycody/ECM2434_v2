@@ -130,7 +130,7 @@ class RegisterUserTests(TestCase):
             "email": "newuser@exeter.ac.uk",
             "gdprConsent": True
         }
-        response = self.client.post('/api/register/', data)
+        response = self.client.post(self.url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("Passwords do not match", response.data.get("error", ""))
 
