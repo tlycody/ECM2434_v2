@@ -136,6 +136,12 @@ def register_user(request):
         error_message = "Passwords do not match."
         logger.error(error_message)
         return log_error(error_message,status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        user = create_user(data, email)
+        return Response({"message": "User registered successfully!"}, status=status.HTTP_201_CREATED)
+    except Exception as e:
+        return log_error(str(e), status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 def create_user(data, email):
     try:
@@ -160,31 +166,6 @@ def create_user(data, email):
     except Exception as e:
         logger.error(f"Failed to create user account: {str(e)}")
         raise
-
-class RegisterUserView(APIView):
-    def post(self, request):
-        logger.info(f"Received registration request: {request.data}")
-        serializer = RegisterUserSerializer(data=request.data)
-        
-        if not serializer.is_valid():
-            logger.error(f"Validation errors: {serializer.errors}")
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
-        try:
-            user = serializer.save()
-            logger.info(f"User created successfully: {user.username}")
-            return Response({
-                "message": "User registered successfully!",
-                "username": user.username,
-                "email": user.email,
-                "profile": user.profile
-            }, status=status.HTTP_201_CREATED)
-        except Exception as e:
-            logger.error(f"Error creating user: {str(e)}")
-            return Response(
-                {"error": "Failed to create user account"},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
 
 @api_view(['GET'])
 def check_user(request,username):

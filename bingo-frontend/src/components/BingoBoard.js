@@ -116,7 +116,7 @@ const BingoBoard = () => {
                 <div className='description'>{task.description}</div>
                 {task.requiresUpload && <div className='upload indicator'>📷</div>}
                 {task.requireScan && (
-  <a href="https://webqr.com/" target="_blank" rel="scan qr code">
+  <a href="https://webqr.com/" target="_blank" rel="noreferrer">
     <div className="scan-indicator">🤳🏻</div>
   </a>
 )}

@@ -1,27 +1,34 @@
+from django.shortcuts import render
 from django.urls import path
 from django.http import HttpResponse
 from django.contrib.auth import views as auth_views
+from django.contrib import admin
 from .views import (
-    login_user, RegisterUserView, home_view,
-    player_dashboard, gamekeeper_dashboard, developer_dashboard,
+    login_user, register_user,
+    #player_dashboard, gamekeeper_dashboard, developer_dashboard,
     tasks, complete_task, leaderboard
 )
 from rest_framework_simplejwt.views import TokenRefreshView
+
+def home_page(request):
+    return render(request, "home.html")
 
 # New home view for the bingo app
 def bingo_home(request):
     return HttpResponse("Welcome to the Bingo API!")
 urlpatterns = [
-    path('', home_view, name='home'),
-    path('register/', RegisterUserView.as_view(), name='register'),
+    path('', home_page, name='home'),
+    path('register/', register_user, name='register'),
+    path('api/register/', register_user, name='register'),
     path('login/', login_user, name='login'),
+    path('api/login/', login_user, name='api_login'),  # New route
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
-    
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('admin/', admin.site.urls),
     # Dashboard URLs
-    path('player/', player_dashboard, name='player_dashboard'),
-    path('gamekeeper/', gamekeeper_dashboard, name='gamekeeper_dashboard'),
-    path('developer/', developer_dashboard, name='developer_dashboard'),
-    
+    # path('player/', player_dashboard, name='player_dashboard'),
+    # path('gamekeeper/', gamekeeper_dashboard, name='gamekeeper_dashboard'),
+    # path('developer/', developer_dashboard, name='developer_dashboard'),   
     # Game functionality
     path('tasks/', tasks, name='tasks'),
     path('complete_task/', complete_task, name='complete_task'),

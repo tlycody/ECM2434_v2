@@ -43,10 +43,10 @@ const Register = () => {
     }
 
     try {
-        console.log('Sending request to:', `${API_URL}/register_user/`); // Debug log
+        console.log('Sending request to:', `${API_URL}/api/register/`); // Debug log
         console.log('Request body:', JSON.stringify(formData)); // Debug log
 
-        const response = await fetch(`${API_URL}/register_user/`, {
+        const response = await fetch(`${API_URL}/api/register/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
