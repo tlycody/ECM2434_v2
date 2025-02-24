@@ -118,8 +118,8 @@ class RegisterUserTests(TestCase):
         self.assertTrue(User.objects.filter(username="newuser").exists())
 
     def test_register_missing_fields(self):
-        data = {"username": "", "password": "", "passwordagain": "", "email": ""}
-        response = self.client.post('/api/register/', data)
+        data = {}
+        response = self.client.post(self.url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("error", response.data)
 
