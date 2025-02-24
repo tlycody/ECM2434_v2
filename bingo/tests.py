@@ -35,7 +35,7 @@ class ViewsTestCase(APITestCase):
             points=10
         )
 
-    # ---------- Helper Function Tests ----------
+    # ---------- Email Validation Tests ----------
     def test_email_validation_valid(self):
         self.assertTrue(email_validation("user@exeter.ac.uk"))
 
