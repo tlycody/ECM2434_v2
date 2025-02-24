@@ -33,6 +33,13 @@ def update_user_profile(request):
     user.email = data.get('email', user.email)
 
     if 'profile_picture' in request.FILES:
+        file = request.FILES['profile_picture']
+
+        # Validate file type
+        if file.content_type not in ALLOWED_IMAGE_TYPES:
+            return Response({"error": "Invalid file type. Only JPEG and PNG images are allowed."},
+                            status=status.HTTP_400_BAD_REQUEST)
+
         if profile.profile_picture:
             default_storage.delete(profile.profile_picture.path)  # Delete old file
         profile.profile_picture = request.FILES['profile_picture']
