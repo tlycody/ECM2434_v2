@@ -30,11 +30,9 @@ class ViewsTestCase(APITestCase):
         # Create a sample task for testing complete_task.
         # Removed the 'requiresUpload' and 'requireScan' fields.
         self.task = Task.objects.create(
-            id=99,
-            description="Test Task",
-            points=10,
-            requiresUpload=False,
-            requireScan=False
+            id=1,
+            description="Sample Task",
+            points=10
         )
 
     # ---------- Helper Function Tests ----------
