@@ -180,7 +180,7 @@ class ViewsTestCase(APITestCase):
         }
         response = self.client.post('/api/register/', data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("detail", response.data)
+        self.assertIn("Please use your @exeter.ac.uk email only", response.data.get("error", ""))
 
     def test_register_user_existing_username(self):
         data = {
