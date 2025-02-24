@@ -193,7 +193,7 @@ class ViewsTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("Username already taken", response.data.get("error", ""))
 
-    def test_register_user_existing_email(self):
+    def test_register_existing_email(self):
         data = {
             "username": "anotheruser",
             "password": "StrongPassw0rd!",
