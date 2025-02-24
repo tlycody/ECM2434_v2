@@ -359,3 +359,29 @@ class UserProfileTests(TestCase):
         self.user = User.objects.create_user(username="profileuser", email="profile@exeter.ac.uk", password="testpass")
         self.client.force_authenticate(user=self.user)
         Profile.objects.create(user=self.user)
+
+    def test_get_user_profile(self):
+        url = reverse('get_user_profile')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("username", response.data)
+        self.assertIn("email", response.data)
+        self.assertIn("total_points", response.data)
+        self.assertIn("completed_tasks", response.data)
+        self.assertIn("leaderboard_rank", response.data)
+        self.assertIn("profile_picture", response.data)
+
+
+class UserRankTests(TestCase):
+    def test_user_rank_beginner(self):
+        from .views import user_rank
+        self.assertEqual(user_rank(10), "Beginner")
+
+    def test_user_rank_intermediate(self):
+        from .views import user_rank
+        self.assertEqual(user_rank(100), "Intermediate")
+        self.assertEqual(user_rank(50), "Intermediate")
+
+    def test_user_rank_expert(self):
+        from .views import user_rank
+        self.assertEqual(user_rank(1300), "Expert")
