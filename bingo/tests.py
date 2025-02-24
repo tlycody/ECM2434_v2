@@ -125,9 +125,10 @@ class RegisterUserTests(TestCase):
     def test_register_password_mismatch(self):
         data = {
             "username": "newuser",
-            "password": "pass1",
-            "passwordagain": "pass2",
-            "email": "newuser@exeter.ac.uk"
+            "password": "password123",
+            "passwordagain": "password456",
+            "email": "newuser@exeter.ac.uk",
+            "gdprConsent": True
         }
         response = self.client.post('/api/register/', data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
