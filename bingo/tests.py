@@ -275,7 +275,7 @@ class ViewsTestCase(APITestCase):
         # Create another user with higher points.
         user2 = User.objects.create_user(
             username="user2",
-            password="pass2",
+            password="password2",
             email="user2@exeter.ac.uk"
         )
         Leaderboard.objects.create(user=user2, points=50)
