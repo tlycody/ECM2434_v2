@@ -19,18 +19,7 @@ import logging
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
-
-
-from django.contrib.auth import get_user_model
-from django.shortcuts import get_object_or_404
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework import status
-from .models import Profile
-from django.core.files.storage import default_storage
-
-User = get_user_model()
+ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png"]
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
