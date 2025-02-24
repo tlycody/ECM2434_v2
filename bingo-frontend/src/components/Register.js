@@ -45,7 +45,7 @@ const Register = () => {
     }
 
     try {
-      const response = await fetch(`${API_URL}/register/`, {
+      const response = await fetch(`${API_URL}/api/register/`, {  // ✅ Fixed API URL
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -53,7 +53,9 @@ const Register = () => {
             body: JSON.stringify(formData),
         });
 
-        const data = await response.json();
+        const text = await response.text();
+        console.log("Raw response:", text);
+        const data = JSON.parse(text);
 
         if (response.ok) {
             navigate('/login');
@@ -63,6 +65,8 @@ const Register = () => {
     } catch (err) {
         console.error('Registration error:', err);
         setError(err.message || 'An error occurred during registration');
+    } finally {
+        setLoading(false);
     }
   };
 
