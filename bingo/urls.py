@@ -21,7 +21,6 @@ urlpatterns = [
     path('api/login/', login_user, name='api_login'),  # New route
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    # Dashboard URLs
     # path('player/', player_dashboard, name='player_dashboard'),
     # path('gamekeeper/', gamekeeper_dashboard, name='gamekeeper_dashboard'),
     # path('developer/', developer_dashboard, name='developer_dashboard'),   
