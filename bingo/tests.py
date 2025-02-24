@@ -27,7 +27,8 @@ class ViewsTestCase(APITestCase):
             email="test@exeter.ac.uk"
         )
         self.leaderboard = Leaderboard.objects.create(user=self.user, points=0)
-        # Create a sample task for complete_task tests.
+        # Create a sample task for testing complete_task.
+        # Removed the 'requiresUpload' and 'requireScan' fields.
         self.task = Task.objects.create(
             id=99,
             description="Test Task",
