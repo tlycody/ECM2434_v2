@@ -17,7 +17,7 @@ from .views import (
 
 User = get_user_model()
 
-class ViewsTestCase(TestCase):
+class ViewsTestCase(APITestCase):
     def setUp(self):
         self.client = APIClient()
         # Create a user for login and profile tests.
