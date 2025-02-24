@@ -98,10 +98,9 @@ class EmailValidationTests(TestCase):
         for email in invalid_emails:
             self.assertFalse(email_validation(email), f"Email '{email}' should be invalid")
 
-
-class ClientIPTests(TestCase):
-    def setUp(self):
-        self.factory = RequestFactory()
+    def test_email_validation_with_numeric_usernames(self):
+        self.assertTrue(email_validation("12345@exeter.ac.uk"))
+        self.assertFalse(email_validation("12345@exeter.com"))
 
     def test_get_client_ip_with_forwarded_for(self):
         request = self.factory.get('/')
