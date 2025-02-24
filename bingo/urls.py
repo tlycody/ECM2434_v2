@@ -28,5 +28,6 @@ urlpatterns = [
     path('tasks/', tasks, name='tasks'),
     path('complete_task/', complete_task, name='complete_task'),
     path('leaderboard/', leaderboard, name='leaderboard'),
+    path('register/', register_user, name='register_user'),
 ]
 

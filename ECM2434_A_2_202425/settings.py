@@ -46,24 +46,23 @@ MIDDLEWARE = [
 
 # 5️⃣ CORS Settings (Allow Frontend to Access Backend)
 CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3002",  
+    "http://127.0.0.1:3002",
     "http://localhost:3000",  
+    "http://127.0.0.1:3000",
+    "http://localhost:3001",  
+    "http://127.0.0.1:3001",
+    "http://localhost:3003",  
+    "http://127.0.0.1:3003"
+
 ]
 
-CORS_ALLOW_METHODS = [
-    'GET',
-    'POST',
-    'PUT',
-    'PATCH',
-    'DELETE',
-    'OPTIONS',
-]
 
-# Allow all headers (e.g., Content-Type, Authorization)
-CORS_ALLOW_HEADERS = [
-    'Accept',
-    'Content-Type',
-    'Authorization',
-]
+CORS_ALLOW_ALL_ORIGINS = True  # Temporarily allow all origins
+CORS_ALLOW_METHODS = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+CORS_ALLOW_HEADERS = ["*"]
+
+
 CORS_ALLOWED_ALL_ORGINS = True
 
 # 6️⃣ Django REST Framework Config
