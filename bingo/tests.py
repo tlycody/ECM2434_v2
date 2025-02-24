@@ -4,8 +4,16 @@ from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase, APIRequestFactory
 from .models import Task, UserTask, Leaderboard
-from bingo.models import BingoTask
-from .views import email_validation
+from .views import (
+    email_validation,
+    register_user,
+    login_user,
+    tasks,
+    complete_task,
+    leaderboard,
+    get_user_profile,
+    user_rank
+)
 
 User = get_user_model()
 
