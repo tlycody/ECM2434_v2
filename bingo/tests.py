@@ -182,7 +182,7 @@ class ViewsTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("Please use your @exeter.ac.uk email only", response.data.get("error", ""))
 
-    def test_register_user_existing_username(self):
+    def test_register_existing_username(self):
         data = {
             "username": "testuser",  # already exists
             "password": "testpassword",
