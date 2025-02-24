@@ -15,7 +15,6 @@ from rest_framework import status
 
 from .models import Task, UserTask, Leaderboard, Profile
 from .serializers import TaskSerializer, LeaderboardSerializer
-from rest_framework_simplejwt.tokens import RefreshToken
 import logging
 from rest_framework.parsers import MultiPartParser, FormParser
 
