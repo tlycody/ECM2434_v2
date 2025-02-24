@@ -26,7 +26,6 @@ class ViewsTestCase(APITestCase):
             password="testpassword",
             email="test@exeter.ac.uk"
         )
-        # Create a leaderboard entry for the user.
         self.leaderboard = Leaderboard.objects.create(user=self.user, points=0)
         # Create a sample task for complete_task tests.
         self.task = Task.objects.create(
