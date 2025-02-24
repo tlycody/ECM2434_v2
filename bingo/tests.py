@@ -80,7 +80,20 @@ class EmailValidationTests(TestCase):
             " user@exeter.ac.uk",
             "user@exeter.ac.uk ",
             "user @exeter.ac.uk",
-            ""
+            "",
+            "user@exeter..ac.uk",
+            "@exeter.ac.uk",
+            "user@exeter.ac.uk@extra.com",
+            "user@exeter_ac.uk",
+            "user@exeter/ac.uk",
+            "user@exeter ac.uk",
+            "user@exeter.ac.uk ",
+            "user@exeter.ac.uk.",
+            "user@-exeter.ac.uk",
+            "user@exeter-.ac.uk",
+            "user@exeter.ac.uk.",
+            "user.@exeter.ac.uk",
+            ".user@exeter.ac.uk"
         ]
         for email in invalid_emails:
             self.assertFalse(email_validation(email), f"Email '{email}' should be invalid")
