@@ -156,6 +156,40 @@ class RegisterUserTests(TestCase):
         response = self.client.post(self.url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_register_without_gdpr_consent(self):
+        data = {
+            "username": "newuser",
+            "password": "password123",
+            "passwordagain": "password123",
+            "email": "newuser@exeter.ac.uk",
+            "gdprConsent": False
+        }
+        response = self.client.post(self.url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_register_with_numeric_username(self):
+        data = {
+            "username": "123456",
+            "password": "password123",
+            "passwordagain": "password123",
+            "email": "newuser@exeter.ac.uk",
+            "gdprConsent": True
+        }
+        response = self.client.post(self.url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_register_with_email_case_insensitivity(self):
+        data = {
+            "username": "caseinsensitive",
+            "password": "password123",
+            "passwordagain": "password123",
+            "email": "NewUser@ExEtEr.Ac.Uk",
+            "gdprConsent": True
+        }
+        response = self.client.post(self.url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(User.objects.filter(username="caseinsensitive").exists())
+
 
 class LoginUserTests(TestCase):
     def setUp(self):
