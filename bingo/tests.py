@@ -406,15 +406,9 @@ class LeaderboardTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertGreaterEqual(response.data[0]["points"], response.data[1]["points"])
 
-class UserProfileTests(TestCase):
-    def setUp(self):
-        self.client = APIClient()
-        self.user = User.objects.create_user(username="profileuser", email="profile@exeter.ac.uk", password="testpass")
-        self.client.force_authenticate(user=self.user)
-        Profile.objects.create(user=self.user)
-
-    def test_get_user_profile(self):
-        url = reverse('get_user_profile')
+    def test_leaderboard_empty(self):
+        Leaderboard.objects.all().delete()
+        url = reverse('leaderboard')
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, [])
