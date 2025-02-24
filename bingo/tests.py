@@ -78,7 +78,45 @@ class EmailValidationTests(TestCase):
         for email in invalid_emails:
             self.assertFalse(email_validation(email), f"Email '{email}' should be invalid")
 
-    # ---------- Registration Tests ----------
+
+class ClientIPTests(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+
+    def test_get_client_ip_with_forwarded_for(self):
+        request = self.factory.get('/')
+        request.META['HTTP_X_FORWARDED_FOR'] = '192.168.1.1, 192.168.1.2'
+        self.assertEqual(get_client_ip(request), '192.168.1.1')
+
+    def test_get_client_ip_without_forwarded_for(self):
+        request = self.factory.get('/')
+        request.META['REMOTE_ADDR'] = '192.168.1.100'
+        self.assertEqual(get_client_ip(request), '192.168.1.100')
+
+    def test_get_client_ip_empty(self):
+        request = self.factory.get('/')
+        request.META.pop('REMOTE_ADDR', None)  # Remove any default assigned IP
+        request.META.pop('HTTP_X_FORWARDED_FOR', None)  # Ensure no forwarded-for IP is set
+        self.assertIsNone(get_client_ip(request))
+
+
+class RegisterUserTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.url = reverse('register')
+
+    def test_register_valid_user(self):
+        data = {
+            "username": "newuser",
+            "password": "password123",
+            "passwordagain": "password123",
+            "email": "newuser@exeter.ac.uk",
+            "gdprConsent": True
+        }
+        response = self.client.post(self.url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(User.objects.filter(username="newuser").exists())
+
     def test_register_missing_fields(self):
         data = {"username": "", "password": "", "passwordagain": "", "email": ""}
         response = self.client.post('/api/register/', data)
