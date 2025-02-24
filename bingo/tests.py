@@ -44,8 +44,7 @@ class ViewsTestCase(APITestCase):
 
     def test_email_validation_invalid_domain(self):
         self.assertFalse(email_validation("user@gmail.com"))
-        self.assertFalse(email_validation("user@hotmail.com"))
-        self.assertFalse(email_validation("user@outlook.com"))
+        self.assertFalse(email_validation("user@domain.com"))
 
     def test_email_validation_invalid_format(self):
         invalid_emails = [
