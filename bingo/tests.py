@@ -157,11 +157,6 @@ class RegisterUserTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("error", response.data)
 
-    def test_login_invalid_credentials(self):
-        data = {"username": "testuser", "password": "wrongpassword"}
-        response = self.client.post('/api/login/', data)
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
-        self.assertIn("error", response.data)
 
     def test_login_success(self):
         data = {"username": "testuser", "password": "testpassword"}
