@@ -16,7 +16,6 @@ from rest_framework import status
 from .models import Task, UserTask, Leaderboard, Profile
 from .serializers import TaskSerializer, LeaderboardSerializer
 import logging
-from rest_framework.parsers import MultiPartParser, FormParser
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
