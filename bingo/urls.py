@@ -29,5 +29,7 @@ urlpatterns = [
     path('complete_task/', complete_task, name='complete_task'),
     path('leaderboard/', leaderboard, name='leaderboard'),
     path('register/', register_user, name='register_user'),
+    path('get_user_profile/', get_user_profile, name='get_user_profile'),
+
 ]
 
