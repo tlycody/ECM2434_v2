@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import './Leaderboard.css';
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -13,11 +14,15 @@ const Leaderboard = () => {
   }, []);
 
   return (
-    <div>
-      <h2>Leaderboard</h2>
-      <ul>
+    <div className="leaderboard-container">
+      <h2 className="leaderboard-title">🏆 Leaderboard</h2>
+      <ul className="leaderboard-list">
         {players.map((player, index) => (
-          <li key={index}>{player.user} - {player.points} pts</li>
+          <li key={index} className={index % 2 === 0 ? "leaderboard-item even" : "leaderboard-item odd"}>
+            <span className="rank">{index + 1}.</span>
+            <span className="name">{player.user}</span>
+            <span className="points">{player.points} pts</span>
+          </li>
         ))}
       </ul>
     </div>

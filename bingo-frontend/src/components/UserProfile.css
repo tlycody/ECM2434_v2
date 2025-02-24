@@ -1,0 +1,75 @@
+/* UserProfile.css */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+.profile-container {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 30px;
+  text-align: center;
+  background-color: #d5c5f1;
+  border-radius: 15px;
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+  font-family: 'Poppins', sans-serif;
+}
+
+.profile-title {
+  font-size: 36px;
+  font-weight: 700;
+  color: #4c3b6d;
+  margin-bottom: 15px;
+}
+
+.profile-info {
+  background-color: #b5a1dd;
+  padding: 20px;
+  border-radius: 10px;
+  color: #4c3b6d;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.completed-tasks {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #e8dff9;
+  border-radius: 10px;
+  border: 2px solid #4c3b6d;
+}
+
+.completed-tasks h3 {
+  color: #4c3b6d;
+}
+
+.completed-tasks ul {
+  list-style: none;
+  padding: 0;
+}
+
+.completed-tasks li {
+  padding: 10px;
+  background-color: #b5a1dd;
+  color: #4c3b6d;
+  border-radius: 5px;
+  margin-bottom: 5px;
+}
+
+.buttons {
+  margin-top: 20px;
+}
+
+.buttons button {
+  background-color: #4c3b6d;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  margin: 5px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.buttons button:hover {
+  background-color: #3a2b5e;
+}

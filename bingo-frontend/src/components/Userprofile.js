@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import './UserProfile.css';
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -15,7 +16,6 @@ const Profile = () => {
         const response = await axios.get(`${API_URL}/user/`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
         });
-        console.log('User Data:', response.data);
         setUserData(response.data);
       } catch (error) {
         console.error('Error fetching user data:', error);
@@ -39,7 +39,7 @@ const Profile = () => {
 
   return (
     <div className="profile-container">
-      <h1>Player Profile</h1>
+      <h1 className="profile-title">Player Profile</h1>
       <div className="profile-info">
         <h2>Welcome, {userData.username}</h2>
         <p><strong>Total Points:</strong> {userData.total_points || 0}</p>

@@ -34,7 +34,7 @@ const BingoBoard = () => {
       navigate("/upload");
     } else if (task.requires_scan) {
       localStorage.setItem("selectedChoice", task.description);
-      window.open("https://webqr.com/", "_blank");
+      navigate("/scan");
     } else {
       setTasks(prevTasks =>
         prevTasks.map(t =>
@@ -63,11 +63,7 @@ const BingoBoard = () => {
                 <div className='points'><strong>{task.points} Points</strong></div>
                 <div className='description'>{task.description}</div>
                 {task.requires_upload && <div className='upload-indicator'>📷</div>}
-                {task.requires_scan && (
-                  <a href="https://webqr.com/" target="_blank" rel="noreferrer">
-                    <div className="scan-indicator">📍</div>
-                  </a>
-                )}
+                {task.requires_scan && <div className='scan-indicator'>🤳🏻</div>}
               </div>
             </div>
           )) : <p>No tasks available.</p>}
