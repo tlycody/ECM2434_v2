@@ -251,3 +251,36 @@ class ViewsTestCase(APITestCase):
 
     def test_user_rank_expert(self):
         self.assertEqual(user_rank(1300), "Expert")
+
+    # ---------- Update User Profile Tests ----------
+    def test_update_user_profile_without_picture(self):
+        self.client.force_authenticate(user=self.user)
+        new_username = "updateduser"
+        new_email = "updateduser@example.com"
+        data = {"username": new_username, "email": new_email}
+        response = self.client.put('/user/update/', data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get("message"), "Profile updated successfully")
+        # Refresh the user from the database.
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.username, new_username)
+        self.assertEqual(self.user.email, new_email)
+
+    def test_update_user_profile_with_picture(self):
+        self.client.force_authenticate(user=self.user)
+        new_username = "updatedwithpic"
+        new_email = "updatedwithpic@example.com"
+        # Create a dummy image file.
+        image_content = b'\xff\xd8\xff\xe0\x00\x10JFIF'  # Minimal JPEG header bytes.
+        image = SimpleUploadedFile("test_image.jpg", image_content, content_type="image/jpeg")
+        data = {"username": new_username, "email": new_email, "profile_picture": image}
+        response = self.client.put('/user/update/', data, format="multipart")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get("message"), "Profile updated successfully")
+        # Refresh the user and profile from the database.
+        self.user.refresh_from_db()
+        profile = Profile.objects.get(user=self.user)
+        self.assertEqual(self.user.username, new_username)
+        self.assertEqual(self.user.email, new_email)
+        # Check that a profile picture has been saved.
+        self.assertTrue(profile.profile_picture)
