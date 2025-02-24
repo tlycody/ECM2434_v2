@@ -36,6 +36,8 @@ class ViewsTestCase(APITestCase):
             description="Sample Task",
             points=10
         )
+        # Ensure a Profile exists for the user.
+        Profile.objects.get_or_create(user=self.user)
 
     # ---------- Email Validation Tests ----------
     def test_email_validation_valid(self):
