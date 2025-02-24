@@ -24,8 +24,8 @@ class User(AbstractUser):
 class Task(models.Model):
     description = models.TextField()
     points = models.IntegerField()
-    requires_upload = models.BooleanField(default=False)
-    requires_scan = models.BooleanField(default=False)
+    requires_upload = models.BooleanField(default=False)  # Fix field name
+    requires_scan = models.BooleanField(default=False) 
 
     def __str__(self):
         return self.description

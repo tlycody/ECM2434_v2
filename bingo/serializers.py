@@ -2,8 +2,7 @@ from rest_framework import serializers
 from .models import Task, UserTask, Leaderboard
 from django.contrib.auth.models import User
 from django.db import models
-from django.conf import settings
-    
+from django.conf import settings    
 from rest_framework import serializers
 from .models import User
 import logging
@@ -46,7 +45,7 @@ class RegisterUserSerializer(serializers.ModelSerializer):
 class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
-        fields = ['id','description','points','requiresUpload','requireScan']
+        fields = ['id', 'description', 'points', 'requires_upload', 'requires_scan']
 
 class UserTaskSerializer(serializers.ModelSerializer):
     class Meta:
