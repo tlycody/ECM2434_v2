@@ -63,8 +63,8 @@ class ViewsTestCase(APITestCase):
             self.assertFalse(email_validation(email), f"Email '{email}' should be invalid")
 
     # ---------- Registration Tests ----------
-    def test_register_user_missing_fields(self):
-        data = {"username": "", "password": "", "email": ""}
+    def test_register_missing_fields(self):
+        data = {"username": "", "password": "", "passwordagain": "", "email": ""}
         response = self.client.post('/api/register/', data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("error", response.data)
