@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Scanner</title>
+    <link rel="stylesheet" href="Scan.css">
+</head>
+<body>
+    <div class="container">
+        <h1>QR Code Scanner</h1>
+        <div class="scanner-container">
+            <video id="video" playsinline></video>
+            <canvas id="canvas" hidden></canvas>
+            <div id="output">
+                <div id="status">Waiting for camera...</div>
+                <div id="result" hidden>
+                    <span>QR Code Result:</span>
+                    <p id="qr-result"></p>
+                </div>
+            </div>
+        </div>
+        <button id="start-button">Start Scanning</button>
+    </div>
+    
+    <!-- Import the jsQR library -->
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    <script src="Scan.js"></script>
+</body>
+</html>
