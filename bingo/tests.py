@@ -245,6 +245,22 @@ class ViewsTestCase(APITestCase):
         self.assertGreater(len(response.data), 0)
 
     # ---------- Complete Task Tests ----------
+    def test_complete_task_success(self):
+        self.client.force_authenticate(user=self.user)
+        # Create a new task for completion.
+        new_task = Task.objects.create(
+            id=3,
+            description="New Task",
+            points=20
+        )
+        response = self.client.post('/complete_task/', {"task_id": new_task.id})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("message", response.data)
+        self.assertIn("points", response.data)
+        # Verify that leaderboard points are updated.
+        self.leaderboard.refresh_from_db()
+        self.assertEqual(self.leaderboard.points, new_task.points)
+
     def test_complete_task_already_completed(self):
         self.client.force_authenticate(user=self.user)
         # First attempt: complete the task.
