@@ -198,65 +198,70 @@ def check_user(request,username):
 
 @api_view(['GET'])
 def tasks(request):
-    tasks =     [{
+    tasks_list =     [{
       'id': 1,
       'description': "Finish Green Consultant training",
       'points': 10,
       'requiresUpload': True,
+      "requireScan": False,
     },
     {
       'id': 2,
       'description':  "Join a 'Green' society",
       'points': 7,
       'requiresUpload': True,
+      "requireScan": False,
     },
     {
       'id': 3,
       'description':  "Get involved in Gift it, Reuse it scheme",
       'points': 10,
       'requiresUpload': False,
+      "requireScan": True,
     },
     {
       'id': 4,
       'description': "Use British Heart Foundation Banks on campus to recycle clothes",
       'points': 8,
       'requiresUpload':False,
+       "requireScan": True,
     },
     {
       'id': 5,
       'description': "Sign up to university sustainability newsletter",
       'points': 5,
       'requiresUpload': True,
+      "requireScan": False,
     },
     {
       'id': 6,
       'description': "Refill your reusable water bottle from one of over 100 free water refill stations on campus",
       'points': 8,
       'requiresUpload': True,
+       "requireScan": False,
     },
     {
       'id': 7,
       'description': "Shopping at Exeter's zero waste shops, Nourish and Zero",
       'points': 10,
       'requiresUpload': False,
+      "requireScan": True,
     },
     {
       'id': 8,
       'description': "Empty glasses put in nearest glass bottle bank",
       'points': 8,
       'requiresUpload': True,
+       "requireScan": False,
     },
     {
       'id': 9,
       'description': "Getting involved in ESV - Environmental Project",
       'points': 10,
       'requiresUpload':False,
+       "requireScan": True,
     }]
-    return Response(tasks)
-
-class TasksView(APIView):
-    def get(self, request):
-        return Response({"message": "Tasks endpoint reached"})
+    return JsonResponse(tasks_list, safe=False) 
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

@@ -13,30 +13,35 @@ const BingoBoard = () => {
       description: "Finish Green Consultant training",
       points: 10,
       requiresUpload: true,
+      requireScan: false,
     },
     {
       id: 2,
       description:  "Join a 'Green' society",
       points: 7,
       requiresUpload: true,
+      requireScan: false,
     },
     {
       id: 3,
       description:  "Get involved in Gift it, Reuse it scheme",
       points: 10,
       requiresUpload: false,
+      requireScan: true,
     },
     {
       id: 4,
       description: "Use British Heart Foundation Banks on campus to recycle clothes",
       points: 8,
       requiresUpload: false,
+      requireScan: true,
     },
     {
       id: 5,
       description: "Sign up to university sustainability newsletter",
       points: 5,
       requiresUpload: true,
+      requireScan: false,
     },
     {
       id: 6,
@@ -49,18 +54,21 @@ const BingoBoard = () => {
       description: "Shopping at Exeter's zero waste shops, Nourish and Zero",
       points: 10,
       requiresUpload: false,
+      requireScan: true,
     },
     {
       id: 8,
       description: "Empty glasses put in nearest glass bottle bank",
       points: 8,
       requiresUpload: true,
+      requireScan: false,
     },
     {
       id: 9,
       description: "Getting involved in ESV - Environmental Project",
       points: 10,
       requiresUpload: false,
+      requireScan: true,
     },
   ]);
   const navigate = useNavigate();
@@ -75,13 +83,19 @@ const BingoBoard = () => {
   }, []);
 
   const handleTaskClick = (task) => {
-    if(task.requiresUpload){
-      localStorage.setItem('selectedChoice', task.description);
-      navigate('/upload')
-    } else{
+    if (!task) return;
+  
+    if (task.requiresUpload) {
+      localStorage.setItem("selectedChoice", task.description);
+      navigate("/upload");
+    } else if (task.requireScan) {
+      localStorage.setItem("selectedChoice", task.description);
+      // Open webqr.com in a new tab
+      window.open("https://webqr.com/", "_blank");
+    } else {
       setTasks(prevTasks =>
         prevTasks.map(t =>
-        t.id === task.id ? {...t,completed: !t.completed}:t
+          t.id === task.id ? { ...t, completed: !t.completed } : t
         )
       );
     }
@@ -101,6 +115,11 @@ const BingoBoard = () => {
                 <div className='points'>{tasks.points} marks</div>
                 <div className='description'>{task.description}</div>
                 {task.requiresUpload && <div className='upload indicator'>📷</div>}
+                {task.requireScan && (
+  <a href="https://webqr.com/" target="_blank" rel="scan qr code">
+    <div className="scan-indicator">🤳🏻</div>
+  </a>
+)}
               </div>
           </div>
         ))}
