@@ -59,9 +59,9 @@ const Profile = () => {
         )}
       </div>
 
-
       <div className="buttons">
         <button onClick={() => navigate('/bingo')}>Back to Bingo Board</button>
+        <button onClick={() => navigate('/leaderboard')}>View Leaderboard</button>
         <button
           onClick={() => {
             localStorage.removeItem('token');
