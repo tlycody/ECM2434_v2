@@ -271,10 +271,25 @@ class RegisterUserTests(TestCase):
     # ---------- Update User Profile Tests ----------
     def test_update_user_profile_without_picture(self):
         self.client.force_authenticate(user=self.user)
-        new_username = "updateduser"
-        new_email = "updateduser@example.com"
-        data = {"username": new_username, "email": new_email}
-        response = self.client.put('/user/update/', data)
+        self.task = Task.objects.create(description="Test Task", points=10)
+
+    def test_fetch_tasks(self):
+        url = reverse('tasks')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsInstance(response.data, list)
+        self.assertGreaterEqual(len(response.data), 1)
+
+    def test_fetch_tasks_empty(self):
+        Task.objects.all().delete()
+        url = reverse('tasks')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, [])
+
+    def test_fetch_tasks_structure(self):
+        url = reverse('tasks')
+        response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get("message"), "Profile updated successfully")
         # Refresh the user from the database.
