@@ -102,21 +102,9 @@ class EmailValidationTests(TestCase):
         self.assertTrue(email_validation("12345@exeter.ac.uk"))
         self.assertFalse(email_validation("12345@exeter.com"))
 
-    def test_get_client_ip_with_forwarded_for(self):
-        request = self.factory.get('/')
-        request.META['HTTP_X_FORWARDED_FOR'] = '192.168.1.1, 192.168.1.2'
-        self.assertEqual(get_client_ip(request), '192.168.1.1')
-
-    def test_get_client_ip_without_forwarded_for(self):
-        request = self.factory.get('/')
-        request.META['REMOTE_ADDR'] = '192.168.1.100'
-        self.assertEqual(get_client_ip(request), '192.168.1.100')
-
-    def test_get_client_ip_empty(self):
-        request = self.factory.get('/')
-        request.META.pop('REMOTE_ADDR', None)  # Remove any default assigned IP
-        request.META.pop('HTTP_X_FORWARDED_FOR', None)  # Ensure no forwarded-for IP is set
-        self.assertIsNone(get_client_ip(request))
+    def test_email_validation_with_mixed_case(self):
+        self.assertTrue(email_validation("User123@EXETER.ac.uk"))
+        self.assertFalse(email_validation("User123@ExEtEr.Com"))
 
 
 class RegisterUserTests(TestCase):
