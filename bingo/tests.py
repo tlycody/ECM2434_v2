@@ -207,8 +207,8 @@ class ViewsTestCase(APITestCase):
     def test_register_success(self):
         data = {
             "username": "newuser",
-            "password": "StrongPassw0rd!",
-            "passwordagain": "StrongPassw0rd!",
+            "password": "testpassword",
+            "passwordagain": "testpassword",
             "email": "newuser@exeter.ac.uk"
         }
         response = self.client.post('/api/register/', data)
