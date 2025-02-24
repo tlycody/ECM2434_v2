@@ -63,7 +63,7 @@ const BingoBoard = () => {
                 <div className='points'><strong>{task.points} Points</strong></div>
                 <div className='description'>{task.description}</div>
                 {task.requires_upload && <div className='upload-indicator'>📷</div>}
-                {task.requires_scan && <div className='scan-indicator'>🤳🏻</div>}
+                {task.requires_scan && <div className='scan-indicator'>🤳🏻python manage.py makemigrations</div>}
               </div>
             </div>
           )) : <p>No tasks available.</p>}

@@ -10,7 +10,8 @@ logger = logging.getLogger(__name__)
 
 class RegisterUserSerializer(serializers.ModelSerializer):
     passwordagain = serializers.CharField(write_only=True)
-    profile = serializers.ChoiceField(choices=User.PROFILE_CHOICES, default='Player')
+    profile = serializers.ChoiceField(choices=User.ROLE_CHOICES, default='Player')
+
 
     class Meta:
         model = User
