@@ -41,8 +41,9 @@ def update_user_profile(request):
                             status=status.HTTP_400_BAD_REQUEST)
 
         if profile.profile_picture:
-            default_storage.delete(profile.profile_picture.path)  # Delete old file
-        profile.profile_picture = request.FILES['profile_picture']
+            profile.profile_picture.delete()  # Delete old file before saving new one
+
+        profile.profile_picture = file
 
     user.save()
     profile.save()
