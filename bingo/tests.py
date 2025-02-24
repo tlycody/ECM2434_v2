@@ -250,6 +250,7 @@ class ViewsTestCase(APITestCase):
         # First attempt: complete the task.
         response1 = self.client.post('/complete_task/', {"task_id": self.task.id})
         self.assertEqual(response1.status_code, status.HTTP_200_OK)
+        # Second attempt: should return error.
         response2 = self.client.post('/complete_task/', {"task_id": self.task.id})
         self.assertEqual(response2.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("message", response2.data)
