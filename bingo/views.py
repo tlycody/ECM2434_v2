@@ -58,8 +58,13 @@ def email_validation(email):
     except ValidationError:
         return False
 
-
-
+def get_client_ip(request):
+    forward = request.META.get('HTTP_X_FORWARDED_FOR')
+    if forward:
+        ip = forward.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
 
 # ✅ Register new user (with error handling)
 @api_view(['POST'])
@@ -69,6 +74,9 @@ def register_user(request):
     password = data.get("password")
     password_again = data.get("passwordagain")
     email = data.get("email")
+    gdprConsent = data.get("gdprConsent",False)
+    if not gdprConsent:
+        return Response("You must accept the Privacy Policy to register",status=status.HTTP_400_BAD_REQUEST)
 
     if not all([username, password, password_again, email]):
         return Response({"error": "All fields are required."}, status=status.HTTP_400_BAD_REQUEST)
@@ -85,7 +93,13 @@ def register_user(request):
     if User.objects.filter(email=email).exists():
         return Response({"error": "This email is already registered."}, status=status.HTTP_400_BAD_REQUEST)
 
+
     user = User.objects.create_user(username=username, email=email, password=password)
+    from .models import UserConsent
+    UserConsent.objects.create(
+        user = user,
+        ip_address = get_client_ip(request)
+    )
     Profile.objects.create(user=user)
     Leaderboard.objects.get_or_create(user=user)
     

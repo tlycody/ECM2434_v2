@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
@@ -9,16 +9,17 @@ const Register = () => {
     email: '',
     password: '',
     passwordagain: '',
+    gdprConsent: false,
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: type === 'checkbox' ? checked : value
     }));
   };
 
@@ -27,6 +28,7 @@ const Register = () => {
     if (!formData.email.trim()) return 'Email is required';
     if (!formData.email.endsWith('@exeter.ac.uk')) return 'Please use your @exeter.ac.uk email';
     if (!formData.password) return 'Password is required';
+    if (!formData.gdprConsent) return "You need to accept the Privacy Policy to register";
     return null;
   };
 
@@ -44,7 +46,6 @@ const Register = () => {
 
     try {
       const response = await fetch(`${API_URL}/register/`, {
-
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -56,14 +57,14 @@ const Register = () => {
 
         if (response.ok) {
             navigate('/login');
-        }else{
+        } else {
             throw new Error(data.detail || data.error || 'Registration failed');
         }
     } catch (err) {
         console.error('Registration error:', err);
         setError(err.message || 'An error occurred during registration');
     }
-};
+  };
 
   return (
     <div className="register-container">
@@ -109,6 +110,18 @@ const Register = () => {
             onChange={handleChange}
             required
           />
+        </div>
+        <div className="form-group privacy-policy">
+          <label className="checkbox-label">
+            <input
+              type="checkbox"
+              name="gdprConsent"
+              checked={formData.gdprConsent}
+              onChange={handleChange}
+              required
+            />
+            I have read and agree to the <Link to="/privacy-policy" target="_blank">Privacy Policy</Link>
+          </label>
         </div>
         <button type="submit" disabled={loading}>
           {loading ? 'Registering...' : 'Register'}

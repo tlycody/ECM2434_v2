@@ -20,6 +20,14 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
+    
+class UserConsent(models.Model):
+    user = models.OneToOneField(User,on_delete = models.CASCADE,related_name = "gdprConsent")
+    consented_at = models.DateTimeField(auto_now_add = True)
+    ip_address = models.GenericIPAddressField(null= True,blank=True)
+
+    def __str__(self):
+        return f"{self.user.username} -Consent on {self.consented_at}"
 
 
 from django.conf import settings
