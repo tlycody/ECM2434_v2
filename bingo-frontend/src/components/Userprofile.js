@@ -13,7 +13,7 @@ const Profile = () => {
     const fetchUserData = async () => {
       try {
         const response = await axios.get(`${API_URL}/user/`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` },
+          headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
         });
         console.log('User Data:', response.data);
         setUserData(response.data);
@@ -61,7 +61,7 @@ const Profile = () => {
 
 
       <div className="buttons">
-        <button onClick={() => navigate('/bingoboard')}>Back to Bingo Board</button>
+        <button onClick={() => navigate('/bingo')}>Back to Bingo Board</button>
         <button
           onClick={() => {
             localStorage.removeItem('token');

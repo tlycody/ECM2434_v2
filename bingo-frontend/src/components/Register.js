@@ -43,9 +43,6 @@ const Register = () => {
     }
 
     try {
-        console.log('Sending request to:', `${API_URL}/api/register/`); // Debug log
-        console.log('Request body:', JSON.stringify(formData)); // Debug log
-
         const response = await fetch(`${API_URL}/api/register/`, {
             method: 'POST',
             headers: {
@@ -54,22 +51,16 @@ const Register = () => {
             body: JSON.stringify(formData),
         });
 
-        console.log('Response status:', response.status); // Debug log
-
         const data = await response.json();
-        console.log('Response data:', data); // Debug log
 
-        if (!response.ok) {
+        if (response.ok) {
+            navigate('/login');
+        }else{
             throw new Error(data.detail || data.error || 'Registration failed');
         }
-
-        // Registration successful
-        navigate('/login');
     } catch (err) {
         console.error('Registration error:', err);
         setError(err.message || 'An error occurred during registration');
-    } finally {
-        setLoading(false);
     }
 };
 

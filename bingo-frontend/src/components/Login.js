@@ -34,8 +34,11 @@ const Login = () => {
   const validateForm = () => {
     if (!formData.username.trim()) return 'Username is required';
     if (!formData.password) return 'Password is required';
-    if (['Game Keeper', 'Developer'].includes(formData.profile) && !formData.extraPassword) {
-      return `Special password required for ${formData.profile}`;
+    if (formData.profile === 'Game Keeper' && !formData.extraPassword) {
+      return 'Special password required for Game Keeper';
+    }
+    if (formData.profile === 'Developer' && !formData.extraPassword) {
+      return 'Special password required for Developer';
     }
     return null;
   };
@@ -53,7 +56,7 @@ const Login = () => {
     }
 
     try {
-      const response = await fetch(`${API_URL}/login/`, {
+      const response = await fetch(`${API_URL}/api/login/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -61,6 +64,8 @@ const Login = () => {
         body: JSON.stringify({
           username: formData.username,
           password: formData.password,
+          profile: formData.profile,
+          extraPassword: formData.extraPassword,
         }),
       });
 
@@ -73,7 +78,9 @@ const Login = () => {
       // Store tokens and navigate
       localStorage.setItem('accessToken', data.access);
       localStorage.setItem('refreshToken', data.refresh);
-      navigate('/bingoboard');
+      localStorage.setItem('userProfile', formData.profile);
+      localStorage.setItem('username', data.user);
+      navigate('/userprofile');
     } catch (err) {
       console.error('Login error:', err);
       setError(err.message || 'An error occurred during login');
