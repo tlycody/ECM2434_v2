@@ -431,3 +431,11 @@ class UserRankTests(TestCase):
     def test_user_rank_expert(self):
         from .views import user_rank
         self.assertEqual(user_rank(1300), "Expert")
+        self.assertEqual(user_rank(5000), "Expert")
+
+    def test_user_rank_boundary_conditions(self):
+        from .views import user_rank
+        self.assertEqual(user_rank(49), "Beginner")
+        self.assertEqual(user_rank(50), "Intermediate")
+        self.assertEqual(user_rank(1250), "Intermediate")
+        self.assertEqual(user_rank(1251), "Expert")
