@@ -427,6 +427,7 @@ class UserRankTests(TestCase):
         from .views import user_rank
         self.assertEqual(user_rank(100), "Intermediate")
         self.assertEqual(user_rank(50), "Intermediate")
+        self.assertEqual(user_rank(1250), "Intermediate")
 
     def test_user_rank_expert(self):
         from .views import user_rank
