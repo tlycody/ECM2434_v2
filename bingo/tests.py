@@ -64,6 +64,10 @@ class EmailValidationTests(TestCase):
     def test_email_validation_invalid_domain(self):
         self.assertFalse(email_validation("user@gmail.com"))
         self.assertFalse(email_validation("user@domain.com"))
+        self.assertFalse(email_validation("user@exeter.com"))
+        self.assertFalse(email_validation("user@exeter.edu"))
+        self.assertFalse(email_validation("user@ac.exeter.uk"))
+        self.assertFalse(email_validation("user@exeter.ac.co.uk"))
 
     def test_email_validation_invalid_format(self):
         invalid_emails = [
