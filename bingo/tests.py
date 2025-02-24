@@ -400,6 +400,11 @@ class LeaderboardTests(TestCase):
         self.assertIsInstance(response.data, list)
         self.assertGreaterEqual(len(response.data), 2)
 
+    def test_leaderboard_ordering(self):
+        url = reverse('leaderboard')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertGreaterEqual(response.data[0]["points"], response.data[1]["points"])
 
 class UserProfileTests(TestCase):
     def setUp(self):
