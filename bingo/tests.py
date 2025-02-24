@@ -242,6 +242,12 @@ class ViewsTestCase(APITestCase):
 
     # ---------- Tasks Tests ----------
     def test_tasks(self):
+        # Create an additional task.
+        Task.objects.create(
+            id=2,
+            description="Task 2",
+            points=5
+        )
         response = self.client.get('/tasks/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIsInstance(response.data, list)
