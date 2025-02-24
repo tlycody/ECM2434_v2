@@ -327,11 +327,35 @@ class TasksTests(TestCase):
         data = {"task_id": self.task.id}
         response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data.get("message"), "Profile updated successfully")
-        # Refresh the user and profile from the database.
-        self.user.refresh_from_db()
-        profile = Profile.objects.get(user=self.user)
-        self.assertEqual(self.user.username, new_username)
-        self.assertEqual(self.user.email, new_email)
-        # Check that a profile picture has been saved.
-        self.assertTrue(profile.profile_picture)
+        self.leaderboard.refresh_from_db()
+        self.assertEqual(self.leaderboard.points, 10)
+
+    def test_complete_task_creates_user_task_entry(self):
+        url = reverse('complete_task')
+        data = {"task_id": self.task.id}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(UserTask.objects.filter(user=self.user, task=self.task, completed=True).exists())
+
+
+class LeaderboardTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create_user(username="leaderuser", email="leader@exeter.ac.uk", password="testpass")
+        self.client.force_authenticate(user=self.user)
+        Leaderboard.objects.create(user=self.user, points=100)
+
+    def test_leaderboard(self):
+        url = reverse('leaderboard')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsInstance(response.data, list)
+        self.assertGreaterEqual(len(response.data), 1)
+
+
+class UserProfileTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create_user(username="profileuser", email="profile@exeter.ac.uk", password="testpass")
+        self.client.force_authenticate(user=self.user)
+        Profile.objects.create(user=self.user)
