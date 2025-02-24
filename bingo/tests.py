@@ -137,9 +137,10 @@ class RegisterUserTests(TestCase):
     def test_register_invalid_email(self):
         data = {
             "username": "newuser",
-            "password": "pass1",
-            "passwordagain": "pass1",
-            "email": "newuser@gmail.com"
+            "password": "password123",
+            "passwordagain": "password123",
+            "email": "newuser@gmail.com",
+            "gdprConsent": True
         }
         response = self.client.post('/api/register/', data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
