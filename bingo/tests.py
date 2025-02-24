@@ -145,7 +145,8 @@ class RegisterUserTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("Please use your @exeter.ac.uk email only", response.data.get("error", ""))
 
-    def test_register_existing_username(self):
+    def test_register_existing_user(self):
+        User.objects.create_user(username="existinguser", email="existing@exeter.ac.uk", password="password123")
         data = {
             "username": "existinguser",
             "password": "password123",
