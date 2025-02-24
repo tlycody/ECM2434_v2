@@ -253,7 +253,7 @@ class ViewsTestCase(APITestCase):
         # Second attempt: should return error.
         response2 = self.client.post('/complete_task/', {"task_id": self.task.id})
         self.assertEqual(response2.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("message", response2.data)
+        self.assertIn("Task already completed", response2.data.get("message", ""))
 
     def test_complete_task_missing_task_id(self):
         # If task_id is missing, get_object_or_404 should return a 404 error.
