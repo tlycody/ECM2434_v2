@@ -271,7 +271,8 @@ class ViewsTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     # ---------- Leaderboard Tests ----------
-    def test_leaderboard(self):
+    def test_leaderboard_order(self):
+        # Create another user with higher points.
         user2 = User.objects.create_user(
             username="user2",
             password="pass2",
