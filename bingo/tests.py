@@ -235,3 +235,53 @@ class ViewsTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIsInstance(response.data, list)
         self.assertGreater(len(response.data), 0)
+
+    # ---------- Complete Task Tests ----------
+    def test_complete_task_already_completed(self):
+        self.client.force_authenticate(user=self.user)
+        response1 = self.client.post('/complete_task/', {"task_id": self.task.id})
+        self.assertEqual(response1.status_code, status.HTTP_200_OK)
+        response2 = self.client.post('/complete_task/', {"task_id": self.task.id})
+        self.assertEqual(response2.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("message", response2.data)
+
+    def test_complete_task_missing_task_id(self):
+        # If task_id is missing, get_object_or_404 should return a 404 error.
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post('/complete_task/', {})
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_complete_task_nonexistent_task(self):
+        self.client.force_authenticate(user=self.user)
+        response = self.client.post('/complete_task/', {"task_id": 9999})
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_complete_task_success(self):
+        self.client.force_authenticate(user=self.user)
+        new_task = Task.objects.create(
+            id=100,
+            description="Another Task",
+            points=20,
+            requiresUpload=False,
+            requireScan=False
+        )
+        response = self.client.post('/complete_task/', {"task_id": new_task.id})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("message", response.data)
+        self.assertIn("points", response.data)
+        self.leaderboard.refresh_from_db()
+        self.assertEqual(self.leaderboard.points, new_task.points)
+
+    # ---------- Leaderboard Tests ----------
+    def test_leaderboard(self):
+        user2 = User.objects.create_user(
+            username="user2",
+            password="pass2",
+            email="user2@exeter.ac.uk"
+        )
+        Leaderboard.objects.create(user=user2, points=50)
+        response = self.client.get('/leaderboard/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsInstance(response.data, list)
+        # The leaderboard should be sorted in descending order by points.
+        self.assertEqual(response.data[0]["user"], user2.username)
