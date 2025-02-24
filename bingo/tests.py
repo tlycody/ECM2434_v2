@@ -398,7 +398,7 @@ class LeaderboardTests(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIsInstance(response.data, list)
-        self.assertGreaterEqual(len(response.data), 1)
+        self.assertGreaterEqual(len(response.data), 2)
 
 
 class UserProfileTests(TestCase):
