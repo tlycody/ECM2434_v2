@@ -157,9 +157,15 @@ class RegisterUserTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
-    def test_login_success(self):
-        data = {"username": "testuser", "password": "testpassword"}
-        response = self.client.post('/api/login/', data)
+class LoginUserTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.url = reverse('api_login')
+        self.user = User.objects.create_user(username="testuser", email="test@exeter.ac.uk", password="testpass")
+
+    def test_login_valid_user(self):
+        data = {"username": "testuser", "password": "testpass"}
+        response = self.client.post(self.url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIn("access", response.data)
         self.assertIn("refresh", response.data)
