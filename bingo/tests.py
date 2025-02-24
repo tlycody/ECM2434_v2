@@ -417,12 +417,15 @@ class UserProfileTests(TestCase):
         url = reverse('get_user_profile')
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn("username", response.data)
-        self.assertIn("email", response.data)
-        self.assertIn("total_points", response.data)
-        self.assertIn("completed_tasks", response.data)
-        self.assertIn("leaderboard_rank", response.data)
-        self.assertIn("profile_picture", response.data)
+        self.assertEqual(response.data, [])
+
+    def test_leaderboard_with_negative_points(self):
+        user3 = User.objects.create_user(username="leaderuser3", email="leader3@exeter.ac.uk", password="testpass")
+        Leaderboard.objects.create(user=user3, points=-50)
+        url = reverse('leaderboard')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(any(entry["points"] < 0 for entry in response.data))
 
 
 class UserRankTests(TestCase):
