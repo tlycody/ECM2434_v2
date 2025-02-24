@@ -204,17 +204,7 @@ class ViewsTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("This email is already registered", response.data.get("error", ""))
 
-    def test_register_user_missing_password_again(self):
-        data = {
-            "username": "missingpassagain",
-            "password": "StrongPassw0rd!",
-            "email": "missingpassagain@exeter.ac.uk"
-        }
-        response = self.client.post('/api/register/', data)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("detail", response.data)
-
-    def test_register_user_success(self):
+    def test_register_success(self):
         data = {
             "username": "newuser",
             "password": "StrongPassw0rd!",
