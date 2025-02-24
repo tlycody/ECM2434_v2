@@ -20,7 +20,7 @@ User = get_user_model()
 class ViewsTestCase(APITestCase):
     def setUp(self):
         self.client = APIClient()
-        # Create a user for login and profile tests.
+        # Create a test user and associated leaderboard entry.
         self.user = User.objects.create_user(
             username="testuser",
             password="testpassword",
