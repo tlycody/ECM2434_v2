@@ -300,6 +300,61 @@ class LoginUserTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
+class UserProfileTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create_user(username="profileuser", email="profile@exeter.ac.uk", password="testpass")
+        self.client.force_authenticate(user=self.user)
+        self.profile = Profile.objects.create(user=self.user)
+        self.leaderboard = Leaderboard.objects.create(user=self.user, points=100)
+
+    def test_get_user_profile(self):
+        url = reverse('get_user_profile')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("username", response.data)
+        self.assertIn("email", response.data)
+        self.assertIn("total_points", response.data)
+        self.assertIn("completed_tasks", response.data)
+        self.assertIn("leaderboard_rank", response.data)
+        self.assertIn("profile_picture", response.data)
+
+    def test_get_user_profile_no_leaderboard_entry(self):
+        self.leaderboard.delete()  # Remove leaderboard entry
+        url = reverse('get_user_profile')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["total_points"], 0)  # Should default to 0
+
+    def test_get_user_profile_no_completed_tasks(self):
+        url = reverse('get_user_profile')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["completed_tasks"], 0)
+
+    def test_get_user_profile_with_completed_tasks(self):
+        task = Task.objects.create(description="Test Task", points=10)
+        UserTask.objects.create(user=self.user, task=task, completed=True)
+        url = reverse('get_user_profile')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["completed_tasks"], 1)
+
+    def test_get_user_profile_no_profile_picture(self):
+        self.profile.profile_picture = None
+        self.profile.save()
+        url = reverse('get_user_profile')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsNone(response.data["profile_picture"])
+
+    def test_get_user_profile_without_authentication(self):
+        self.client.force_authenticate(user=None)
+        url = reverse('get_user_profile')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
 class TasksTests(TestCase):
     def setUp(self):
         self.client = APIClient()
