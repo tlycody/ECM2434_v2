@@ -251,7 +251,8 @@ class ViewsTestCase(APITestCase):
         response = self.client.get('/tasks/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIsInstance(response.data, list)
-        self.assertGreater(len(response.data), 0)
+        # Expect at least one task to be present.
+        self.assertGreaterEqual(len(response.data), 1)
 
     # ---------- Complete Task Tests ----------
     def test_complete_task_success(self):
