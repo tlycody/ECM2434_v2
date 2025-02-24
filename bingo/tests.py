@@ -41,7 +41,33 @@ class ViewsTestCase(APITestCase):
         # Ensure a Profile exists for the user.
         Profile.objects.get_or_create(user=self.user)
 
-    # ---------- Email Validation Tests ----------
+    def test_update_user_profile_with_picture(self):
+        url = reverse('update_user_profile')
+        image = SimpleUploadedFile("test.jpg", b"file_content", content_type="image/jpeg")
+        data = {"profile_picture": image}
+        response = self.client.put(url, data, format='multipart')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        profile = Profile.objects.get(user=self.user)
+        self.assertTrue(profile.profile_picture)
+
+    def test_update_user_profile_empty_payload(self):
+        url = reverse('update_user_profile')
+        response = self.client.put(url, {}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.username, "profileuser")
+        self.assertEqual(self.user.email, "profile@exeter.ac.uk")
+
+    def test_update_user_profile_with_invalid_file(self):
+        url = reverse('update_user_profile')
+        fake_file = SimpleUploadedFile("test.txt", b"fake content", content_type="text/plain")
+        data = {"profile_picture": fake_file}
+        response = self.client.put(url, data, format='multipart')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("error", response.data)
+
+
+class EmailValidationTests(TestCase):
     def test_email_validation_valid(self):
         self.assertTrue(email_validation("user@exeter.ac.uk"))
 
