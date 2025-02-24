@@ -1,7 +1,4 @@
-#To Run: python manage.py test
-
-import os
-from django.test import TestCase
+from django.test import TestCase, RequestFactory
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from rest_framework import status
