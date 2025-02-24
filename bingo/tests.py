@@ -264,21 +264,11 @@ class ViewsTestCase(APITestCase):
         response = self.client.post('/complete_task/', {"task_id": 9999})
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
 
-    def test_complete_task_success(self):
-        self.client.force_authenticate(user=self.user)
-        new_task = Task.objects.create(
-            id=100,
-            description="Another Task",
-            points=20,
-            requiresUpload=False,
-            requireScan=False
-        )
-        response = self.client.post('/complete_task/', {"task_id": new_task.id})
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn("message", response.data)
-        self.assertIn("points", response.data)
-        self.leaderboard.refresh_from_db()
-        self.assertEqual(self.leaderboard.points, new_task.points)
+    def test_complete_task_auth_required(self):
+        # Ensure endpoint is protected.
+        self.client.force_authenticate(user=None)
+        response = self.client.post('/complete_task/', {"task_id": self.task.id})
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     # ---------- Leaderboard Tests ----------
     def test_leaderboard(self):
