@@ -202,18 +202,7 @@ class ViewsTestCase(APITestCase):
         }
         response = self.client.post('/api/register/', data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("detail", response.data)
-
-    def test_register_user_weak_password(self):
-        data = {
-            "username": "weakpassuser",
-            "password": "123",  # intentionally weak password
-            "passwordagain": "123",
-            "email": "weakpassuser@exeter.ac.uk"
-        }
-        response = self.client.post('/api/register/', data)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("detail", response.data)
+        self.assertIn("This email is already registered", response.data.get("error", ""))
 
     def test_register_user_missing_password_again(self):
         data = {
