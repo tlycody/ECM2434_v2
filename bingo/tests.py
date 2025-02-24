@@ -24,22 +24,17 @@ User = get_user_model()
 class ViewsTestCase(APITestCase):
     def setUp(self):
         self.client = APIClient()
-        # Create a test user and associated leaderboard entry.
-        self.user = User.objects.create_user(
-            username="testuser",
-            password="testpassword",
-            email="test@exeter.ac.uk"
-        )
-        self.leaderboard = Leaderboard.objects.create(user=self.user, points=0)
-        # Create a sample task for testing complete_task.
-        # Removed the 'requiresUpload' and 'requireScan' fields.
-        self.task = Task.objects.create(
-            id=1,
-            description="Sample Task",
-            points=10
-        )
-        # Ensure a Profile exists for the user.
-        Profile.objects.get_or_create(user=self.user)
+        self.user = User.objects.create_user(username="profileuser", email="profile@exeter.ac.uk", password="testpass")
+        self.client.force_authenticate(user=self.user)
+        Profile.objects.create(user=self.user)
+
+    def test_update_user_profile(self):
+        url = reverse('update_user_profile')
+        data = {"username": "updateduser"}
+        response = self.client.put(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.username, "updateduser")
 
     def test_update_user_profile_with_picture(self):
         url = reverse('update_user_profile')
