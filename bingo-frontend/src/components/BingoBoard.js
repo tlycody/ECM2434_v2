@@ -10,14 +10,14 @@ const BingoBoard = () => {
   const [tasks, setTasks] = useState([
     {
       id: 1,
-      description: "Finish Green Consultant training",
+      description: "Graduate The Green Consultant Training Course",
       points: 10,
       requiresUpload: true,
       requireScan: false,
     },
     {
       id: 2,
-      description:  "Join a 'Green' society",
+      description:  "Join a 'Green' society: Be the Change, Enactus, and the Green Futures Network",
       points: 7,
       requiresUpload: true,
       requireScan: false,
@@ -112,7 +112,7 @@ const BingoBoard = () => {
               onClick={() => handleTaskClick(task)} // Added onClick handler
             >
               <div className='cell-content'>
-                <div className='points'>{tasks.points} marks</div>
+                <div className='points'>{tasks.points} Marks</div>
                 <div className='description'>{task.description}</div>
                 {task.requiresUpload && <div className='upload indicator'>📷</div>}
                 {task.requireScan && (
