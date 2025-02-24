@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 const API_URL = process.env.REACT_APP_API_URL;
 
 const Home = () => {
-  const [setTasks] = useState([]);
+  const [tasks, setTasks] = useState([]);  // ✅ Correctly define state
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -14,14 +14,14 @@ const Home = () => {
         const response = await axios.get(`${API_URL}/tasks/`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
-        setTasks(response.data);
+        setTasks(response.data);  // ✅ Properly update tasks
       } catch (error) {
         console.error('Error fetching tasks:', error);
       }
     };
 
     fetchTasks();
-  }, []);
+  }, [setTasks]);  // ✅ Include setTasks in dependencies to satisfy ESLint
 
   return (
     <div className="home-container">
