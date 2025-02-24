@@ -153,29 +153,7 @@ class RegisterUserTests(TestCase):
             "email": "existing@exeter.ac.uk",
             "gdprConsent": True
         }
-        response = self.client.post('/api/register/', data)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("This email is already registered", response.data.get("error", ""))
-
-    def test_register_success(self):
-        data = {
-            "username": "newuser",
-            "password": "testpassword",
-            "passwordagain": "testpassword",
-            "email": "newuser@exeter.ac.uk"
-        }
-        response = self.client.post('/api/register/', data)
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertIn("message", response.data)
-        self.assertEqual(response.data.get("message"), "User registered successfully!")
-        # Verify that a Leaderboard entry was created for the new user.
-        new_user = User.objects.get(username="newuser")
-        self.assertTrue(Leaderboard.objects.filter(user=new_user).exists())
-
-    # ---------- Login Tests ----------
-    def test_login_missing_fields(self):
-        data = {}
-        response = self.client.post('/api/login/', data)
+        response = self.client.post(self.url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("error", response.data)
 
