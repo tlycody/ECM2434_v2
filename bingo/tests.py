@@ -256,7 +256,6 @@ class ViewsTestCase(APITestCase):
         self.assertIn("Task already completed", response2.data.get("message", ""))
 
     def test_complete_task_missing_task_id(self):
-        # If task_id is missing, get_object_or_404 should return a 404 error.
         self.client.force_authenticate(user=self.user)
         response = self.client.post('/complete_task/', {})
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
