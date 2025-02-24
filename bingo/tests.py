@@ -39,6 +39,9 @@ class ViewsTestCase(APITestCase):
     def test_email_validation_valid(self):
         self.assertTrue(email_validation("user@exeter.ac.uk"))
 
+    def test_email_validation_valid_uppercase(self):
+        self.assertTrue(email_validation("USER@EXETER.AC.UK"))
+
     def test_email_validation_invalid_domain(self):
         self.assertFalse(email_validation("user@gmail.com"))
         self.assertFalse(email_validation("user@hotmail.com"))
