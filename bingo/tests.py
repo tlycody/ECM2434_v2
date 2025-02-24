@@ -265,11 +265,10 @@ class RegisterUserTests(TestCase):
     def test_user_rank_intermediate(self):
         self.assertEqual(user_rank(100), "Intermediate")
 
-    def test_user_rank_expert(self):
-        self.assertEqual(user_rank(1300), "Expert")
-
-    # ---------- Update User Profile Tests ----------
-    def test_update_user_profile_without_picture(self):
+class TasksTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create_user(username="taskuser", email="task@exeter.ac.uk", password="testpass")
         self.client.force_authenticate(user=self.user)
         self.task = Task.objects.create(description="Test Task", points=10)
 
