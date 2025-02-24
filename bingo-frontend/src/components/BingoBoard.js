@@ -48,6 +48,7 @@ const BingoBoard = () => {
       description: "Refill your reusable water bottle at any of the 100+ free refill stations on campus",
       points: 8,
       requiresUpload: true,
+      requireScan: false,
     },
     {
       id: 7,
@@ -112,7 +113,7 @@ const BingoBoard = () => {
             onClick={() => handleTaskClick(task)}
           >
             <div className='cell-content'>
-              <div className='points'>{task.points} Points</div>
+              <div className='points'><strong>{task.points} Points</strong></div>
               <div className='description'>{task.description}</div>
               {task.requiresUpload && <div className='upload-indicator'>📷</div>}
               {task.requireScan && (
