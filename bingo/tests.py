@@ -14,6 +14,7 @@ from .views import (
     complete_task,
     leaderboard,
     get_user_profile,
+    update_user_profile,
     user_rank
 )
 
