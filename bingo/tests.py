@@ -10,6 +10,59 @@ from .views import email_validation, get_client_ip
 User = get_user_model()
 
 
+class ClientIPTests(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+
+    def test_get_client_ip_with_forwarded_for(self):
+        request = self.factory.get('/')
+        request.META['HTTP_X_FORWARDED_FOR'] = '192.168.1.1, 192.168.1.2'
+        self.assertEqual(get_client_ip(request), '192.168.1.1')
+
+    def test_get_client_ip_with_single_forwarded_for(self):
+        request = self.factory.get('/')
+        request.META['HTTP_X_FORWARDED_FOR'] = '203.0.113.5'
+        self.assertEqual(get_client_ip(request), '203.0.113.5')
+
+    def test_get_client_ip_with_multiple_forwarded_for_spaces(self):
+        request = self.factory.get('/')
+        request.META['HTTP_X_FORWARDED_FOR'] = ' 192.168.1.10 , 192.168.1.11 '
+        self.assertEqual(get_client_ip(request).strip(), '192.168.1.10')
+
+    def test_get_client_ip_without_forwarded_for(self):
+        request = self.factory.get('/')
+        request.META['REMOTE_ADDR'] = '192.168.1.100'
+        self.assertEqual(get_client_ip(request), '192.168.1.100')
+
+    def test_get_client_ip_empty(self):
+        request = self.factory.get('/')
+        request.META.pop('REMOTE_ADDR', None)  # Remove any default assigned IP
+        request.META.pop('HTTP_X_FORWARDED_FOR', None)  # Ensure no forwarded-for IP is set
+        self.assertIsNone(get_client_ip(request))
+
+    def test_get_client_ip_invalid_forwarded_for(self):
+        request = self.factory.get('/')
+        request.META['HTTP_X_FORWARDED_FOR'] = 'invalid_ip'
+        self.assertEqual(get_client_ip(request), 'invalid_ip')  # Function does not validate IP format
+
+    def test_get_client_ip_malformed_forwarded_for(self):
+        request = self.factory.get('/')
+        request.META['HTTP_X_FORWARDED_FOR'] = ' , , '
+        self.assertEqual(get_client_ip(request).strip(), '')  # Should return an empty string after stripping spaces
+
+    def test_get_client_ip_multiple_headers(self):
+        request = self.factory.get('/')
+        request.META['HTTP_X_FORWARDED_FOR'] = '192.168.1.1, 192.168.1.2'
+        request.META['REMOTE_ADDR'] = '203.0.113.5'
+        self.assertEqual(get_client_ip(request), '192.168.1.1')
+
+    def test_get_client_ip_remote_addr_overrides_empty_forwarded_for(self):
+        request = self.factory.get('/')
+        request.META['HTTP_X_FORWARDED_FOR'] = ''
+        request.META['REMOTE_ADDR'] = '203.0.113.5'
+        self.assertEqual(get_client_ip(request), '203.0.113.5')
+
+
 class ProfileTests(TestCase):
     def setUp(self):
         self.client = APIClient()
