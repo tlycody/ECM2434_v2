@@ -227,6 +227,8 @@ class ViewsTestCase(APITestCase):
     # ---------- Get User Profile Tests ----------
     def test_get_user_profile_authenticated(self):
         self.client.force_authenticate(user=self.user)
+        # Create a completed task and set leaderboard points.
+        from .models import UserTask  # import here if not imported at the top
         UserTask.objects.create(user=self.user, task=self.task, completed=True)
         self.leaderboard.points = 10
         self.leaderboard.save()
