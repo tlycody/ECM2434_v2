@@ -5,7 +5,7 @@ from django.contrib.auth import views as auth_views
 from .views import (
     login_user, register_user,
     #player_dashboard, gamekeeper_dashboard, developer_dashboard,
-    tasks, complete_task, leaderboard
+    tasks, complete_task, leaderboard, get_user_profile
 )
 from rest_framework_simplejwt.views import TokenRefreshView
 
