@@ -387,9 +387,11 @@ class CompleteTaskTests(TestCase):
 class LeaderboardTests(TestCase):
     def setUp(self):
         self.client = APIClient()
-        self.user = User.objects.create_user(username="leaderuser", email="leader@exeter.ac.uk", password="testpass")
-        self.client.force_authenticate(user=self.user)
-        Leaderboard.objects.create(user=self.user, points=100)
+        self.user1 = User.objects.create_user(username="leaderuser1", email="leader1@exeter.ac.uk", password="testpass")
+        self.user2 = User.objects.create_user(username="leaderuser2", email="leader2@exeter.ac.uk", password="testpass")
+        self.client.force_authenticate(user=self.user1)
+        Leaderboard.objects.create(user=self.user1, points=100)
+        Leaderboard.objects.create(user=self.user2, points=200)
 
     def test_leaderboard(self):
         url = reverse('leaderboard')
