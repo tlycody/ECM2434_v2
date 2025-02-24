@@ -158,7 +158,7 @@ class ViewsTestCase(APITestCase):
         data = {"username": "", "password": "", "email": ""}
         response = self.client.post('/api/register/', data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("detail", response.data)
+        self.assertIn("error", response.data)
 
     def test_register_user_invalid_email(self):
         data = {
