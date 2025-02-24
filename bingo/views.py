@@ -28,21 +28,6 @@ from django.core.files.storage import default_storage
 
 User = get_user_model()
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def get_user_profile(request):
-    """Retrieve user profile details"""
-    user = request.user
-    profile, created = Profile.objects.get_or_create(user=user)
-    
-    return Response({
-        "username": user.username,
-        "email": user.email,
-        "profile_picture": profile.profile_picture.url if profile.profile_picture else None,
-        "rank": profile.rank,
-        "total_points": profile.total_points
-    })
-
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def update_user_profile(request):
