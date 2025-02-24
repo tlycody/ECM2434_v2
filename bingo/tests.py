@@ -2,7 +2,7 @@ from django.test import TestCase, RequestFactory
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from rest_framework import status
-from rest_framework.test import APIClient, APITestCase, APIRequestFactory
+from rest_framework.test import APIClient
 from django.core.files.uploadedfile import SimpleUploadedFile
 from .models import Profile, Task, UserTask, Leaderboard
 from .views import email_validation, get_client_ip
