@@ -50,7 +50,6 @@ def update_user_profile(request):
 
     return Response({"message": "Profile updated successfully"})
 
-
 # ✅ Validate email domain (Exeter only)
 def email_validation(email):
     try:
