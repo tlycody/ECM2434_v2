@@ -299,6 +299,41 @@ class LoginUserTests(TestCase):
         response = self.client.post(self.url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
+    def test_login_non_existent_user(self):
+        data = {"username": "doesnotexist", "password": "password123"}
+        response = self.client.post(self.url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_login_without_username(self):
+        data = {"password": "testpass"}
+        response = self.client.post(self.url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_login_without_password(self):
+        data = {"username": "testuser"}
+        response = self.client.post(self.url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_login_with_blank_credentials(self):
+        data = {"username": "", "password": ""}
+        response = self.client.post(self.url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_login_case_sensitivity(self):
+        data = {"username": "TESTUSER", "password": "testpass"}
+        response = self.client.post(self.url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_login_sql_injection_attempt(self):
+        data = {"username": "testuser", "password": "' OR '1'='1"}
+        response = self.client.post(self.url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_login_xss_attempt(self):
+        data = {"username": "<script>alert('xss')</script>", "password": "testpass"}
+        response = self.client.post(self.url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
 
 class UserProfileTests(TestCase):
     def setUp(self):
