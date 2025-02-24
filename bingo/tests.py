@@ -48,16 +48,16 @@ class ViewsTestCase(APITestCase):
 
     def test_email_validation_invalid_format(self):
         invalid_emails = [
-            "userexeter.ac.uk",  # missing '@'
-            "user@@exeter.ac.uk",  # double '@'
-            "user@exeter",  # missing domain extension
-            "user@exeter..ac.uk",  # double dots in domain
-            "user@.ac.uk",  # missing domain name before dot
-            "user@exetercom",  # missing dot in domain extension
-            " user@exeter.ac.uk",  # leading whitespace
-            "user@exeter.ac.uk ",  # trailing whitespace
-            "user @exeter.ac.uk",  # space in local part
-            ""  # empty string
+            "userexeter.ac.uk",       # missing '@'
+            "user@@exeter.ac.uk",     # double '@'
+            "user@exeter",            # missing domain extension
+            "user@exeter..ac.uk",     # double dots in domain
+            "user@.ac.uk",            # missing domain name before dot
+            "user@exetercom",         # missing dot in domain extension
+            " user@exeter.ac.uk",     # leading whitespace
+            "user@exeter.ac.uk ",     # trailing whitespace
+            "user @exeter.ac.uk",     # space in local part
+            ""                        # empty string
         ]
         for email in invalid_emails:
             self.assertFalse(email_validation(email), f"Email '{email}' should be invalid")
