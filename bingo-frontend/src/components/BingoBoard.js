@@ -17,7 +17,7 @@ const BingoBoard = () => {
     },
     {
       id: 2,
-      description: "Join an Environmental Society (e.g., Be the Change, Enactus, Green Futures Network)",
+      description: "Join an Environmental Society (e.g., Be the Change or Enactus)",
       points: 7,
       requiresUpload: true,
       requireScan: false,
