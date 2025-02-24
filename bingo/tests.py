@@ -141,7 +141,7 @@ class RegisterUserTests(TestCase):
             "email": "newuser@gmail.com",
             "gdprConsent": True
         }
-        response = self.client.post('/api/register/', data)
+        response = self.client.post(self.url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("Please use your @exeter.ac.uk email only", response.data.get("error", ""))
 
