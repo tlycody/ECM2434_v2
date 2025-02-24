@@ -289,13 +289,43 @@ class TasksTests(TestCase):
 
     def test_update_user_profile_with_picture(self):
         self.client.force_authenticate(user=self.user)
-        new_username = "updatedwithpic"
-        new_email = "updatedwithpic@example.com"
-        # Create a dummy image file.
-        image_content = b'\xff\xd8\xff\xe0\x00\x10JFIF'  # Minimal JPEG header bytes.
-        image = SimpleUploadedFile("test_image.jpg", image_content, content_type="image/jpeg")
-        data = {"username": new_username, "email": new_email, "profile_picture": image}
-        response = self.client.put('/user/update/', data, format="multipart")
+        self.task = Task.objects.create(description="Test Task", points=10)
+        self.leaderboard = Leaderboard.objects.create(user=self.user, points=0)
+
+    def test_complete_task_success(self):
+        url = reverse('complete_task')
+        data = {"task_id": self.task.id}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("Task completed!", response.data["message"])
+        self.leaderboard.refresh_from_db()
+        self.assertEqual(self.leaderboard.points, self.task.points)
+
+    def test_complete_task_already_completed(self):
+        UserTask.objects.create(user=self.user, task=self.task, completed=True)
+        url = reverse('complete_task')
+        data = {"task_id": self.task.id}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("Task already completed!", response.data["message"])
+
+    def test_complete_task_invalid_task(self):
+        url = reverse('complete_task')
+        data = {"task_id": 9999}  # Non-existent task ID
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_complete_task_without_authentication(self):
+        self.client.force_authenticate(user=None)
+        url = reverse('complete_task')
+        data = {"task_id": self.task.id}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_complete_task_updates_leaderboard(self):
+        url = reverse('complete_task')
+        data = {"task_id": self.task.id}
+        response = self.client.post(url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get("message"), "Profile updated successfully")
         # Refresh the user and profile from the database.
