@@ -21,7 +21,8 @@ from .views import (
 
 User = get_user_model()
 
-class ViewsTestCase(APITestCase):
+
+class ProfileTests(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.user = User.objects.create_user(username="profileuser", email="profile@exeter.ac.uk", password="testpass")
