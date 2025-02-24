@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -69,7 +69,9 @@ const Login = () => {
         }),
       });
 
-      const data = await response.json();
+      const text = await response.text();
+      console.log("Raw response:", text);
+      const data = JSON.parse(text);
 
       if (!response.ok) {
         throw new Error(data.detail || data.error || 'Login failed');
