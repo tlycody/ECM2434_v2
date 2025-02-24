@@ -236,6 +236,30 @@ class ViewsTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertIn("message", response.data)
         self.assertEqual(response.data.get("message"), "User registered successfully!")
+        # Verify that a Leaderboard entry was created for the new user.
+        new_user = User.objects.get(username="newuser")
+        self.assertTrue(Leaderboard.objects.filter(user=new_user).exists())
+
+    # ---------- Login Tests ----------
+    def test_login_missing_fields(self):
+        data = {}
+        response = self.client.post('/api/login/', data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("error", response.data)
+
+    def test_login_invalid_credentials(self):
+        data = {"username": "testuser", "password": "wrongpassword"}
+        response = self.client.post('/api/login/', data)
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertIn("error", response.data)
+
+    def test_login_success(self):
+        data = {"username": "testuser", "password": "testpassword"}
+        response = self.client.post('/api/login/', data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("access", response.data)
+        self.assertIn("refresh", response.data)
+        self.assertEqual(response.data.get("user"), "testuser")
 
     # ---------- Tasks Tests ----------
     def test_tasks(self):
