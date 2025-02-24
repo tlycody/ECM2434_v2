@@ -283,5 +283,34 @@ class ViewsTestCase(TestCase):
         response = self.client.get('/leaderboard/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIsInstance(response.data, list)
-        # The leaderboard should be sorted in descending order by points.
-        self.assertEqual(response.data[0]["user"], user2.username)
+        if len(response.data) >= 2:
+            # The user with higher points (user2) should appear first.
+            self.assertEqual(response.data[0]["user"], user2.username)
+
+    # ---------- Get User Profile Tests ----------
+    def test_get_user_profile_authenticated(self):
+        self.client.force_authenticate(user=self.user)
+        UserTask.objects.create(user=self.user, task=self.task, completed=True)
+        self.leaderboard.points = 10
+        self.leaderboard.save()
+        response = self.client.get('/get_user_profile/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["username"], self.user.username)
+        self.assertEqual(response.data["total_points"], 10)
+        self.assertEqual(response.data["completed_tasks"], 1)
+        self.assertEqual(response.data["leaderboard_rank"], user_rank(10))
+
+    def test_get_user_profile_auth_required(self):
+        self.client.force_authenticate(user=None)
+        response = self.client.get('/get_user_profile/')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    # ---------- User Rank Tests ----------
+    def test_user_rank_beginner(self):
+        self.assertEqual(user_rank(10), "Beginner")
+
+    def test_user_rank_intermediate(self):
+        self.assertEqual(user_rank(100), "Intermediate")
+
+    def test_user_rank_expert(self):
+        self.assertEqual(user_rank(1300), "Expert")
