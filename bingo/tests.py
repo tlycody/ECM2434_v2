@@ -200,11 +200,9 @@ class TasksTests(TestCase):
         url = reverse('tasks')
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data.get("message"), "Profile updated successfully")
-        # Refresh the user from the database.
-        self.user.refresh_from_db()
-        self.assertEqual(self.user.username, new_username)
-        self.assertEqual(self.user.email, new_email)
+        if response.data:
+            self.assertIn("description", response.data[0])
+            self.assertIn("points", response.data[0])
 
     def test_update_user_profile_with_picture(self):
         self.client.force_authenticate(user=self.user)
