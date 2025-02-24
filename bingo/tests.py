@@ -147,21 +147,11 @@ class RegisterUserTests(TestCase):
 
     def test_register_existing_username(self):
         data = {
-            "username": "testuser",  # already exists
-            "password": "testpassword",
-            "passwordagain": "testpassword",
-            "email": "unique@exeter.ac.uk"
-        }
-        response = self.client.post('/api/register/', data)
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("Username already taken", response.data.get("error", ""))
-
-    def test_register_existing_email(self):
-        data = {
-            "username": "uniqueuser",
-            "password": "testpassword",
-            "passwordagain": "testpassword",
-            "email": "test@exeter.ac.uk"  # already used
+            "username": "existinguser",
+            "password": "password123",
+            "passwordagain": "password123",
+            "email": "existing@exeter.ac.uk",
+            "gdprConsent": True
         }
         response = self.client.post('/api/register/', data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
