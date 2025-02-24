@@ -10,73 +10,74 @@ const BingoBoard = () => {
   const [tasks, setTasks] = useState([
     {
       id: 1,
-      description: "Graduate The Green Consultant Training Course",
+      description: "Complete the Green Consultant Training Program",
       points: 10,
       requiresUpload: true,
       requireScan: false,
     },
     {
       id: 2,
-      description:  "Join a 'Green' society: Be the Change, Enactus, and the Green Futures Network",
+      description: "Join an Environmental Society (e.g., Be the Change, Enactus, Green Futures Network)",
       points: 7,
       requiresUpload: true,
       requireScan: false,
     },
     {
       id: 3,
-      description:  "Get involved in Gift it, Reuse it scheme",
+      description: "Participate in the University’s 'Gift it, Reuse it' Initiative",
       points: 10,
       requiresUpload: false,
       requireScan: true,
     },
     {
       id: 4,
-      description: "Use British Heart Foundation Banks on campus to recycle clothes",
+      description: "Donate clothes using the British Heart Foundation Banks on campus",
       points: 8,
       requiresUpload: false,
       requireScan: true,
     },
     {
       id: 5,
-      description: "Sign up to university sustainability newsletter",
+      description: "Subscribe to the University’s Sustainability Newsletter",
       points: 5,
       requiresUpload: true,
       requireScan: false,
     },
     {
       id: 6,
-      description: "Refill your reusable water bottle from one of over 100 free water refill stations on campus",
+      description: "Refill your reusable water bottle at any of the 100+ free refill stations on campus",
       points: 8,
       requiresUpload: true,
     },
     {
       id: 7,
-      description: "Shopping at Exeter's zero waste shops, Nourish and Zero",
+      description: "Shop sustainably at local zero-waste stores (e.g., Nourish and Zero)",
       points: 10,
       requiresUpload: false,
       requireScan: true,
     },
     {
       id: 8,
-      description: "Empty glasses put in nearest glass bottle bank",
+      description: "Recycle glass bottles by placing them in the designated campus bins",
       points: 8,
       requiresUpload: true,
       requireScan: false,
     },
     {
       id: 9,
-      description: "Getting involved in ESV - Environmental Project",
+      description: "Engage in the Environmental Sustainability Volunteer (ESV) Project",
       points: 10,
       requiresUpload: false,
       requireScan: true,
     },
   ]);
+
   const navigate = useNavigate();
 
   useEffect(() => {
     axios.get(`${API_URL}/tasks/`)
       .then(response => {
-        console.log('Tasks fetched:',response.data);
+        console.log('Tasks fetched:', response.data);
         setTasks(response.data);
       })
       .catch(error => console.log(error));
@@ -90,7 +91,6 @@ const BingoBoard = () => {
       navigate("/upload");
     } else if (task.requireScan) {
       localStorage.setItem("selectedChoice", task.description);
-      // Open webqr.com in a new tab
       window.open("https://webqr.com/", "_blank");
     } else {
       setTasks(prevTasks =>
@@ -103,24 +103,24 @@ const BingoBoard = () => {
 
   return (
     <div className="bingo-container">
-        <h1 className="bingo-header">Bingo Board</h1>
-        <div className="bingo-board">
-        {tasks.map((task, index) => (
+      <h1 className="bingo-header">Sustainability Bingo</h1>
+      <div className="bingo-board">
+        {tasks.map((task) => (
           <div
-              key={task.id}
-              className={`bingo-cell ${task.completed ? 'completed' : ''}`}
-              onClick={() => handleTaskClick(task)} // Added onClick handler
-            >
-              <div className='cell-content'>
-                <div className='points'>{tasks.points} Marks</div>
-                <div className='description'>{task.description}</div>
-                {task.requiresUpload && <div className='upload indicator'>📷</div>}
-                {task.requireScan && (
-  <a href="https://webqr.com/" target="_blank" rel="noreferrer">
-    <div className="scan-indicator">🤳🏻</div>
-  </a>
-)}
-              </div>
+            key={task.id}
+            className={`bingo-cell ${task.completed ? 'completed' : ''}`}
+            onClick={() => handleTaskClick(task)}
+          >
+            <div className='cell-content'>
+              <div className='points'>{task.points} Points</div>
+              <div className='description'>{task.description}</div>
+              {task.requiresUpload && <div className='upload-indicator'>📷</div>}
+              {task.requireScan && (
+                <a href="https://webqr.com/" target="_blank" rel="noreferrer">
+                  <div className="scan-indicator">📍</div>
+                </a>
+              )}
+            </div>
           </div>
         ))}
       </div>
