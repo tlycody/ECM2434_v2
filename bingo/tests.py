@@ -329,6 +329,20 @@ class TasksTests(TestCase):
             self.assertIn("description", response.data[0])
             self.assertIn("points", response.data[0])
 
+    def test_fetch_tasks_multiple_entries(self):
+        Task.objects.create(description="Another Task", points=15)
+        url = reverse('tasks')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertGreaterEqual(len(response.data), 2)
+
+    def test_fetch_tasks_with_special_characters(self):
+        Task.objects.create(description="Special !@#$%^&*() Task", points=20)
+        url = reverse('tasks')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(any(task["description"] == "Special !@#$%^&*() Task" for task in response.data))
+
 
 class CompleteTaskTests(TestCase):
     def setUp(self):
