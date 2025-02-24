@@ -103,6 +103,37 @@ class ProfileTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("error", response.data)
 
+    def test_update_user_profile_with_existing_picture_replacement(self):
+        url = reverse('update_user_profile')
+        image1 = SimpleUploadedFile("image1.jpg", b"file_content1", content_type="image/jpeg")
+        data1 = {"profile_picture": image1}
+        self.client.put(url, data1, format='multipart')
+        profile = Profile.objects.get(user=self.user)
+        old_picture = profile.profile_picture.name
+
+        image2 = SimpleUploadedFile("image2.jpg", b"file_content2", content_type="image/jpeg")
+        data2 = {"profile_picture": image2}
+        response = self.client.put(url, data2, format='multipart')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        profile.refresh_from_db()
+        new_picture = profile.profile_picture.name
+        self.assertNotEqual(old_picture, new_picture)
+
+    def test_update_user_profile_with_unsupported_file_type(self):
+        url = reverse('update_user_profile')
+        pdf_file = SimpleUploadedFile("document.pdf", b"%PDF-1.4 fake content", content_type="application/pdf")
+        data = {"profile_picture": pdf_file}
+        response = self.client.put(url, data, format='multipart')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("error", response.data)
+
+    def test_update_user_profile_without_authentication(self):
+        self.client.force_authenticate(user=None)
+        url = reverse('update_user_profile')
+        data = {"username": "newuser"}
+        response = self.client.put(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
 
 class EmailValidationTests(TestCase):
     def test_email_validation_valid(self):
