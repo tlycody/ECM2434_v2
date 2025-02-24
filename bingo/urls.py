@@ -2,7 +2,6 @@ from django.shortcuts import render
 from django.urls import path
 from django.http import HttpResponse
 from django.contrib.auth import views as auth_views
-from django.contrib import admin
 from .views import (
     login_user, register_user,
     #player_dashboard, gamekeeper_dashboard, developer_dashboard,
@@ -24,7 +23,6 @@ urlpatterns = [
     path('api/login/', login_user, name='api_login'),  # New route
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('admin/', admin.site.urls),
     # Dashboard URLs
     # path('player/', player_dashboard, name='player_dashboard'),
     # path('gamekeeper/', gamekeeper_dashboard, name='gamekeeper_dashboard'),

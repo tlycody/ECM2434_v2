@@ -242,7 +242,21 @@ def tasks(request):
       'requiresUpload':False,
        "requireScan": True,
     }]
-    return JsonResponse(tasks_list, safe=False) 
+    
+    for task_data in tasks_list:
+        Task.objects.get_or_create(
+            id = task_data['id'],
+            defaults ={
+                'description': task_data['description'],
+                'points': task_data['points'],
+                'requiresUpload': task_data['requiresUpload'],
+                'requireScan':task_data['requireScan']
+            }
+        )
+
+    tasks = Task.objects.all()
+    serializer = TaskSerializer(tasks,many = True)
+    return Response(serializer.data)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

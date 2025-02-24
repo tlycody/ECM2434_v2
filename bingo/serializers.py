@@ -46,7 +46,7 @@ class RegisterUserSerializer(serializers.ModelSerializer):
 class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
-        fields = '__all__'
+        fields = ['id','description','points','requiresUpload','requireScan']
 
 class UserTaskSerializer(serializers.ModelSerializer):
     class Meta:

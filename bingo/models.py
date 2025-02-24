@@ -31,12 +31,13 @@ class BingoTask(models.Model):
         return self.title
 
 class Task(models.Model):
-    title = models.CharField(max_length=255)
     description = models.TextField()
-    is_location_based = models.BooleanField(default=False)
-    qr_code = models.CharField(max_length=255, blank=True, null=True)
-    photo_required = models.BooleanField(default=False)
-    points = models.IntegerField(default=5)
+    points = models.IntegerField()
+    requiresUpload = models.BooleanField(default= False)
+    requireScan = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.description
 
 class UserTask(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
