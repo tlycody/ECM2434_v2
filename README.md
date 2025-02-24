@@ -22,10 +22,11 @@ The top three players with the highest scores will receive rewards like gift car
 Prototype Overview 
 This prototype is a Djangopbased web application designed to provide an interactive and engaing through a combination of user authentication, gameificationa dn location based features. Players can sign up and log in securely to access their personalized dashboard, where they can participate in nine challenges or tasks and track their progress on a leaderboard.  The application also incorporates scanner functionality, allowing users to interact with specific challenges tied to four places. Additionally, a QR code generation feature can be utilized for enhanced user interactions. The backend is built using the Django REST Framework (DRF) to create a scalable and efficient API, enabling seamless communication between the front end and back end.
 
-Features that our prototype has 
-User regirstrationa nd login
-user profiles
-Challenge system
+Current Features that sprint 1 has 
+User regirstration and login
+user profile
+bingo board and leaderbaord(not fully function)
+admin pannel at the backend 
 
 Tech Stack
 Backend: Django, Django REST Framework (DRF)
@@ -37,8 +38,36 @@ Instructions for installation and setup
 ✅ Python 3.x – Download and install from Python.org
 ✅ Git – Download and install from Git website
 ✅ Virtual Environment – A Python environment manager for dependency isolation
-If you have thse installed, run on your terminal 
-python --version    
-git --version       
 
 Clone the Repository 
+Install Dependencies 
+- pip install -r requirements.txt
+how to run the  web server 
+- Start frontend/ backend 
+  Go to your Django project folder
+  To activate virtual environment
+  source venv/bin/activate (Mac/Linux)
+  venv/Scripts/activate  (Windows)
+  run
+
+- Start Django backend
+  run
+  pip install -r requirements.txt
+  npm install jsqr
+  python manage.py makemigrations
+  python manage.py migrate
+  python manage.py runserver
+
+- Start Django frontend
+  run
+  cd bingo-frontend
+  npm install
+  npm start
+
+
+  
+  
+
+  
+
+
