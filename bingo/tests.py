@@ -229,4 +229,9 @@ class ViewsTestCase(TestCase):
         self.assertIn("message", response.data)
         self.assertEqual(response.data.get("message"), "User registered successfully!")
 
-# Create your tests here.
+    # ---------- Tasks Tests ----------
+    def test_tasks(self):
+        response = self.client.get('/tasks/')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsInstance(response.data, list)
+        self.assertGreater(len(response.data), 0)
