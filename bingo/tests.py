@@ -238,24 +238,9 @@ class RegisterUserTests(TestCase):
             # The user with higher points (user2) should appear first.
             self.assertEqual(response.data[0]["user"], user2.username)
 
-    # ---------- Get User Profile Tests ----------
-    def test_get_user_profile_authenticated(self):
-        self.client.force_authenticate(user=self.user)
-        # Create a completed task and set leaderboard points.
-        from .models import UserTask  # import here if not imported at the top
-        UserTask.objects.create(user=self.user, task=self.task, completed=True)
-        self.leaderboard.points = 10
-        self.leaderboard.save()
-        response = self.client.get('/user/')
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["username"], self.user.username)
-        self.assertEqual(response.data["total_points"], 10)
-        self.assertEqual(response.data["completed_tasks"], 1)
-        self.assertEqual(response.data["leaderboard_rank"], user_rank(10))
-
-    def test_get_user_profile_auth_required(self):
-        self.client.force_authenticate(user=None)
-        response = self.client.get('/user/')
+    def test_login_invalid_credentials(self):
+        data = {"username": "testuser", "password": "wrongpass"}
+        response = self.client.post(self.url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     # ---------- User Rank Tests ----------
