@@ -1,7 +1,13 @@
+from .models import Task, UserTask, Leaderboard
 from django.contrib import admin
-
-# Register your models here.
 from django.urls import path, include
+
+admin.site.register(Task)
+admin.site.register(UserTask)
+admin.site.register(Leaderboard)
+
+
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),  # Django Admin Panel
