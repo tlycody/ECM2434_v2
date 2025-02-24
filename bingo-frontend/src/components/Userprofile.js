@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import './UserProfile.css';
 
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
 const Profile = () => {
   const [userData, setUserData] = useState(null);
@@ -16,7 +16,7 @@ const Profile = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await axios.get(`${API_URL}/user/`, {
+        const response = await axios.get(`${API_URL}/api/profile/`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
         });
         setUserData(response.data);
@@ -28,12 +28,12 @@ const Profile = () => {
 
     const fetchCompletedTasks = async () => {
       try {
-        const response = await axios.get(`${API_URL}/tasks/`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        const response = await axios.get(`${API_URL}/api/tasks/`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
         });
         setTasks(response.data);
       } catch (error) {
-        console.error('Error fetching tasks:', error);
+        console.error('Error fetching completed tasks:', error);
       }
     };
 
@@ -62,7 +62,7 @@ const Profile = () => {
     });
 
     try {
-      await axios.put(`${API_URL}/user/update/`, formData, {
+      await axios.put(`${API_URL}/api/profile/update/`, formData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
           'Content-Type': 'multipart/form-data',
@@ -77,26 +77,22 @@ const Profile = () => {
     }
   };
 
-  if (!userData) {
-    return <div className="profile-container">Loading...</div>;
-  }
-
   return (
     <div className="profile-container">
       <h1 className="profile-title">Player Profile</h1>
       <div className="profile-header">
-      <img
-        src={userData.profile_picture || 'https://via.placeholder.com/150'}
-        alt="Profile"
-        className="profile-image"
-      />
+        <img
+          src={userData?.profile_picture || 'https://via.placeholder.com/150'}
+          alt="Profile"
+          className="profile-image"
+        />
 
         {!editMode ? (
           <div className="profile-details">
-            <h2>{userData.username}</h2>
-            <p><strong>Email:</strong> {userData.email || 'N/A'}</p>
-            <p><strong>Rank:</strong> {userData.rank || 'Unranked'}</p>
-            <p><strong>Total Points:</strong> {userData.total_points || 0}</p>
+            <h2>{userData?.username}</h2>
+            <p><strong>Email:</strong> {userData?.email || 'N/A'}</p>
+            <p><strong>Rank:</strong> {userData?.rank || 'Unranked'}</p>
+            <p><strong>Total Points:</strong> {userData?.total_points || 0}</p>
             <p><strong>Completed Tasks:</strong> {tasks.length}</p>
             <button onClick={() => setEditMode(true)}>Edit Profile</button>
           </div>
