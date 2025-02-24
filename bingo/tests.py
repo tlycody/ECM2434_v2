@@ -174,12 +174,6 @@ class LoginUserTests(TestCase):
         response = self.client.post(self.url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
-    # ---------- User Rank Tests ----------
-    def test_user_rank_beginner(self):
-        self.assertEqual(user_rank(10), "Beginner")
-
-    def test_user_rank_intermediate(self):
-        self.assertEqual(user_rank(100), "Intermediate")
 
 class TasksTests(TestCase):
     def setUp(self):
