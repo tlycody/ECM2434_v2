@@ -230,7 +230,7 @@ class ViewsTestCase(APITestCase):
         UserTask.objects.create(user=self.user, task=self.task, completed=True)
         self.leaderboard.points = 10
         self.leaderboard.save()
-        response = self.client.get('/get_user_profile/')
+        response = self.client.get('/user/')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["username"], self.user.username)
         self.assertEqual(response.data["total_points"], 10)
