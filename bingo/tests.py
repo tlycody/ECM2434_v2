@@ -195,9 +195,9 @@ class ViewsTestCase(APITestCase):
 
     def test_register_existing_email(self):
         data = {
-            "username": "anotheruser",
-            "password": "StrongPassw0rd!",
-            "passwordagain": "StrongPassw0rd!",
+            "username": "uniqueuser",
+            "password": "testpassword",
+            "passwordagain": "testpassword",
             "email": "test@exeter.ac.uk"  # already used
         }
         response = self.client.post('/api/register/', data)
