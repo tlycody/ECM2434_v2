@@ -58,6 +58,9 @@ class EmailValidationTests(TestCase):
     def test_email_validation_valid_uppercase(self):
         self.assertTrue(email_validation("USER@EXETER.AC.UK"))
 
+    def test_email_validation_valid_leading_trailing_spaces(self):
+        self.assertTrue(email_validation(" user@exeter.ac.uk ".strip()))
+
     def test_email_validation_invalid_domain(self):
         self.assertFalse(email_validation("user@gmail.com"))
         self.assertFalse(email_validation("user@domain.com"))
