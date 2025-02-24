@@ -247,6 +247,7 @@ class ViewsTestCase(APITestCase):
     # ---------- Complete Task Tests ----------
     def test_complete_task_already_completed(self):
         self.client.force_authenticate(user=self.user)
+        # First attempt: complete the task.
         response1 = self.client.post('/complete_task/', {"task_id": self.task.id})
         self.assertEqual(response1.status_code, status.HTTP_200_OK)
         response2 = self.client.post('/complete_task/', {"task_id": self.task.id})
