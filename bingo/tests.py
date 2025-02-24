@@ -5,7 +5,8 @@ from django.test import TestCase
 from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.test import APIClient, APITestCase, APIRequestFactory
-from .models import Task, UserTask, Leaderboard
+from django.core.files.uploadedfile import SimpleUploadedFile
+from .models import Task, UserTask, Leaderboard, Profile
 from .views import (
     email_validation,
     register_user,
