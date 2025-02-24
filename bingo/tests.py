@@ -239,7 +239,7 @@ class ViewsTestCase(APITestCase):
 
     def test_get_user_profile_auth_required(self):
         self.client.force_authenticate(user=None)
-        response = self.client.get('/get_user_profile/')
+        response = self.client.get('/user/')
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     # ---------- User Rank Tests ----------
