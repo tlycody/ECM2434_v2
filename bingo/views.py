@@ -59,19 +59,20 @@ def update_user_profile(request):
     if 'profile_picture' in request.FILES:
         file = request.FILES['profile_picture']
 
-        if file.content_type not in ALLOWED_IMAGE_TYPES:
-            return Response({"error": "Invalid file type. Only JPEG and PNG images are allowed."},
-                            status=status.HTTP_400_BAD_REQUEST)
-
         if profile.profile_picture:
-            profile.profile_picture.delete()
+            profile.profile_picture.delete()  # Delete old image before replacing
 
         profile.profile_picture = file
 
     user.save()
     profile.save()
 
-    return Response({"message": "Profile updated successfully"})
+    return Response({
+        "username": user.username,
+        "email": user.email,
+        "profile_picture": profile.profile_picture.url if profile.profile_picture else None,
+    })
+
 
 @api_view(['POST'])
 def register_user(request):

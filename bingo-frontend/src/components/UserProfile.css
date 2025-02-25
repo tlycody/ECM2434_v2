@@ -28,7 +28,15 @@
   height: 120px;
   border-radius: 50%;
   border: 3px solid #4c3b6d;
+  object-fit: cover; /* Ensures the image fills the circle properly */
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease-in-out;
 }
+
+.profile-image:hover {
+  transform: scale(1.05);
+}
+
 
 .edit-profile-form {
   display: flex;
