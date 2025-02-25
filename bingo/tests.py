@@ -1,5 +1,6 @@
 # ============================
 # Django Test Suite for API and Models
+# Run Test: python manage.py test
 # ============================
 
 # Import necessary modules for testing
