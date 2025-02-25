@@ -286,6 +286,16 @@ class CompleteTaskTests(TestCase):
         self.leaderboard.refresh_from_db()
         self.assertEqual(self.leaderboard.points, self.task.points)
 
+    def test_complete_task_already_completed(self):
+        """Test completing a task that was already completed."""
+        UserTask.objects.create(user=self.user, task=self.task, completed=True)
+        url = reverse('complete_task')
+        data = {"task_id": self.task.id}
+        response = self.client.post(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("Task already completed!", response.data["message"])
+
+
 # ============================
 # Leaderboard Tests
 # ============================
