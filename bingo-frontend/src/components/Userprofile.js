@@ -1,20 +1,30 @@
+// ============================
+// User Profile Component
+// ============================
+
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import './UserProfile.css';
 
+// Fetch API URL from environment variables (fallback to localhost if not set)
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
 const Profile = () => {
+  // State variables for user data, completed tasks, edit mode, and profile image
   const [userData, setUserData] = useState(null);
   const [tasks, setTasks] = useState([]);
   const [editMode, setEditMode] = useState(false);
   const [updatedUser, setUpdatedUser] = useState({});
   const [profileImage, setProfileImage] = useState(null);
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // React Router navigation hook
 
-  // Fetch user data and completed tasks
+  // ============================
+  // Fetch User Data & Completed Tasks
+  // ============================
+
   useEffect(() => {
+    // Fetch user profile data
     const fetchUserData = async () => {
       try {
         const response = await axios.get(`${API_URL}/api/profile/`, {
@@ -27,6 +37,7 @@ const Profile = () => {
       }
     };
 
+    // Fetch completed tasks
     const fetchCompletedTasks = async () => {
       try {
         const response = await axios.get(`${API_URL}/api/tasks/`, {
@@ -42,17 +53,24 @@ const Profile = () => {
     fetchCompletedTasks();
   }, []);
 
-  // Handle text input changes
+  // ============================
+  // Handle Input & File Changes
+  // ============================
+
+  // Handle text input changes for updating user details
   const handleInputChange = (e) => {
     setUpdatedUser({ ...updatedUser, [e.target.name]: e.target.value });
   };
 
-  // Handle file selection for profile picture
+  // Handle profile picture selection
   const handleFileChange = (e) => {
     setProfileImage(e.target.files[0]);
   };
 
-  // Handle profile update (including profile picture upload)
+  // ============================
+  // Handle Profile Update
+  // ============================
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
@@ -76,7 +94,7 @@ const Profile = () => {
       alert('Profile updated successfully');
       setEditMode(false);
 
-      // Update state with the new profile data (including profile picture)
+      // Update state with new profile data
       setUserData(response.data);
       setProfileImage(null); // Clear the selected image after upload
     } catch (error) {
@@ -85,9 +103,15 @@ const Profile = () => {
     }
   };
 
+  // ============================
+  // Render Profile UI
+  // ============================
+
   return (
     <div className="profile-container">
+      {/* Profile Title */}
       <h1 className="profile-title">Player Profile</h1>
+
       <div className="profile-header">
         {/* Display profile image */}
         <img
@@ -96,6 +120,7 @@ const Profile = () => {
           className="profile-image"
         />
 
+        {/* Profile Info - View or Edit Mode */}
         {!editMode ? (
           <div className="profile-details">
             <h2>{userData?.username}</h2>
@@ -107,8 +132,8 @@ const Profile = () => {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="edit-profile-form">
-            <input type="text" name="username" value={updatedUser.username} onChange={handleInputChange} />
-            <input type="email" name="email" value={updatedUser.email} onChange={handleInputChange} />
+            <input type="text" name="username" value={updatedUser.username} onChange={handleInputChange} placeholder="Enter your username"/>
+            <input type="email" name="email" value={updatedUser.email} onChange={handleInputChange} placeholder="Email"/>
             <input type="file" accept="image/*" onChange={handleFileChange} />
             <button type="submit">Save Changes</button>
             <button type="button" onClick={() => setEditMode(false)}>Cancel</button>
@@ -116,6 +141,7 @@ const Profile = () => {
         )}
       </div>
 
+      {/* Completed Tasks Section */}
       <div className="completed-tasks">
         <h3>Completed Bingo Tasks</h3>
         {tasks.length > 0 ? (
@@ -129,10 +155,14 @@ const Profile = () => {
         )}
       </div>
 
+      {/* Navigation Buttons */}
       <div className="buttons">
         <button onClick={() => navigate('/bingo')}>Go to Bingo Board</button>
         <button onClick={() => navigate('/leaderboard')}>View Leaderboard</button>
-        <button onClick={() => { localStorage.removeItem('token'); navigate('/login'); }}>Logout</button>
+        <button onClick={() => { 
+          localStorage.removeItem('accessToken'); 
+          navigate('/login'); 
+        }}>Logout</button>
       </div>
     </div>
   );

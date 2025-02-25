@@ -1,17 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Meta Information -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Page Title -->
     <title>QR Code Scanner</title>
+    
+    <!-- Link to External CSS File -->
     <link rel="stylesheet" href="Scan.css">
 </head>
 <body>
+
+    <!-- Main Container -->
     <div class="container">
         <h1>QR Code Scanner</h1>
+
+        <!-- Scanner Display -->
         <div class="scanner-container">
-            <video id="video" playsinline></video>
-            <canvas id="canvas" hidden></canvas>
+            <video id="video" playsinline></video> <!-- Video feed for scanning -->
+            <canvas id="canvas" hidden></canvas> <!-- Hidden canvas for QR code processing -->
+            
+            <!-- Output Display -->
             <div id="output">
                 <div id="status">Waiting for camera...</div>
                 <div id="result" hidden>
@@ -20,11 +31,16 @@
                 </div>
             </div>
         </div>
+
+        <!-- Button to Start Scanning -->
         <button id="start-button">Start Scanning</button>
     </div>
     
-    <!-- Import the jsQR library -->
+    <!-- Import the jsQR library for QR code scanning -->
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+
+    <!-- Import the QR Scanner JavaScript File -->
     <script src="Scan.js"></script>
+
 </body>
 </html>
