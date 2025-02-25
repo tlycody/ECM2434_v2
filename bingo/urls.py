@@ -24,6 +24,8 @@ from .serializers import TaskSerializer, LeaderboardSerializer
 import logging
 import json
 import os
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
 # Set up logging for debugging
 logger = logging.getLogger(__name__)

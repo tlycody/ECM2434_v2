@@ -245,3 +245,52 @@ def check_developer_role(request):
         'is_developer': is_developer,
         'username': user.username
     })
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_profile(request):
+    """
+    Get the current user's profile information
+    """
+    user = request.user
+    profile, created = Profile.objects.get_or_create(user=user)
+    leaderboard, _ = Leaderboard.objects.get_or_create(user=user)
+    
+    # Count completed tasks
+    completed_tasks = UserTask.objects.filter(user=user, completed=True).count()
+    
+    # Calculate user rank
+    user_points = leaderboard.points
+    rank = user_rank(user_points)
+    
+    # Update rank in profile if different
+    if profile.rank != rank:
+        profile.rank = rank
+        profile.save()
+    
+    # Get user's position in leaderboard
+    leaderboard_position = Leaderboard.objects.filter(points__gt=user_points).count() + 1
+    
+    # Prepare profile data
+    profile_data = {
+        "username": user.username,
+        "email": user.email,
+        "total_points": user_points,
+        "completed_tasks": completed_tasks,
+        "leaderboard_rank": leaderboard_position,
+        "profile_picture": request.build_absolute_uri(profile.profile_picture.url) if profile.profile_picture else None,
+        "rank": profile.rank
+    }
+    
+    return Response(profile_data)
+
+def user_rank(points):
+    """
+    Determine user rank based on points
+    """
+    if points < 50:
+        return "Beginner"
+    elif points < 1251:
+        return "Intermediate"
+    else:
+        return "Expert"

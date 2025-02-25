@@ -2,7 +2,7 @@
 from rest_framework import serializers
 
 # Import models from the application
-from .models import Task, UserTask, Leaderboard, User
+from .models import Task, UserTask, Leaderboard, User, Profile
 
 # Import Django settings and logging for debugging
 from django.conf import settings
@@ -101,3 +101,23 @@ class LeaderboardSerializer(serializers.ModelSerializer):
     class Meta:
         model = Leaderboard
         fields = ['user', 'points']  # Fields to be exposed in the leaderboard API response
+
+class ProfileSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='user.username')
+    email = serializers.CharField(source='user.email')
+    total_points = serializers.SerializerMethodField()
+    completed_tasks = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Profile
+        fields = ['username','email','profile_picture',
+                  'rank','total_points','completed_tasks']
+        
+    def get_total_points(self,obj):
+        leaderboard, created =Leaderboard.objects.get_or_create(user=obj.user)
+        return leaderboard.points
+    
+    def get_completed_tasks(self,obj):
+        return UserTask.objects.filter(user=obj.user, completed = True).count()
+
+UserProfileSerializer = ProfileSerializer
