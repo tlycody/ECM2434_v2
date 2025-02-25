@@ -1,12 +1,10 @@
-from .models import Task, UserTask, Leaderboard
+from .models import Task, UserTask, Leaderboard,User, Profile, UserConsent
 from django.contrib import admin
 from django.urls import path, include
 
-urlpatterns = [
-    path('admin/', admin.site.urls),  # Django Admin Panel
-    path('api/', include('bingo.urls')),  # Includes all API routes from the 'bingo' app
-]
-
+# Register your models with the admin site
 admin.site.register(Task)
 admin.site.register(UserTask)
 admin.site.register(Leaderboard)
+admin.site.register(Profile)
+admin.site.register(UserConsent)

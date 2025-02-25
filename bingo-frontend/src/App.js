@@ -1,5 +1,5 @@
 import React from 'react';
-import {Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import Home from './components/Home';
 import Userprofile from './components/Userprofile';
 import Login from './components/Login';
@@ -23,6 +23,11 @@ const App = () => {
         <Route path="/bingo" element={<BingoBoard />} />
         <Route path="/upload" element={<Upload />} />
         <Route path="/scan" element={<Scan />} />
+        <Route path="/developer-dashboard" element={
+          localStorage.getItem('userProfile') === 'Developer' 
+            ? <iframe src="/developer-front.html" style={{width: '100%', height: '100vh', border: 'none'}} />
+            : <Navigate to="/login" />
+        } />
       </Routes>
     </div>
   );

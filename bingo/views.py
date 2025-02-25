@@ -159,3 +159,17 @@ def leaderboard(request):
     top_players = Leaderboard.objects.order_by('-points')[:10]
     serializer = LeaderboardSerializer(top_players, many=True)
     return Response(serializer.data)
+
+
+# Remove this duplicated function with indentation issues
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def check_developer_role(request):
+    """Check if the user has the Developer role"""
+    user = request.user
+    is_developer = user.role == 'Developer'
+    
+    return Response({
+        'is_developer': is_developer,
+        'username': user.username
+    })

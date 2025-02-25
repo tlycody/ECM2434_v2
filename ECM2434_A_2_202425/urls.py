@@ -10,7 +10,7 @@ def home(request):
 urlpatterns = [
     path('admin/', admin.site.urls),  # Django Admin Panel
     path('', home),  # Homepage at '/'
-    path('', include('bingo.urls')),  # Includes all API routes from the 'bingo' app
+    path('api/', include('bingo.urls')),  # Include API routes with 'api/' prefix
 ]
 
 # Debug Toolbar (Only if settings.DEBUG is True)

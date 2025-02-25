@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Developer Dashboard</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        h1, h2, h3, h4 {
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 0.5rem;
+        }
+        
+        h2 {
+            font-size: 1.8rem;
+            margin-top: 2rem;
+        }
+        
+        h3 {
+            font-size: 1.3rem;
+            margin-top: 1.5rem;
+        }
+        
+        p {
+            margin-bottom: 1rem;
+        }
+        
+        .section {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 1.5rem;
+        }
+        
+        .tab {
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .tab:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .tab.active {
+            border-bottom: 3px solid var(--primary-color);
+            font-weight: bold;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .code-block {
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            padding: 1rem;
+            border-radius: 4px;
+            font-family: 'Courier New', Courier, monospace;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+        
+        .button {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background-color: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .button:hover {
+            background-color: #2980b9;
+        }
+        
+        .doc-section {
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 1rem;
+        }
+        
+        .doc-section:last-child {
+            border-bottom: none;
+        }
+        
+        .subsection {
+            background-color: #f9f9f9;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-top: 1rem;
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .subsection h4 {
+            color: var(--primary-color);
+        }
+        
+        .deployment-step {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .deployment-step:last-child {
+            border-bottom: none;
+        }
+        
+        .step-number {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            margin-right: 0.5rem;
+        }
+        
+        .note {
+            background-color: #fff8e1;
+            padding: 1rem;
+            border-left: 4px solid var(--warning-color);
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>BINGO Game - Developer Dashboard</h1>
+        
+        <div class="section">
+            <div class="tabs">
+                <div class="tab active" data-tab="repository">Repository</div>
+                <div class="tab" data-tab="documentation">Documentation</div>
+                <div class="tab" data-tab="deployment">Deployment</div>
+            </div>
+            
+            <!-- Repository Tab -->
+            <div id="repository" class="tab-content active">
+                <h2>Repository Information</h2>
+                <h3>Repository Name</h3>
+                <p>ECM2434_v2</p>
+                
+                <h3>Access Links</h3>
+                <p><a href="https://github.com/CaffeinatedDivas/ECM2434_v2" target="_blank" class="button">View on GitHub</a></p>
+                
+                <h3>Clone the repository:</h3>
+                <div class="code-block">
+                    <pre><code>git clone https://github.com/CaffeinatedDivas/ECM2434_v2.git</code></pre>
+                </div>
+                
+                <h3>Description</h3>
+                <p>This is a BINGO game designed to promote sustainability on campus, where players complete tasks to earn points and rewards.</p>
+                <p>There are nine games. When a user completes a task, it turns into a stamp, and they earn points. Each game is worth a set number of points and requires either visiting a location or uploading a picture. For location-based tasks, players must scan a QR code to verify they have been there. Players can earn bonus points for completing tasks in a specific pattern.</p>
+                <p>The game has a time limit of one month, with bonus points for early completion. The top three players with the highest scores will receive rewards such as gift cards.</p>
+            </div>
+            
+            <!-- Documentation Tab -->
+            <div id="documentation" class="tab-content">
+                <div class="doc-section">
+                    <h3>Authentication & Setup</h3>
+                    <p>This session provides instructions for setting up the development environment to use the API.</p>
+                    
+                    <div class="subsection">
+                        <h4>Create Your Developer Account</h4>
+                        <div>
+                            1. Request access by emailing caffeinateddivas@gmail.com<br>
+                            2. You will receive an invitation to complete a registration form<br>
+                            3. After your identity is authenticated, you will receive a special developer-specific password via email
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="doc-section">
+                    <h3>API Documentation</h3>
+                    <p>This section provides detailed guidelines explaining how developers can use the API (Application Programming Interface)</p>
+                    
+                    <div class="subsection">
+                        <h4>Authentication</h4>
+                        <div>
+                            This section explains how to authenticate API requests. It describes how users or developers must provide proof of identity when making API calls.
+                        </div>
+                    </div>
+                    
+                    <div class="subsection">
+                        <h4>Locations API</h4>
+                        <div>
+                            - GET /api/locations - List all game locations<br>
+                            - POST /api/locations - Create a new location<br>
+                            - GET /api/locations/{id} - Get location details<br>
+                            - PUT /api/locations/{id} - Update a location<br>
+                            - DELETE /api/locations/{id} - Remove a location
+                        </div>
+                    </div>
+                    
+                    <div class="subsection">
+                        <h4>Photo Verification API</h4>
+                        <div>
+                            - POST /api/photos - Submit a photo for verification<br>
+                            - GET /api/photos/pending - List pending verification photos<br>
+                            - PUT /api/photos/{id}/verify - Mark a photo as verified
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="doc-section">
+                    <h3>Photo Verification System</h3>
+                    <p>This system allows users to submit photos from locations, which can then be verified by game keepers.</p>
+                    
+                    <div class="subsection">
+                        <h4>How It Works</h4>
+                        <div>
+                            1. Users take photos at specific locations<br>
+                            2. Photos are uploaded to the game board<br>
+                            3. Game keepers review photos through the admin panel<br>
+                            4. Verified photos allow users to gain points on the leaderboard
+                        </div>
+                    </div>                
+                </div>
+
+                <div class="doc-section">
+                    <h3>QR Code System</h3>
+                    <p>This system allows users to scan QR codes at specific locations.</p>
+                    
+                    <div class="subsection">
+                        <h4>How It Works</h4>
+                        <div>
+                            1. If a game on the game board requires the user to scan a QR code, a scanner will appear<br>
+                            2. The scanned QR code will be checked against our data to verify its correctness<br>
+                            3. If the QR code is valid, users will gain points on the leaderboard
+                        </div>
+                    </div>                
+                </div>
+
+            </div>
+            
+            <!-- Deployment Tab -->
+            <div id="deployment" class="tab-content">
+                <div class="deployment-step">
+                    <h3><span class="step-number">1</span> Environment Setup</h3>
+                    <p>This step involves preparing your development environment by installing necessary dependencies and setting up virtual environments.</p>
+                    <div class="code-block">
+                        <pre>
+# Clone the repository
+git clone https://github.com/CaffeinatedDivas/ECM2434_A_2_202425.git
+
+# Created a virtual environment
+pkill -f node
+pkill -f python
+cd path/to/project/folder
+source venv/bin/activate # On Windows: venv\Scripts\activate
+
+# Installed required Python and Django packages
+pip install django
+pip install djangorestframework
+pip install djangorestframework-simplejwt
+pip install django-cors-headers
+pip install Pillow
+pip install django-extensions
+pip install django-debug-toolbar
+pip install -r requirements.txt
+
+# Installed Node.js dependencies
+npm install jsar
+                    </div>
+                </div>
+                
+                <div class="deployment-step">
+                    <h3><span class="step-number">2</span> Configuration</h3>
+                    <p>This step involves setting up environment variables, configuring Django settings, and ensuring everything is properly linked.</p>
+                    <div class="code-block">
+                        <pre>
+# Done when installing django-cors-headers, django-extensions, and django-debug-toolbar. 
+                        </pre>
+                    </div>
+                </div>
+                
+                <div class="deployment-step">
+                    <h3><span class="step-number">3</span> Database Setup</h3>
+                    <p>This step ensures your database is properly set up and ready for use.</p>
+                    <div class="code-block">
+                        <pre>
+python manage.py makemigrations
+python manage.py migrate
+python manage.py loaddata initial_data.json
+                        </pre>
+                    </div>
+                </div>
+                
+                <div class="deployment-step">
+                    <h3><span class="step-number">4</span> Testing Your Setup</h3>
+                    <p>This step involves running the project locally to check if everything is working before deploying to production.</p>
+                    <div class="code-block">
+                        <pre>
+# Started the backend server
+    python manage.py runserver
+
+# Started the frontend                          
+    cd bingo-frontend
+    npm install
+    npm start
+                        </pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Tab switching functionality
+        document.querySelectorAll('.tab').forEach(item => {
+            item.addEventListener('click', event => {
+                const tabId = item.getAttribute('data-tab');
+                
+                // Update tabs
+                document.querySelectorAll('.tab').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                document.querySelectorAll(`.tab[data-tab="${tabId}"]`).forEach(tab => {
+                    tab.classList.add('active');
+                });
+                
+                // Update content
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
