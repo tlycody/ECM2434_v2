@@ -407,6 +407,7 @@ class UserRankTests(TestCase):
         """Test that users with 0-49 points are ranked as 'Beginner'."""
         self.assertEqual(user_rank(10), "Beginner")
         self.assertEqual(user_rank(0), "Beginner")
+        self.assertEqual(user_rank(49), "Beginner")
 
     def test_user_rank_intermediate(self):
         """Test that users with 50-1250 points are ranked as 'Intermediate'."""
