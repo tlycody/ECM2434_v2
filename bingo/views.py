@@ -294,3 +294,39 @@ def user_rank(points):
         return "Intermediate"
     else:
         return "Expert"
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def create_task(request):
+    """
+    Creates a new task. Only accessible to GameKeeper or Developer roles.
+    """
+    # Check if user has appropriate permissions
+    user = request.user
+    if user.profile not in ['GameKeeper', 'Developer']:
+        return Response({"error": "You don't have permission to create tasks."}, 
+                        status=status.HTTP_403_FORBIDDEN)
+    
+    # Get task data from request
+    data = request.data
+    description = data.get('description')
+    points = data.get('points')
+    requires_upload = data.get('requires_upload', False)
+    requires_scan = data.get('requires_scan', False)
+    
+    # Validate required fields
+    if not description or not points:
+        return Response({"error": "Description and points are required."}, 
+                        status=status.HTTP_400_BAD_REQUEST)
+    
+    # Create new task
+    task = Task.objects.create(
+        description=description,
+        points=points,
+        requires_upload=requires_upload,
+        requires_scan=requires_scan
+    )
+    
+    # Return the created task
+    serializer = TaskSerializer(task)
+    return Response(serializer.data, status=status.HTTP_201_CREATED)

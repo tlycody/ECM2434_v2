@@ -94,6 +94,7 @@ const Login = () => {
       console.log("Raw response:", text);
       const data = JSON.parse(text); // Convert response to JSON
 
+
       if (!response.ok) {
         throw new Error(data.detail || data.error || 'Login failed');
       }
@@ -107,8 +108,10 @@ const Login = () => {
       // Redirect based on user role
       if (formData.profile === 'Developer') {
         window.location.href = '/developer-front.html'; // Developer dashboard
+      } else if (formData.profile === 'Game Keeper') {
+        window.location.href = '/gamekeeper';
       } else {
-        navigate('/userprofile'); // Normal user navigation
+        navigate('/userprofile');
       }
     } catch (err) {
       console.error('Login error:', err);

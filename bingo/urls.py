@@ -7,6 +7,7 @@ from django.shortcuts import render, get_object_or_404
 from django.contrib.auth import get_user_model, authenticate
 from django.http import JsonResponse
 from django.core.files.storage import default_storage
+from . import views
 
 # Import Django Rest Framework utilities
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -251,4 +252,5 @@ urlpatterns = [
     path('leaderboard/', leaderboard, name='leaderboard'),
     path('profile/update/', update_user_profile, name='update_user_profile'),
     path('check-developer-role/', check_developer_role, name='check_developer_role'),
+    path('admin/tasks/create/', views.create_task, name='create_task'),
 ]
