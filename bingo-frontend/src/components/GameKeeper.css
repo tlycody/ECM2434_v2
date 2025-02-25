@@ -1,17 +1,27 @@
+/* ============================
+   Gamekeeper Page Styling - Ensuring Consistency
+   ============================ */
+/* Main container for the gamekeeper page */
 .gamekeeper-container {
-    max-width: 800px;
-    margin: 0 auto;
+    max-width: 800px; /* Matches layout for better responsiveness */
+    margin: 0 auto; 
     padding: 20px;
     font-family: Arial, sans-serif;
   }
-  
+
+/* ============================
+   Header and Logout Button Styling
+   ============================ */
+
+/* Header section - Aligns content horizontally */
   .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
   }
-  
+
+  /* Logout button styling - Ensures visibility and usability */
   .logout-btn {
     background-color: #e74c3c;
     color: white;
@@ -20,7 +30,12 @@
     border-radius: 4px;
     cursor: pointer;
   }
-  
+
+/* ============================
+   Sections Styling - Tasks, Leaderboard, and Forms
+   ============================ */
+
+/* Section containers for separation and readability */
   .create-task-section, 
   .tasks-section, 
   .leaderboard-section {
@@ -29,36 +44,41 @@
     border: 1px solid #ddd;
     border-radius: 4px;
   }
-  
+
+/* ============================
+   Form Styling - Ensuring Usability
+   ============================ */
+
+/* General form group styling */
   .form-group {
     margin-bottom: 15px;
   }
-  
+  /* Labels for better clarity */
   .form-group label {
     display: block;
   }
-  
+  /* Checkbox styling - Aligns label and input */
   .form-group.checkbox label {
     display: flex;
     align-items: center;
   }
-  
+  /* Spacing for checkboxes */
   .form-group input[type="checkbox"] {
     margin-right: 8px;
   }
-  
+  /* Textarea input styling */
   .form-group textarea {
     width: 100%;
     padding: 8px;
     margin-top: 5px;
   }
-  
+  /* Number input styling */
   .form-group input[type="number"] {
     width: 100px;
     padding: 8px;
     margin-top: 5px;
   }
-  
+  /* Create button styling - Consistent with Logout button */
   .create-btn {
     background-color: #2ecc71;
     color: white;
@@ -67,19 +87,22 @@
     border-radius: 4px;
     cursor: pointer;
   }
-  
+
+/* Table structure */
   table {
     width: 100%;
     border-collapse: collapse;
   }
-  
+
+/* Table header styling */
   table th, 
   table td {
     text-align: left;
     padding: 8px;
     border-bottom: 1px solid #ddd;
   }
-  
+
+  /* Table cell styling */
   table th {
     background-color: #f5f5f5;
   }
