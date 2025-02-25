@@ -109,7 +109,7 @@ class ProfileTests(TestCase):
 class RegisterUserTestCase(TestCase):
     def setUp(self):
         self.client = APIClient()
-        self.url = reverse('register')
+        self.url = reverse('register_user')
 
     def test_register_valid_user(self):
         """Test registering a new user successfully."""
