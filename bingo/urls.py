@@ -21,6 +21,18 @@ import json
 import os
 from django.core.management import call_command
 
+from django.urls import path
+from .views import register_user, login_user, tasks, complete_task, leaderboard, update_user_profile
+
+urlpatterns = [
+    path('api/register/', register_user, name='register_user'),
+    path('api/login/', login_user, name='login_user'),
+    path('api/tasks/', tasks, name='tasks'),
+    path('api/complete_task/', complete_task, name='complete_task'),
+    path('api/leaderboard/', leaderboard, name='leaderboard'),
+    path('api/profile/update/', update_user_profile, name='update_user_profile'),
+]
+
 User = get_user_model()
 logger = logging.getLogger(__name__)
 ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png"]
