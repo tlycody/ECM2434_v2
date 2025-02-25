@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import './Register.css';
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
