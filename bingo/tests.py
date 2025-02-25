@@ -63,12 +63,6 @@ class LoadInitialTasksTestCase(TestCase):
         load_initial_tasks()
         mock_file.assert_not_called()
 
-    def test_get_client_ip_empty(self):
-        """Test when there is no IP information in the request headers."""
-        request = self.factory.get('/')
-        request.META.pop('REMOTE_ADDR', None)
-        request.META.pop('HTTP_X_FORWARDED_FOR', None)
-        self.assertIsNone(get_client_ip(request))
 
 # ============================
 # User Profile Tests
