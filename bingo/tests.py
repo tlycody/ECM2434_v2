@@ -24,6 +24,7 @@ import json
 # Retrieve the custom User model
 User = get_user_model()
 
+
 # ============================
 # Client IP Address Tests
 # ============================
