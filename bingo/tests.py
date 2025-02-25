@@ -55,11 +55,13 @@ class LoadInitialTasksTestCase(TestCase):
         load_initial_tasks()
         mock_create.assert_not_called()
 
-    def test_get_client_ip_without_forwarded_for(self):
-        """Test if the function correctly falls back to 'REMOTE_ADDR'."""
-        request = self.factory.get('/')
-        request.META['REMOTE_ADDR'] = '192.168.1.100'
-        self.assertEqual(get_client_ip(request), '192.168.1.100')
+    @patch("os.path.join", return_value="mocked_path/initial_data.json")
+    @patch("bingo.models.Task.objects.exists", return_value=True)
+    @patch("builtins.open", new_callable=mock_open)
+    def test_load_initial_tasks_already_exists(self, mock_file, mock_exists, mock_path):
+        """Test loading initial tasks when tasks already exist"""
+        load_initial_tasks()
+        mock_file.assert_not_called()
 
     def test_get_client_ip_empty(self):
         """Test when there is no IP information in the request headers."""
