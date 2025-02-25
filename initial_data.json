@@ -1,0 +1,92 @@
+[
+{
+  "model": "bingo.task",
+  "pk": 1,
+  "fields": {
+    "description": "Graduate The Green Consultancy Training Programme",
+    "points": 10,
+    "requires_upload": true,
+    "requires_scan": false
+  }
+},
+{
+  "model": "bingo.task",
+  "pk": 2,
+  "fields": {
+    "description": "Join A \"Green Society\" (E.g. Be The Change Society)",
+    "points": 7,
+    "requires_upload": true,
+    "requires_scan": false
+  }
+},
+{
+  "model": "bingo.task",
+  "pk": 3,
+  "fields": {
+    "description": "Recycle Clothes Using The British Heart Foundation Banks On Campus",
+    "points": 8,
+    "requires_upload": false,
+    "requires_scan": true
+  }
+},
+{
+  "model": "bingo.task",
+  "pk": 4,
+  "fields": {
+    "description": "Sign Up To The University's Sustainability Newsletter.",
+    "points": 5,
+    "requires_upload": true,
+    "requires_scan": false
+  }
+},
+{
+  "model": "bingo.task",
+  "pk": 5,
+  "fields": {
+    "description": "Refill Your Reusable Water Bottle From One of Over 100 Free Water Refill Stations On Campus",
+    "points": 8,
+    "requires_upload": true,
+    "requires_scan": false
+  }
+},
+{
+  "model": "bingo.task",
+  "pk": 6,
+  "fields": {
+    "description": "Shop At Exeter's Zero Waste Shops, Nourish & Zero",
+    "points": 10,
+    "requires_upload": false,
+    "requires_scan": true
+  }
+},
+{
+  "model": "bingo.task",
+  "pk": 7,
+  "fields": {
+    "description": "Dispose of Glasses In Your Nearest Glass Bottle Bank",
+    "points": 8,
+    "requires_upload": true,
+    "requires_scan": false
+  }
+},
+{
+  "model": "bingo.task",
+  "pk": 8,
+  "fields": {
+    "description": "Sign Up To The ESV - Environmental Project.",
+    "points": 10,
+    "requires_upload": false,
+    "requires_scan": true
+  }
+},
+{
+  "model": "bingo.task",
+  "pk": 9,
+  "fields": {
+    "description": "Get Involved In A \"Gift It, Reuse It Scheme' With The Guild",
+    "points": 10,
+    "requires_upload": false,
+    "requires_scan": true
+  }
+}
+]
