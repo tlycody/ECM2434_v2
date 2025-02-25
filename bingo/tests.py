@@ -15,8 +15,11 @@ from rest_framework.test import APIClient
 from unittest.mock import patch, mock_open, MagicMock
 
 # Import models and views for testing
-from .models import Profile, Task, UserTask, Leaderboard
-from .views import email_validation, get_client_ip, user_rank
+from bingo.models import Profile, Task, UserTask, Leaderboard
+from bingo.views import user_rank, load_initial_tasks, login_user, tasks, get_user_profile, check_developer_role
+
+import os
+import json
 
 # Retrieve the custom User model
 User = get_user_model()
