@@ -1,0 +1,126 @@
+/* Importing fonts (if needed) */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+/* General styling */
+body {
+    background-color: #F3E8FF; /* Light lavender background */
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+/* Container */
+.login-container {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    width: 420px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+h2 {
+    color: #5E318A; /* Dark purple title */
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+/* Form styling */
+.form-group {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    max-width: px;
+}
+
+input, select {
+    width: 100%;
+    padding: 14px;
+    border: 2px solid #D1A3FF;
+    border-radius: 10px;
+    font-size: 16px;
+    background-color: #F8F5FC;
+    outline: none;
+    transition: 0.3s;
+    box-sizing: border-box;
+    text-align: left;
+}
+
+input:focus, select:focus {
+    border-color: #5E318A;
+    background-color: white;
+}
+
+/* Checkbox styling */
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.checkbox-group input {
+    width: 18px;
+    height: 18px;
+}
+
+/* Button styling */
+button {
+    background: #8B5CF6; /* Purple button */
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    width: 100%;
+    max-width: 420px;
+    transition: 0.3s;
+    margin-top: 15px;
+}
+
+button:hover {
+    background: #6D28D9; /* Darker purple on hover */
+}
+
+button:disabled {
+    background: #D1A3FF;
+    cursor: not-allowed;
+}
+
+/* Error message */
+.error-message {
+    color: #D32F2F;
+    background: #FFEBEE;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    max-width: 420px;
+    text-align: center;
+}
+
+/* Link */
+p {
+    max-width: 420px;
+    text-align: center;
+    font-size: 14px;
+}
+
+p a {
+    color: #5E318A;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+p a:hover {
+    text-decoration: underline;
+}

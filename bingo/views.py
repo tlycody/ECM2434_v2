@@ -3,30 +3,23 @@ from django.contrib.auth import get_user_model, authenticate
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.http import JsonResponse
+from django.contrib.auth import get_user_model
+from django.core.files.storage import default_storage
+
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
+
 from .models import Task, UserTask, Leaderboard, Profile
 from .serializers import TaskSerializer, LeaderboardSerializer
-from rest_framework_simplejwt.tokens import RefreshToken
 import logging
-from rest_framework.parsers import MultiPartParser, FormParser
 
 User = get_user_model()
 logger = logging.getLogger(__name__)
-
-
-from django.contrib.auth import get_user_model
-from django.shortcuts import get_object_or_404
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework import status
-from .models import Profile
-from django.core.files.storage import default_storage
-
-User = get_user_model()
+ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png"]
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
@@ -40,15 +33,22 @@ def update_user_profile(request):
     user.email = data.get('email', user.email)
 
     if 'profile_picture' in request.FILES:
+        file = request.FILES['profile_picture']
+
+        # Validate file type
+        if file.content_type not in ALLOWED_IMAGE_TYPES:
+            return Response({"error": "Invalid file type. Only JPEG and PNG images are allowed."},
+                            status=status.HTTP_400_BAD_REQUEST)
+
         if profile.profile_picture:
-            default_storage.delete(profile.profile_picture.path)  # Delete old file
-        profile.profile_picture = request.FILES['profile_picture']
+            profile.profile_picture.delete()  # Delete old file before saving new one
+
+        profile.profile_picture = file
 
     user.save()
     profile.save()
 
     return Response({"message": "Profile updated successfully"})
-
 
 # ✅ Validate email domain (Exeter only)
 def email_validation(email):

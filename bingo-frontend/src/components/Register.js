@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import './Register.css';
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
@@ -45,7 +46,7 @@ const Register = () => {
     }
 
     try {
-      const response = await fetch(`${API_URL}/register/`, {
+      const response = await fetch(`${API_URL}/api/register/`, {  // ✅ Fixed API URL
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -53,7 +54,9 @@ const Register = () => {
             body: JSON.stringify(formData),
         });
 
-        const data = await response.json();
+        const text = await response.text();
+        console.log("Raw response:", text);
+        const data = JSON.parse(text);
 
         if (response.ok) {
             navigate('/login');
@@ -63,6 +66,8 @@ const Register = () => {
     } catch (err) {
         console.error('Registration error:', err);
         setError(err.message || 'An error occurred during registration');
+    } finally {
+        setLoading(false);
     }
   };
 

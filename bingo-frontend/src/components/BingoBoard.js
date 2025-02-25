@@ -13,7 +13,8 @@ const BingoBoard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get(`${API_URL}/tasks/`)
+    axios.get(`${API_URL}/tasks/`, {
+    })
       .then(response => {
         console.log('Tasks fetched:', response.data);
         setTasks(response.data);
@@ -26,7 +27,7 @@ const BingoBoard = () => {
       });
   }, []);
 
-  const handleTaskClick = (task) => {
+  const handleTaskClick = async (task) => {
     if (!task) return;
   
     if (task.requires_upload) {
@@ -36,11 +37,20 @@ const BingoBoard = () => {
       localStorage.setItem("selectedChoice", task.description);
       navigate("/scan");
     } else {
-      setTasks(prevTasks =>
-        prevTasks.map(t =>
-          t.id === task.id ? { ...t, completed: !t.completed } : t
-        )
-      );
+      try {
+        const response = await axios.post(`${API_URL}/task/complete/`, { task_id: task.id }, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
+        });
+        if (response.status === 200) {
+          setTasks(prevTasks =>
+            prevTasks.map(t =>
+              t.id === task.id ? { ...t, completed: true } : t
+            )
+          );
+        }
+      } catch (error) {
+        console.error("Error completing task:", error);
+      }
     }
   };
 
@@ -63,7 +73,7 @@ const BingoBoard = () => {
                 <div className='points'><strong>{task.points} Points</strong></div>
                 <div className='description'>{task.description}</div>
                 {task.requires_upload && <div className='upload-indicator'>📷</div>}
-                {task.requires_scan && <div className='scan-indicator'>🤳🏻python manage.py makemigrations</div>}
+                {task.requires_scan && <div className='scan-indicator'>🤳🏻</div>}
               </div>
             </div>
           )) : <p>No tasks available.</p>}
