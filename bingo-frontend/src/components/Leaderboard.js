@@ -12,7 +12,7 @@ const Leaderboard = () => {
 
   useEffect(() => {
     setLoading(true);
-    axios.get(`${API_URL}/leaderboard/`)
+    axios.get(`${API_URL}/api/leaderboard/`)
       .then(response => {
         console.log("Leaderboard fetched:", response.data);
         setPlayers(response.data);
