@@ -420,3 +420,10 @@ class UserRankTests(TestCase):
         self.assertEqual(user_rank(1300), "Expert")
         self.assertEqual(user_rank(5000), "Expert")
         self.assertEqual(user_rank(1251), "Expert")
+
+    def test_user_rank_boundary_cases(self):
+        """Test boundary cases to ensure correct ranking transitions."""
+        self.assertEqual(user_rank(49), "Beginner")
+        self.assertEqual(user_rank(50), "Intermediate")
+        self.assertEqual(user_rank(1250), "Intermediate")
+        self.assertEqual(user_rank(1251), "Expert")
