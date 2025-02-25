@@ -253,4 +253,5 @@ urlpatterns = [
     path('leaderboard/', leaderboard, name='leaderboard'),
     path('profile/update/', update_user_profile, name='update_user_profile'),
     path('check-developer-role/', check_developer_role, name='check_developer_role'),
+    path('profile/', get_user_profile, name='get_user_profile'),
 ]
