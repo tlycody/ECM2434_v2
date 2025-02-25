@@ -13,6 +13,7 @@ const Profile = () => {
   const [profileImage, setProfileImage] = useState(null);
   const navigate = useNavigate();
 
+  // Fetch user data and completed tasks
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -41,14 +42,17 @@ const Profile = () => {
     fetchCompletedTasks();
   }, []);
 
+  // Handle text input changes
   const handleInputChange = (e) => {
     setUpdatedUser({ ...updatedUser, [e.target.name]: e.target.value });
   };
 
+  // Handle file selection for profile picture
   const handleFileChange = (e) => {
     setProfileImage(e.target.files[0]);
   };
 
+  // Handle profile update (including profile picture upload)
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
@@ -62,15 +66,19 @@ const Profile = () => {
     });
 
     try {
-      await axios.put(`${API_URL}/api/profile/update/`, formData, {
+      const response = await axios.put(`${API_URL}/api/profile/update/`, formData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
           'Content-Type': 'multipart/form-data',
         },
       });
+
       alert('Profile updated successfully');
       setEditMode(false);
-      setUserData(updatedUser);
+
+      // Update state with the new profile data (including profile picture)
+      setUserData(response.data);
+      setProfileImage(null); // Clear the selected image after upload
     } catch (error) {
       console.error('Error updating profile:', error);
       alert('Failed to update profile');
@@ -81,8 +89,9 @@ const Profile = () => {
     <div className="profile-container">
       <h1 className="profile-title">Player Profile</h1>
       <div className="profile-header">
+        {/* Display profile image */}
         <img
-          src={userData?.profile_picture || 'https://via.placeholder.com/150'}
+          src={userData?.profile_picture ? `${API_URL}${userData.profile_picture}` : 'https://via.placeholder.com/150'}
           alt="Profile"
           className="profile-image"
         />
@@ -121,7 +130,7 @@ const Profile = () => {
       </div>
 
       <div className="buttons">
-        <button onClick={() => navigate('/bingo')}>Back to Bingo Board</button>
+        <button onClick={() => navigate('/bingo')}>Go to Bingo Board</button>
         <button onClick={() => navigate('/leaderboard')}>View Leaderboard</button>
         <button onClick={() => { localStorage.removeItem('token'); navigate('/login'); }}>Logout</button>
       </div>
