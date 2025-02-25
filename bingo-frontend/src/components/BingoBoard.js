@@ -13,7 +13,7 @@ const BingoBoard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get(`${API_URL}/tasks/`, {
+    axios.get(`${API_URL}/api/tasks/`, {
     })
       .then(response => {
         console.log('Tasks fetched:', response.data);
