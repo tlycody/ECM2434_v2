@@ -1,70 +1,199 @@
-# Getting Started with Create React App
+# ECM2434 Project - Bingo Game
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## **Project Overview**
 
-## Available Scripts
+This project is a **gamified Bingo challenge** where players complete sustainability-related tasks to earn points and rewards. It is built using **Django (backend)** and a **frontend framework (React/other, if applicable)**. Players verify tasks via **QR codes** and can earn bonus points for completing challenges within a set timeframe.
 
-In the project directory, you can run:
+## **Features**
 
-### `npm start`
+- **9 Task-Based Games:** Players complete challenges to earn stamps.
+- **QR Code Verification:** Users scan QR codes to confirm task completion.
+- **Bonus Points System:** Rewards for completing tasks in patterns.
+- **Leaderboard:** Tracks top-scoring players.
+- **User Authentication:** Secure login using JWT.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## **Setup Instructions**
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### **Prerequisites**
 
-### `npm test`
+Ensure you have the following installed:
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+- Python (>= 3.8)
+- pip (Python package manager)
+- Node.js & npm (if frontend exists)
+- Git (for version control)
+- Virtual Environment (Recommended for Python dependencies)
 
-### `npm run build`
+### **Backend Setup (Django)**
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+#### 1. Clone the Repository
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```bash
+git clone <your-repo-url>
+cd <your-project-folder>
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+#### 2. Create a Virtual Environment
 
-### `npm run eject`
+```bash
+python -m venv venv
+source venv/bin/activate  # Mac/Linux
+venv\Scripts\activate  # Windows
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+#### 3. Install Dependencies
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```bash
+pip install -r requirements.txt
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+#### 4. Configure the Database
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+```bash
+python manage.py makemigrations
+python manage.py migrate
+```
 
-## Learn More
+#### 5. Create a Superuser (Admin)
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```bash
+python manage.py createsuperuser
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Follow the prompts to set up an admin account.
 
-### Code Splitting
+#### 6. Run the Server
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+```bash
+python manage.py runserver
+```
 
-### Analyzing the Bundle Size
+The backend should now be running at **[http://127.0.0.1:8000/](http://127.0.0.1:8000/)**.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+### **Frontend Setup (If Applicable)**
 
-### Making a Progressive Web App
+#### 1. Navigate to the Frontend Directory
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+```bash
+cd frontend
+```
 
-### Advanced Configuration
+#### 2. Install Node.js Dependencies
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+```bash
+npm install
+```
 
-### Deployment
+#### 3. Start the Development Server
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+```bash
+npm start
+```
 
-### `npm run build` fails to minify
+The frontend should now be running at **[http://localhost:3000/](http://localhost:3000/)**.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## **Stopping and Restarting the Application**
+
+### **Stop Frontend and Backend**
+
+```bash
+pkill -f node
+pkill -f python
+```
+
+### **Start Frontend and Backend**
+
+```bash
+cd path/to/backend    # Go to your Django project folder manually
+source venv/bin/activate  # (Mac/Linux) Activate virtual environment
+
+pip install -r requirements.txt
+npm install jsqr
+
+python manage.py makemigrations
+python manage.py migrate
+
+python manage.py runserver  # Start Django backend
+
+cd path/to/frontend   # Go to React frontend folder manually
+npm install           # Install dependencies (only if not already installed)
+npm start             # Start React frontend
+```
+
+Now the server should be running:
+
+- Backend: **[http://localhost:8000/](http://localhost:8000/)**
+- Frontend: **[http://localhost:3000/](http://localhost:3000/)**
+
+## **Running Tests**
+
+### **Backend Tests (Django)**
+
+```bash
+python manage.py test
+```
+
+### **Frontend Tests (If Applicable)**
+
+```bash
+npm test
+```
+
+## **Environment Variables (Optional)**
+
+If using environment variables for secrets, create a `.env` file in the project root and add:
+
+```env
+SECRET_KEY=your_secret_key
+DEBUG=True
+DATABASE_URL=your_database_url
+```
+
+## **Deployment Guide (Optional)**
+
+For production deployment on Heroku, AWS, or DigitalOcean:
+
+- Use **Gunicorn** instead of the Django development server.
+- Set up a **PostgreSQL database** for production.
+- Configure **whitenoise** for static file handling.
+
+## **Common Issues & Troubleshooting**
+
+### **Virtual Environment Issues**
+
+If `pip install -r requirements.txt` fails, try:
+
+```bash
+python -m pip install --upgrade pip
+```
+
+### **Database Issues**
+
+If migrations fail, reset the database:
+
+```bash
+python manage.py flush
+```
+
+## **Contributing**
+
+1. Fork the repository.
+2. Create a feature branch (`git checkout -b feature-xyz`).
+3. Commit your changes (`git commit -m "Added feature XYZ"`).
+4. Push the branch (`git push origin feature-xyz`).
+5. Create a pull request for review.
+
+## **License**
+
+This project is licensed under the **MIT License**.
+
+## **Contact**
+
+For questions or contributions, contact \*\*[lyt202\@exeter.ac.uk, wllt201\@exeter.ac.uk, mk811\@exeter.ac.uk, ncm206\@exeter.ac.uk, stl214\@exeter.ac.uk, sc1332\@exeter.ac.uk, lc1025\@exeter.ac.uk]\*\*.
+
+
+
+---
+
+This README now includes all essential information for developers, ensuring clarity in project setup, development, and contribution. 🚀
+
