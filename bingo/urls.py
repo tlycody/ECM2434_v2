@@ -3,6 +3,8 @@ from django.urls import path
 from django.http import HttpResponse
 from django.contrib.auth import views as auth_views
 from rest_framework_simplejwt.views import TokenRefreshView
+from .views import tasks, complete_task, leaderboard
+
 
 # Import views
 from .views import (
