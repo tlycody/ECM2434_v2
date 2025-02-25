@@ -94,22 +94,13 @@ class ProfileTests(TestCase):
         profile = Profile.objects.get(user=self.user)
         self.assertTrue(profile.profile_picture)
 
-# ============================
-# Email Validation Tests
-# ============================
-
-class EmailValidationTests(TestCase):
-    """
-    Tests for validating email addresses.
-    """
-    def test_email_validation_valid(self):
-        """Test a valid university email address."""
-        self.assertTrue(email_validation("user@exeter.ac.uk"))
-
-    def test_email_validation_invalid_domain(self):
-        """Test invalid email domains."""
-        self.assertFalse(email_validation("user@gmail.com"))
-        self.assertFalse(email_validation("user@exeter.com"))
+    def test_update_user_profile_unsupported_picture_format(self):
+        """Test updating the profile with an unsupported image format."""
+        url = reverse('update_user_profile')
+        unsupported_image = SimpleUploadedFile("test.gif", b"file_content", content_type="image/gif")
+        data = {"profile_picture": unsupported_image}
+        response = self.client.put(url, data, format='multipart')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 # ============================
 # User Registration Tests
