@@ -117,7 +117,7 @@ class RegisterUserTestCase(TestCase):
             "username": "newuser",
             "password": "password123",
             "passwordagain": "password123",
-            "email": "newuser@exeter.ac.uk",
+            "email": "newuser@example.com",
             "gdprConsent": True
         }
         response = self.client.post(self.url, data, format='json')
