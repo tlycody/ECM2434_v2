@@ -93,7 +93,6 @@ def register_user(request):
     if User.objects.filter(email=email).exists():
         return Response({"error": "This email is already registered."}, status=status.HTTP_400_BAD_REQUEST)
 
-
     user = User.objects.create_user(username=username, email=email, password=password)
     from .models import UserConsent
     UserConsent.objects.create(
