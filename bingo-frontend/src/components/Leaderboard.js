@@ -44,6 +44,8 @@ const Leaderboard = () => {
         </ul>
       )}
       <button onClick={() => navigate('/bingo')}>Back to Bingo</button>
+      <button onClick={() => navigate('/userprofile')}>View Profile</button>
+
     </div>
   );
 };
