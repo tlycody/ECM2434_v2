@@ -83,7 +83,14 @@ const Login = () => {
       localStorage.setItem('refreshToken', data.refresh);
       localStorage.setItem('userProfile', formData.profile);
       localStorage.setItem('username', data.user);
-      navigate('/userprofile');
+
+      if (formData.profile === 'Developer') {
+        // Redirect to developer dashboard
+        window.location.href = '/developer-front.html';
+      } else {
+        // Normal user navigation
+        navigate('/userprofile');
+      }
     } catch (err) {
       console.error('Login error:', err);
       setError(err.message || 'An error occurred during login');
