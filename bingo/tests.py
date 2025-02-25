@@ -136,6 +136,99 @@ class RegisterUserTestCase(TestCase):
         response = self.client.post(self.url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_register_without_gdpr_consent(self):
+        """Test registering a user without GDPR consent."""
+        data = {
+            "username": "newuser",
+            "password": "password123",
+            "passwordagain": "password123",
+            "email": "newuser@example.com",
+            "gdprConsent": False
+        }
+        response = self.client.post(self.url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+# ============================
+# User Login Tests
+# ============================
+
+class LoginUserTestCase(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create_user(username='testuser', email='test@example.com', password='password123')
+
+    def test_login_user_success(self):
+        """Test logging in with correct credentials."""
+        response = self.client.post(reverse('login_user'), {"username": "testuser", "password": "password123"}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("access", response.json())
+        self.assertIn("refresh", response.json())
+
+    def test_login_user_invalid_credentials(self):
+        """Test logging in with incorrect password."""
+        response = self.client.post(reverse('login_user'), {"username": "testuser", "password": "wrongpassword"}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.json()["error"], "Invalid username or password")
+
+    def test_login_user_missing_fields(self):
+        """Test logging in with missing fields."""
+        response = self.client.post(reverse('login_user'), {"username": ""}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.json()["error"], "Username and password are required.")
+
+    def test_login_user_nonexistent_username(self):
+        """Test logging in with a username that does not exist."""
+        response = self.client.post(reverse('login_user'), {"username": "nonexistent", "password": "password123"}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.json()["error"], "Invalid username or password")
+
+    def test_login_user_blank_password(self):
+        """Test logging in with a blank password."""
+        response = self.client.post(reverse('login_user'), {"username": "testuser", "password": ""}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.json()["error"], "Username and password are required.")
+
+    def test_login_user_case_sensitivity(self):
+        """Test login with different case in username."""
+        response = self.client.post(reverse('login_user'), {"username": "TESTUSER", "password": "password123"}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(response.json()["error"], "Invalid username or password")
+
+# ============================
+# Task Tests
+# ============================
+
+class TasksTestCase(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create_user(username='testuser', email='test@example.com', password='password123')
+        self.task = Task.objects.create(id=1, description='Test Task', points=10, requires_upload=False, requires_scan=False)
+
+    @patch("bingo.views.load_initial_tasks", autospec=True)
+    def test_tasks_retrieval(self, mock_load_initial_tasks):
+        """Test retrieving tasks and ensuring task preloading is called."""
+        mock_load_initial_tasks.return_value = None  # Ensure function is patched properly
+        response = self.client.get(reverse('tasks'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertGreaterEqual(len(response.json()), 1)
+        self.assertTrue(mock_load_initial_tasks.called)  # Ensure it was called at least once
+
+    @patch("bingo.views.load_initial_tasks", autospec=True)
+    def test_tasks_retrieval_no_tasks(self, mock_load_initial_tasks):
+        """Test retrieving tasks when no tasks exist in the database."""
+        Task.objects.all().delete()
+        response = self.client.get(reverse('tasks'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.json()), 0)
+
+    @patch("bingo.views.load_initial_tasks", autospec=True)
+    def test_tasks_retrieval_error_handling(self, mock_load_initial_tasks):
+        """Test error handling when an exception occurs in task retrieval."""
+        mock_load_initial_tasks.side_effect = Exception("Task loading error")
+        with self.assertRaises(Exception) as context:
+            self.client.get(reverse('tasks'))
+        self.assertEqual(str(context.exception), "Task loading error")
+
 # ============================
 # Task Completion Tests
 # ============================
