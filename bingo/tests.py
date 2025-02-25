@@ -130,7 +130,39 @@ class RegisterUserTestCase(TestCase):
             "username": "newuser",
             "password": "password123",
             "passwordagain": "password456",
-            "email": "newuser@exeter.ac.uk",
+            "email": "newuser@example.com",
+            "gdprConsent": True
+        }
+        response = self.client.post(self.url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_register_missing_fields(self):
+        """Test registering a user with missing required fields."""
+        data = {"username": "user1"}  # Missing password and email
+        response = self.client.post(self.url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_register_existing_username(self):
+        """Test registering a user with an already existing username."""
+        User.objects.create_user(username="existinguser", email="existing@example.com", password="password123")
+        data = {
+            "username": "existinguser",
+            "password": "password123",
+            "passwordagain": "password123",
+            "email": "newuser@example.com",
+            "gdprConsent": True
+        }
+        response = self.client.post(self.url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_register_existing_email(self):
+        """Test registering a user with an already existing email."""
+        User.objects.create_user(username="user2", email="existing@example.com", password="password123")
+        data = {
+            "username": "newuser",
+            "password": "password123",
+            "passwordagain": "password123",
+            "email": "existing@example.com",
             "gdprConsent": True
         }
         response = self.client.post(self.url, data, format='json')
