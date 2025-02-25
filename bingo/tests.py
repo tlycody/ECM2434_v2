@@ -112,7 +112,7 @@ class RegisterUserTestCase(TestCase):
         self.url = reverse('register_user')
 
     def test_register_valid_user(self):
-        """Test registering a new user successfully."""
+        """Test registering a valid user."""
         data = {
             "username": "newuser",
             "password": "password123",
