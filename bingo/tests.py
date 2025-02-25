@@ -26,7 +26,7 @@ User = get_user_model()
 
 
 # ============================
-# Client IP Address Tests
+# Load Initial Tasks Tests
 # ============================
 
 class ClientIPTests(TestCase):
