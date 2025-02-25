@@ -69,9 +69,6 @@ class LoadInitialTasksTestCase(TestCase):
 # ============================
 
 class ProfileTests(TestCase):
-    """
-    Tests for updating and retrieving user profiles.
-    """
     def setUp(self):
         self.client = APIClient()
         self.user = User.objects.create_user(username="profileuser", email="profile@exeter.ac.uk", password="testpass")
