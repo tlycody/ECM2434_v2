@@ -1,73 +1,198 @@
-Our Draft Game overview
-We decided to play BINGO, a gamified challenge where players complete tasks to earn points and rewards.
+# ECM2434 Project - Bingo Game
 
-Game Structure 
--There are 9 games (details attached below).
--When a user completes a task, it turns into a stamp, and they earn points.
--Each game is worth a set number of points and requires either visiting a location or uploading a picture.
--For location-based tasks, players must scan a QR code to verify they have been there.
--Players can earn bonus points for completing tasks in a specific pattern (explanation attached below).
--The game has a time limit of one month.
+## **Project Overview**
 
-Bonouspoints for early completion 
-Players who complete all 9 games within:
-⁠Week 1 earn an extra 40 points
-⁠Week 2 earn an extra 30 points
-⁠Week 3 earn an extra 20 points
-⁠Week 4 earn an extra 10 points\
+This project is a **gamified Bingo challenge** where players complete sustainability-related tasks to earn points and rewards. It is built using **Django (backend)** and a **frontend framework (React/other, if applicable)**. Players verify tasks via **QR codes** and can earn bonus points for completing challenges within a set timeframe.
 
-Rewards
-The top three players with the highest scores will receive rewards like gift cards
+## **Features**
 
-Prototype Overview 
-This prototype is a Djangopbased web application designed to provide an interactive and engaing through a combination of user authentication, gameificationa dn location based features. Players can sign up and log in securely to access their personalized dashboard, where they can participate in nine challenges or tasks and track their progress on a leaderboard.  The application also incorporates scanner functionality, allowing users to interact with specific challenges tied to four places. Additionally, a QR code generation feature can be utilized for enhanced user interactions. The backend is built using the Django REST Framework (DRF) to create a scalable and efficient API, enabling seamless communication between the front end and back end.
+- **9 Task-Based Games:** Players complete challenges to earn stamps.
+- **QR Code Verification:** Users scan QR codes to confirm task completion.
+- **Bonus Points System:** Rewards for completing tasks in patterns.
+- **Leaderboard:** Tracks top-scoring players.
+- **User Authentication:** Secure login using JWT.
 
-Current Features that sprint 1 has 
-User regirstration and login
-user profile
-bingo board and leaderbaord(not fully function)
-admin pannel at the backend 
+## **Setup Instructions**
 
-Tech Stack
-Backend: Django, Django REST Framework (DRF)
-Database: SQLite/PostgreSQL
-Authentication: Django Authentication
-Other Tools: QR Code Generation, Django Admin
+### **Prerequisites**
 
-Instructions for installation and setup 
-✅ Python 3.x – Download and install from Python.org
-✅ Git – Download and install from Git website
-✅ Virtual Environment – A Python environment manager for dependency isolation
+Ensure you have the following installed:
 
-Clone the Repository 
-Install Dependencies 
-- pip install -r requirements.txt
-how to run the  web server 
-- Start frontend/ backend 
-  Go to your Django project folder
-  To activate virtual environment
-  source venv/bin/activate (Mac/Linux)
-  venv/Scripts/activate  (Windows)
-  run
+- Python (>= 3.8)
+- pip (Python package manager)
+- Node.js & npm (if frontend exists)
+- Git (for version control)
+- Virtual Environment (Recommended for Python dependencies)
 
-- Start Django backend
-  run
-  pip install -r requirements.txt
-  npm install jsqr
-  python manage.py makemigrations
-  python manage.py migrate
-  python manage.py runserver
+### **Backend Setup (Django)**
 
-- Start Django frontend
-  run
-  cd bingo-frontend
-  npm install
-  npm start
+#### 1. Clone the Repository
+
+```bash
+git clone <your-repo-url>
+cd <your-project-folder>
+```
+
+#### 2. Create a Virtual Environment
+
+```bash
+python -m venv venv
+source venv/bin/activate  # Mac/Linux
+venv\Scripts\activate  # Windows
+```
+
+#### 3. Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+#### 4. Configure the Database
+
+```bash
+python manage.py makemigrations
+python manage.py migrate
+```
+
+#### 5. Create a Superuser (Admin)
+
+```bash
+python manage.py createsuperuser
+```
+
+Follow the prompts to set up an admin account.
+
+#### 6. Run the Server
+
+```bash
+python manage.py runserver
+```
+
+The backend should now be running at **[http://127.0.0.1:8000/](http://127.0.0.1:8000/)**.
+
+### **Frontend Setup (If Applicable)**
+
+#### 1. Navigate to the Frontend Directory
+
+```bash
+cd frontend
+```
+
+#### 2. Install Node.js Dependencies
+
+```bash
+npm install
+```
+
+#### 3. Start the Development Server
+
+```bash
+npm start
+```
+
+The frontend should now be running at **[http://localhost:3000/](http://localhost:3000/)**.
+
+## **Stopping and Restarting the Application**
+
+### **Stop Frontend and Backend**
+
+```bash
+pkill -f node
+pkill -f python
+```
+
+### **Start Frontend and Backend**
+
+```bash
+cd path/to/backend    # Go to your Django project folder manually
+source venv/bin/activate  # (Mac/Linux) Activate virtual environment
+
+pip install -r requirements.txt
+npm install jsqr
+
+python manage.py makemigrations
+python manage.py migrate
+
+python manage.py runserver  # Start Django backend
+
+cd path/to/frontend   # Go to React frontend folder manually
+npm install           # Install dependencies (only if not already installed)
+npm start             # Start React frontend
+```
+
+Now the server should be running:
+
+- Backend: **[http://localhost:8000/](http://localhost:8000/)**
+- Frontend: **[http://localhost:3000/](http://localhost:3000/)**
+
+## **Running Tests**
+
+### **Backend Tests (Django)**
+
+```bash
+python manage.py test
+```
+
+### **Frontend Tests (If Applicable)**
+
+```bash
+npm test
+```
+
+## **Environment Variables (Optional)**
+
+If using environment variables for secrets, create a `.env` file in the project root and add:
+
+```env
+SECRET_KEY=your_secret_key
+DEBUG=True
+DATABASE_URL=your_database_url
+```
+
+## **Deployment Guide (Optional)**
+
+For production deployment on Heroku, AWS, or DigitalOcean:
+
+- Use **Gunicorn** instead of the Django development server.
+- Set up a **PostgreSQL database** for production.
+- Configure **whitenoise** for static file handling.
+
+## **Common Issues & Troubleshooting**
+
+### **Virtual Environment Issues**
+
+If `pip install -r requirements.txt` fails, try:
+
+```bash
+python -m pip install --upgrade pip
+```
+
+### **Database Issues**
+
+If migrations fail, reset the database:
+
+```bash
+python manage.py flush
+```
+
+## **Contributing**
+
+1. Fork the repository.
+2. Create a feature branch (`git checkout -b feature-xyz`).
+3. Commit your changes (`git commit -m "Added feature XYZ"`).
+4. Push the branch (`git push origin feature-xyz`).
+5. Create a pull request for review.
+
+## **License**
+
+This project is licensed under the **MIT License**.
+
+## **Contact**
+
+For questions or contributions, contact \*\*[lyt202\@exeter.ac.uk, wllt201\@exeter.ac.uk, mk811\@exeter.ac.uk, ncm206\@exeter.ac.uk, stl214\@exeter.ac.uk, sc1332\@exeter.ac.uk, lc1025\@exeter.ac.uk]\*\*.
 
 
-  
-  
 
-  
+---
 
 
