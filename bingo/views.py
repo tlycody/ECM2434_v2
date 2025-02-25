@@ -3,7 +3,6 @@ from django.contrib.auth import get_user_model, authenticate
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from django.http import JsonResponse
-from django.contrib.auth import get_user_model
 from django.core.files.storage import default_storage
 
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -16,7 +15,6 @@ from rest_framework import status
 from .models import Task, UserTask, Leaderboard, Profile
 from .serializers import TaskSerializer, LeaderboardSerializer
 import logging
-
 import json
 import os
 from django.core.management import call_command
@@ -108,6 +106,29 @@ def register_user(request):
     Leaderboard.objects.get_or_create(user=user)
     
     return Response({"message": "User registered successfully!"}, status=status.HTTP_201_CREATED)
+
+@api_view(['POST'])
+def login_user(request):
+    """
+    Log in a user and return JWT tokens.
+    """
+    data = request.data
+    username = data.get('username')
+    password = data.get('password')
+
+    if not username or not password:
+        return Response({"error": "Username and password are required."}, status=status.HTTP_400_BAD_REQUEST)
+
+    user = authenticate(username=username, password=password)
+    if user:
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+            'user': username
+        }, status=status.HTTP_200_OK)
+
+    return Response({"error": "Invalid username or password"}, status=status.HTTP_401_UNAUTHORIZED)
 
 @api_view(['GET'])
 def tasks(request):
