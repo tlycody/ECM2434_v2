@@ -14,6 +14,7 @@ import Leaderboard from './components/Leaderboard';
 import BingoBoard from './components/BingoBoard';
 import Upload from './components/Upload';
 import Scan from './components/Scan';
+import GameKeeper from './components/GameKeeper';
 import PrivacyPolicy from './components/PrivacyPolicy'; 
 
 const App = () => {
@@ -35,6 +36,7 @@ const App = () => {
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/bingo" element={<BingoBoard />} />
         <Route path="/upload" element={<Upload />} />
+        <Route path="/gamekeeper" element={<GameKeeper />} />
         <Route path="/scan" element={<Scan />} />
 
         {/* Developer Dashboard - Restricted Access */}
