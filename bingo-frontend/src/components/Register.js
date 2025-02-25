@@ -125,8 +125,10 @@ const Register = () => {
               onChange={handleChange}
               required
             />
-            I have read and agree to the <Link to="/privacy-policy" target="_blank">Privacy Policy</Link>
+             I have read and agree to the&nbsp;
+            <Link to="/privacy-policy" target="_blank">Privacy Policy</Link>
           </label>
+
         </div>
         <button type="submit" disabled={loading}>
           {loading ? 'Registering...' : 'Register'}
