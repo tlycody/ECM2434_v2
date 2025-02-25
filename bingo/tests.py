@@ -309,6 +309,82 @@ class LeaderboardTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertGreaterEqual(response.data[0]["points"], response.data[1]["points"])
 
+    def test_leaderboard_empty(self):
+        """Test leaderboard when no users exist."""
+        Leaderboard.objects.all().delete()
+        url = reverse('leaderboard')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 0)
+
+    def test_leaderboard_ties(self):
+        """Test leaderboard when multiple users have the same score."""
+        user3 = User.objects.create_user(username="leaderuser3", email="leader3@exeter.ac.uk", password="testpass")
+        Leaderboard.objects.create(user=user3, points=200)
+        url = reverse('leaderboard')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data[0]["points"], response.data[1]["points"])
+
+# ============================
+# Check Developer Role Tests
+# ============================
+
+class CheckDeveloperRoleTestCase(TestCase):
+    """
+    Tests for checking the developer role status of a user.
+    """
+    def setUp(self):
+        self.client = APIClient()
+        self.developer_user = User.objects.create_user(username='developeruser', email='dev@example.com', password='password123', role='Developer')
+        self.regular_user = User.objects.create_user(username='regularuser', email='user@example.com', password='password123', role='User')
+
+    def test_check_developer_role_true(self):
+        """Test if a user with Developer role is correctly identified."""
+        self.client.force_authenticate(user=self.developer_user)
+        response = self.client.get(reverse('check_developer_role'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(response.json()["is_developer"])
+
+    def test_check_developer_role_false(self):
+        """Test if a user without Developer role is correctly identified."""
+        self.client.force_authenticate(user=self.regular_user)
+        response = self.client.get(reverse('check_developer_role'))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertFalse(response.json()["is_developer"])
+
+# ============================
+#Retrieve User Profile Test
+# ============================
+
+class GetUserProfileTestCase(TestCase):
+    """
+    Tests for retrieving user profile details.
+    """
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create_user(username='testuser', email='test@example.com', password='password123')
+        self.profile = Profile.objects.create(user=self.user, rank="Beginner")
+        self.leaderboard = Leaderboard.objects.create(user=self.user, points=50)
+        self.client.force_authenticate(user=self.user)
+
+    def test_get_user_profile(self):
+        """Test retrieving user profile details."""
+        response = self.client.get(reverse('get_user_profile'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()["username"], "testuser")
+        self.assertEqual(response.json()["email"], "test@example.com")
+        self.assertEqual(response.json()["total_points"], 50)
+        self.assertEqual(response.json()["rank"], "Intermediate")
+
+    def test_get_user_profile_no_leaderboard_entry(self):
+        """Test retrieving user profile when leaderboard entry does not exist."""
+        Leaderboard.objects.filter(user=self.user).delete()
+        response = self.client.get(reverse('get_user_profile'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.json()["total_points"], 0)
+        self.assertEqual(response.json()["rank"], "Beginner")
+
 # ============================
 # User Rank Tests
 # ============================
