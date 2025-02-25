@@ -146,6 +146,10 @@ const Login = () => {
         <button type="submit" disabled={loading}>
           {loading ? 'Logging in...' : 'Login'}
         </button>
+
+        <button type="button" onClick={() => navigate('/')} className="home-button">
+          Home
+        </button>
       </form>
       <p>
         Don't have an account? <Link to="/register">Register Here!</Link>

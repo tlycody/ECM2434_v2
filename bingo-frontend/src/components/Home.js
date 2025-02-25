@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import './Home.css';
 
 const API_URL = process.env.REACT_APP_API_URL;
 

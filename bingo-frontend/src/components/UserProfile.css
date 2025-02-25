@@ -1,59 +1,135 @@
-/* UserProfile.css */
+/* Profile.css - Matches Leaderboard Styling */
+
+/* Profile Page Container */
 .profile-container {
-  max-width: 600px;
+  max-width: 420px; /* ✅ Same width as leaderboard */
   margin: auto;
   padding: 20px;
   text-align: center;
-  background-color: #d5c5f1;
+  background-color: #d5c5f1; /* ✅ Matches leaderboard background */
   border-radius: 15px;
   box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
   font-family: 'Poppins', sans-serif;
 }
 
-.profile-title {
-  font-size: 24px;
-  font-weight: bold;
-  color: #4c3b6d;
-  margin-bottom: 10px;
-}
-
+/* Profile Header (Image + Name) */
 .profile-header {
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin-bottom: 20px;
 }
 
+/* Profile Image */
 .profile-image {
-  width: 120px;
-  height: 120px;
+  width: 100px; /* ✅ Consistent with other images */
+  height: 100px;
   border-radius: 50%;
-  border: 3px solid #4c3b6d;
-  object-fit: cover; /* Ensures the image fills the circle properly */
+  border: 3px solid #4c3b6d; /* ✅ Same purple outline */
+  object-fit: cover;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-  transition: transform 0.2s ease-in-out;
+  margin-bottom: 10px;
 }
 
-.profile-image:hover {
+/* User Info Text */
+.profile-details p {
+  font-size: 14px;
+  font-weight: bold;
+  color: #4c3b6d; /* ✅ Same as leaderboard text */
+  margin: 5px 0;
+}
+
+/* Edit Profile Button */
+.edit-profile-btn {
+  background-color: #7548d4; /* ✅ Same purple */
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+}
+
+.edit-profile-btn:hover {
+  background-color: #5b36a6; /* ✅ Darker purple on hover */
   transform: scale(1.05);
 }
 
+.edit-profile-btn:active {
+  transform: scale(0.95);
+}
 
-.edit-profile-form {
+/* Completed Tasks Section */
+.completed-tasks {
+  margin-top: 20px;
+}
+
+.completed-tasks h3 {
+  font-size: 18px;
+  font-weight: bold;
+  color: #4c3b6d; /* ✅ Same as leaderboard title */
+  margin-bottom: 10px;
+}
+
+/* Completed Tasks List */
+.completed-tasks ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.completed-tasks li {
+  background-color: #b3e6c9; /* ✅ Soft green for completed tasks */
+  color: #2e604a;
+  font-weight: bold;
+  padding: 10px;
+  margin: 5px 0;
+  border-radius: 10px;
+}
+
+/* Buttons for Navigation */
+.buttons {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  margin-top: 20px;
 }
 
 .buttons button {
-  background-color: #4c3b6d;
+  background-color: #4c3b6d; /* ✅ Dark purple */
   color: white;
   border: none;
-  padding: 10px;
-  margin-top: 10px;
-  border-radius: 5px;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 10px;
   cursor: pointer;
+  transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
 }
 
 .buttons button:hover {
-  background-color: #3a2b5e;
+  background-color: #3a2b5e; /* ✅ Darker hover effect */
+  transform: scale(1.05);
+}
+
+.buttons button:active {
+  transform: scale(0.95);
+}
+
+/* Mobile Responsive */
+@media (max-width: 500px) {
+  .profile-container {
+    width: 90%;
+    padding: 15px;
+  }
+
+  .profile-image {
+    width: 90px;
+    height: 90px;
+  }
+
+  .completed-tasks li {
+    font-size: 14px;
+  }
 }

@@ -1,0 +1,73 @@
+/* Home.css - Ensuring Consistency */
+
+/* Main Container - Matches Leaderboard Box */
+.home-container {
+    max-width: 420px; /* ✅ Same width as leaderboard */
+    margin: auto;
+    padding: 20px;
+    text-align: center;
+    background-color: #d5c5f1; /* ✅ Same soft purple background */
+    border-radius: 15px;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+    font-family: 'Poppins', sans-serif;
+  }
+  
+  /* Title - Same Styling as Leaderboard Title */
+  h1 {
+    font-size: 24px;
+    font-weight: bold;
+    color: #4c3b6d; /* ✅ Matches leaderboard text */
+    margin-bottom: 10px;
+  }
+  
+  /* Subtitle - Ensuring Text Consistency */
+  p {
+    font-size: 16px;
+    color: #6a5a8a; /* ✅ Same shade as leaderboard */
+    margin-bottom: 20px;
+  }
+  
+  /* Buttons - Same Styling as Leaderboard Buttons */
+  .buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  button {
+    background-color: #7548d4; /* ✅ Leaderboard Button Purple */
+    color: white;
+    border: none;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+  }
+  
+  button:hover {
+    background-color: #5b36a6; /* ✅ Slightly Darker Purple on Hover */
+    transform: scale(1.05);
+  }
+  
+  button:active {
+    transform: scale(0.95);
+  }
+  
+  /* Ensure Consistency Across Different Screen Sizes */
+  @media (max-width: 500px) {
+    .home-container {
+      width: 90%; /* ✅ Same responsive behavior */
+      padding: 15px;
+    }
+  
+    h1 {
+      font-size: 22px;
+    }
+  
+    p {
+      font-size: 14px;
+    }
+  }
+  
