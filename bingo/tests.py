@@ -29,12 +29,22 @@ User = get_user_model()
 # Load Initial Tasks Tests
 # ============================
 
-class ClientIPTests(TestCase):
-    """
-    Tests the functionality of retrieving client IP addresses in different scenarios.
-    """
-    def setUp(self):
-        self.factory = RequestFactory()
+class LoadInitialTasksTestCase(TestCase):
+    @patch("builtins.open", new_callable=mock_open, read_data='[{"pk": 2, "fields": {"description": "New Task", "points": 15, "requires_upload": false, "requires_scan": true}}]')
+    @patch("os.path.join", return_value="mocked_path/initial_data.json")
+    @patch("bingo.models.Task.objects.exists", return_value=False)
+    @patch("bingo.models.Task.objects.create")
+    def test_load_initial_tasks(self, mock_create, mock_exists, mock_path, mock_file):
+        """Test loading initial tasks when no tasks exist"""
+        load_initial_tasks()
+        mock_create.assert_called_once_with(
+            id=2,
+            description="New Task",
+            points=15,
+            requires_upload=False,
+            requires_scan=True
+        )
+        self.assertTrue(mock_create.called)
 
     def test_get_client_ip_with_forwarded_for(self):
         """Test if the function correctly extracts the first IP from 'X-Forwarded-For'."""
