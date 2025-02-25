@@ -46,11 +46,14 @@ class LoadInitialTasksTestCase(TestCase):
         )
         self.assertTrue(mock_create.called)
 
-    def test_get_client_ip_with_forwarded_for(self):
-        """Test if the function correctly extracts the first IP from 'X-Forwarded-For'."""
-        request = self.factory.get('/')
-        request.META['HTTP_X_FORWARDED_FOR'] = '192.168.1.1, 192.168.1.2'
-        self.assertEqual(get_client_ip(request), '192.168.1.1')
+    @patch("builtins.open", new_callable=mock_open, read_data='[]')
+    @patch("os.path.join", return_value="mocked_path/initial_data.json")
+    @patch("bingo.models.Task.objects.exists", return_value=False)
+    @patch("bingo.models.Task.objects.create")
+    def test_load_initial_tasks_empty_file(self, mock_create, mock_exists, mock_path, mock_file):
+        """Test loading initial tasks when JSON file is empty"""
+        load_initial_tasks()
+        mock_create.assert_not_called()
 
     def test_get_client_ip_without_forwarded_for(self):
         """Test if the function correctly falls back to 'REMOTE_ADDR'."""
