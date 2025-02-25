@@ -1,3 +1,5 @@
+#To Run: python manage.py test
+
 from django.test import TestCase, RequestFactory
 from django.contrib.auth import get_user_model
 from django.urls import reverse
@@ -8,6 +10,59 @@ from .models import Profile, Task, UserTask, Leaderboard
 from .views import email_validation, get_client_ip
 
 User = get_user_model()
+
+
+class ClientIPTests(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+
+    def test_get_client_ip_with_forwarded_for(self):
+        request = self.factory.get('/')
+        request.META['HTTP_X_FORWARDED_FOR'] = '192.168.1.1, 192.168.1.2'
+        self.assertEqual(get_client_ip(request), '192.168.1.1')
+
+    def test_get_client_ip_with_single_forwarded_for(self):
+        request = self.factory.get('/')
+        request.META['HTTP_X_FORWARDED_FOR'] = '203.0.113.5'
+        self.assertEqual(get_client_ip(request), '203.0.113.5')
+
+    def test_get_client_ip_with_multiple_forwarded_for_spaces(self):
+        request = self.factory.get('/')
+        request.META['HTTP_X_FORWARDED_FOR'] = ' 192.168.1.10 , 192.168.1.11 '
+        self.assertEqual(get_client_ip(request).strip(), '192.168.1.10')
+
+    def test_get_client_ip_without_forwarded_for(self):
+        request = self.factory.get('/')
+        request.META['REMOTE_ADDR'] = '192.168.1.100'
+        self.assertEqual(get_client_ip(request), '192.168.1.100')
+
+    def test_get_client_ip_empty(self):
+        request = self.factory.get('/')
+        request.META.pop('REMOTE_ADDR', None)  # Remove any default assigned IP
+        request.META.pop('HTTP_X_FORWARDED_FOR', None)  # Ensure no forwarded-for IP is set
+        self.assertIsNone(get_client_ip(request))
+
+    def test_get_client_ip_invalid_forwarded_for(self):
+        request = self.factory.get('/')
+        request.META['HTTP_X_FORWARDED_FOR'] = 'invalid_ip'
+        self.assertEqual(get_client_ip(request), 'invalid_ip')  # Function does not validate IP format
+
+    def test_get_client_ip_malformed_forwarded_for(self):
+        request = self.factory.get('/')
+        request.META['HTTP_X_FORWARDED_FOR'] = ' , , '
+        self.assertEqual(get_client_ip(request).strip(), '')  # Should return an empty string after stripping spaces
+
+    def test_get_client_ip_multiple_headers(self):
+        request = self.factory.get('/')
+        request.META['HTTP_X_FORWARDED_FOR'] = '192.168.1.1, 192.168.1.2'
+        request.META['REMOTE_ADDR'] = '203.0.113.5'
+        self.assertEqual(get_client_ip(request), '192.168.1.1')
+
+    def test_get_client_ip_remote_addr_overrides_empty_forwarded_for(self):
+        request = self.factory.get('/')
+        request.META['HTTP_X_FORWARDED_FOR'] = ''
+        request.META['REMOTE_ADDR'] = '203.0.113.5'
+        self.assertEqual(get_client_ip(request), '203.0.113.5')
 
 
 class ProfileTests(TestCase):
@@ -50,6 +105,37 @@ class ProfileTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("error", response.data)
 
+    def test_update_user_profile_with_existing_picture_replacement(self):
+        url = reverse('update_user_profile')
+        image1 = SimpleUploadedFile("image1.jpg", b"file_content1", content_type="image/jpeg")
+        data1 = {"profile_picture": image1}
+        self.client.put(url, data1, format='multipart')
+        profile = Profile.objects.get(user=self.user)
+        old_picture = profile.profile_picture.name
+
+        image2 = SimpleUploadedFile("image2.jpg", b"file_content2", content_type="image/jpeg")
+        data2 = {"profile_picture": image2}
+        response = self.client.put(url, data2, format='multipart')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        profile.refresh_from_db()
+        new_picture = profile.profile_picture.name
+        self.assertNotEqual(old_picture, new_picture)
+
+    def test_update_user_profile_with_unsupported_file_type(self):
+        url = reverse('update_user_profile')
+        pdf_file = SimpleUploadedFile("document.pdf", b"%PDF-1.4 fake content", content_type="application/pdf")
+        data = {"profile_picture": pdf_file}
+        response = self.client.put(url, data, format='multipart')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn("error", response.data)
+
+    def test_update_user_profile_without_authentication(self):
+        self.client.force_authenticate(user=None)
+        url = reverse('update_user_profile')
+        data = {"username": "newuser"}
+        response = self.client.put(url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
 
 class EmailValidationTests(TestCase):
     def test_email_validation_valid(self):
@@ -58,9 +144,16 @@ class EmailValidationTests(TestCase):
     def test_email_validation_valid_uppercase(self):
         self.assertTrue(email_validation("USER@EXETER.AC.UK"))
 
+    def test_email_validation_valid_leading_trailing_spaces(self):
+        self.assertTrue(email_validation(" user@exeter.ac.uk ".strip()))
+
     def test_email_validation_invalid_domain(self):
         self.assertFalse(email_validation("user@gmail.com"))
         self.assertFalse(email_validation("user@domain.com"))
+        self.assertFalse(email_validation("user@exeter.com"))
+        self.assertFalse(email_validation("user@exeter.edu"))
+        self.assertFalse(email_validation("user@ac.exeter.uk"))
+        self.assertFalse(email_validation("user@exeter.ac.co.uk"))
 
     def test_email_validation_invalid_format(self):
         invalid_emails = [
@@ -73,31 +166,31 @@ class EmailValidationTests(TestCase):
             " user@exeter.ac.uk",
             "user@exeter.ac.uk ",
             "user @exeter.ac.uk",
-            ""
+            "",
+            "user@exeter..ac.uk",
+            "@exeter.ac.uk",
+            "user@exeter.ac.uk@extra.com",
+            "user@exeter_ac.uk",
+            "user@exeter/ac.uk",
+            "user@exeter ac.uk",
+            "user@exeter.ac.uk ",
+            "user@exeter.ac.uk.",
+            "user@-exeter.ac.uk",
+            "user@exeter-.ac.uk",
+            "user@exeter.ac.uk.",
+            "user.@exeter.ac.uk",
+            ".user@exeter.ac.uk"
         ]
         for email in invalid_emails:
             self.assertFalse(email_validation(email), f"Email '{email}' should be invalid")
 
+    def test_email_validation_with_numeric_usernames(self):
+        self.assertTrue(email_validation("12345@exeter.ac.uk"))
+        self.assertFalse(email_validation("12345@exeter.com"))
 
-class ClientIPTests(TestCase):
-    def setUp(self):
-        self.factory = RequestFactory()
-
-    def test_get_client_ip_with_forwarded_for(self):
-        request = self.factory.get('/')
-        request.META['HTTP_X_FORWARDED_FOR'] = '192.168.1.1, 192.168.1.2'
-        self.assertEqual(get_client_ip(request), '192.168.1.1')
-
-    def test_get_client_ip_without_forwarded_for(self):
-        request = self.factory.get('/')
-        request.META['REMOTE_ADDR'] = '192.168.1.100'
-        self.assertEqual(get_client_ip(request), '192.168.1.100')
-
-    def test_get_client_ip_empty(self):
-        request = self.factory.get('/')
-        request.META.pop('REMOTE_ADDR', None)  # Remove any default assigned IP
-        request.META.pop('HTTP_X_FORWARDED_FOR', None)  # Ensure no forwarded-for IP is set
-        self.assertIsNone(get_client_ip(request))
+    def test_email_validation_with_mixed_case(self):
+        self.assertTrue(email_validation("User123@EXETER.ac.uk"))
+        self.assertFalse(email_validation("User123@ExEtEr.Com"))
 
 
 class RegisterUserTests(TestCase):
@@ -156,6 +249,40 @@ class RegisterUserTests(TestCase):
         response = self.client.post(self.url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_register_without_gdpr_consent(self):
+        data = {
+            "username": "newuser",
+            "password": "password123",
+            "passwordagain": "password123",
+            "email": "newuser@exeter.ac.uk",
+            "gdprConsent": False
+        }
+        response = self.client.post(self.url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_register_with_numeric_username(self):
+        data = {
+            "username": "123456",
+            "password": "password123",
+            "passwordagain": "password123",
+            "email": "newuser@exeter.ac.uk",
+            "gdprConsent": True
+        }
+        response = self.client.post(self.url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_register_with_email_case_insensitivity(self):
+        data = {
+            "username": "caseinsensitive",
+            "password": "password123",
+            "passwordagain": "password123",
+            "email": "NewUser@ExEtEr.Ac.Uk",
+            "gdprConsent": True
+        }
+        response = self.client.post(self.url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(User.objects.filter(username="caseinsensitive").exists())
+
 
 class LoginUserTests(TestCase):
     def setUp(self):
@@ -172,6 +299,96 @@ class LoginUserTests(TestCase):
     def test_login_invalid_credentials(self):
         data = {"username": "testuser", "password": "wrongpass"}
         response = self.client.post(self.url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_login_non_existent_user(self):
+        data = {"username": "doesnotexist", "password": "password123"}
+        response = self.client.post(self.url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_login_without_username(self):
+        data = {"password": "testpass"}
+        response = self.client.post(self.url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_login_without_password(self):
+        data = {"username": "testuser"}
+        response = self.client.post(self.url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_login_with_blank_credentials(self):
+        data = {"username": "", "password": ""}
+        response = self.client.post(self.url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_login_case_sensitivity(self):
+        data = {"username": "TESTUSER", "password": "testpass"}
+        response = self.client.post(self.url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_login_sql_injection_attempt(self):
+        data = {"username": "testuser", "password": "' OR '1'='1"}
+        response = self.client.post(self.url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_login_xss_attempt(self):
+        data = {"username": "<script>alert('xss')</script>", "password": "testpass"}
+        response = self.client.post(self.url, data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+
+class UserProfileTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create_user(username="profileuser", email="profile@exeter.ac.uk", password="testpass")
+        self.client.force_authenticate(user=self.user)
+        self.profile = Profile.objects.create(user=self.user)
+        self.leaderboard = Leaderboard.objects.create(user=self.user, points=100)
+
+    def test_get_user_profile(self):
+        url = reverse('get_user_profile')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("username", response.data)
+        self.assertIn("email", response.data)
+        self.assertIn("total_points", response.data)
+        self.assertIn("completed_tasks", response.data)
+        self.assertIn("leaderboard_rank", response.data)
+        self.assertIn("profile_picture", response.data)
+
+    def test_get_user_profile_no_leaderboard_entry(self):
+        self.leaderboard.delete()  # Remove leaderboard entry
+        url = reverse('get_user_profile')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["total_points"], 0)  # Should default to 0
+
+    def test_get_user_profile_no_completed_tasks(self):
+        url = reverse('get_user_profile')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["completed_tasks"], 0)
+
+    def test_get_user_profile_with_completed_tasks(self):
+        task = Task.objects.create(description="Test Task", points=10)
+        UserTask.objects.create(user=self.user, task=task, completed=True)
+        url = reverse('get_user_profile')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["completed_tasks"], 1)
+
+    def test_get_user_profile_no_profile_picture(self):
+        self.profile.profile_picture = None
+        self.profile.save()
+        url = reverse('get_user_profile')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIsNone(response.data["profile_picture"])
+
+    def test_get_user_profile_without_authentication(self):
+        self.client.force_authenticate(user=None)
+        url = reverse('get_user_profile')
+        response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
@@ -203,6 +420,20 @@ class TasksTests(TestCase):
         if response.data:
             self.assertIn("description", response.data[0])
             self.assertIn("points", response.data[0])
+
+    def test_fetch_tasks_multiple_entries(self):
+        Task.objects.create(description="Another Task", points=15)
+        url = reverse('tasks')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertGreaterEqual(len(response.data), 2)
+
+    def test_fetch_tasks_with_special_characters(self):
+        Task.objects.create(description="Special !@#$%^&*() Task", points=20)
+        url = reverse('tasks')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(any(task["description"] == "Special !@#$%^&*() Task" for task in response.data))
 
 
 class CompleteTaskTests(TestCase):
@@ -262,47 +493,62 @@ class CompleteTaskTests(TestCase):
 class LeaderboardTests(TestCase):
     def setUp(self):
         self.client = APIClient()
-        self.user = User.objects.create_user(username="leaderuser", email="leader@exeter.ac.uk", password="testpass")
-        self.client.force_authenticate(user=self.user)
-        Leaderboard.objects.create(user=self.user, points=100)
+        self.user1 = User.objects.create_user(username="leaderuser1", email="leader1@exeter.ac.uk", password="testpass")
+        self.user2 = User.objects.create_user(username="leaderuser2", email="leader2@exeter.ac.uk", password="testpass")
+        self.client.force_authenticate(user=self.user1)
+        Leaderboard.objects.create(user=self.user1, points=100)
+        Leaderboard.objects.create(user=self.user2, points=200)
 
     def test_leaderboard(self):
         url = reverse('leaderboard')
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIsInstance(response.data, list)
-        self.assertGreaterEqual(len(response.data), 1)
+        self.assertGreaterEqual(len(response.data), 2)
 
-
-class UserProfileTests(TestCase):
-    def setUp(self):
-        self.client = APIClient()
-        self.user = User.objects.create_user(username="profileuser", email="profile@exeter.ac.uk", password="testpass")
-        self.client.force_authenticate(user=self.user)
-        Profile.objects.create(user=self.user)
-
-    def test_get_user_profile(self):
-        url = reverse('get_user_profile')
+    def test_leaderboard_ordering(self):
+        url = reverse('leaderboard')
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn("username", response.data)
-        self.assertIn("email", response.data)
-        self.assertIn("total_points", response.data)
-        self.assertIn("completed_tasks", response.data)
-        self.assertIn("leaderboard_rank", response.data)
-        self.assertIn("profile_picture", response.data)
+        self.assertGreaterEqual(response.data[0]["points"], response.data[1]["points"])
+
+    def test_leaderboard_empty(self):
+        Leaderboard.objects.all().delete()
+        url = reverse('leaderboard')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data, [])
+
+    def test_leaderboard_with_negative_points(self):
+        user3 = User.objects.create_user(username="leaderuser3", email="leader3@exeter.ac.uk", password="testpass")
+        Leaderboard.objects.create(user=user3, points=-50)
+        url = reverse('leaderboard')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(any(entry["points"] < 0 for entry in response.data))
 
 
 class UserRankTests(TestCase):
     def test_user_rank_beginner(self):
         from .views import user_rank
         self.assertEqual(user_rank(10), "Beginner")
+        self.assertEqual(user_rank(0), "Beginner")
+        self.assertEqual(user_rank(-5), "Beginner")
 
     def test_user_rank_intermediate(self):
         from .views import user_rank
         self.assertEqual(user_rank(100), "Intermediate")
         self.assertEqual(user_rank(50), "Intermediate")
+        self.assertEqual(user_rank(1250), "Intermediate")
 
     def test_user_rank_expert(self):
         from .views import user_rank
         self.assertEqual(user_rank(1300), "Expert")
+        self.assertEqual(user_rank(5000), "Expert")
+
+    def test_user_rank_boundary_conditions(self):
+        from .views import user_rank
+        self.assertEqual(user_rank(49), "Beginner")
+        self.assertEqual(user_rank(50), "Intermediate")
+        self.assertEqual(user_rank(1250), "Intermediate")
+        self.assertEqual(user_rank(1251), "Expert")
