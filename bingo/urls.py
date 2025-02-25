@@ -6,6 +6,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.contrib.auth import get_user_model, authenticate
 from django.http import JsonResponse
+from django.urls import path
 from django.core.files.storage import default_storage
 
 # Import Django Rest Framework utilities
