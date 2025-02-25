@@ -46,7 +46,7 @@
    ============================ */
 
 .leaderboard-item {
-  display: flex; /* ✅ Aligns items in a row */
+  display: flex; /* Aligns items in a row */
   justify-content: space-between; /* Spreads content evenly */
   align-items: center; /*  Keeps text vertically aligned */
   padding: 12px 20px;

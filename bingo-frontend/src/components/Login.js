@@ -1,25 +1,36 @@
+// ============================
+// Login Component
+// ============================
+
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import './Login.css';
 
+// Fetch API URL from environment variables (fallback to localhost if not set)
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
 const Login = () => {
+  // State variables for form data, error messages, and loading status
   const [formData, setFormData] = useState({
     username: '',
     password: '',
-    profile: 'Player',
+    profile: 'Player', // Default role selection
     extraPassword: '',
   });
+
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // React Router navigation hook
+
+  // ============================
+  // Handle Input Changes
+  // ============================
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: value, // Dynamically update input fields
     }));
   };
 
@@ -27,10 +38,14 @@ const Login = () => {
     const { value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      profile: value,
-      extraPassword: value === 'Player' ? '' : prev.extraPassword,
+      profile: value, // Update profile selection
+      extraPassword: value === 'Player' ? '' : prev.extraPassword, // Clear special password if switching back to Player
     }));
   };
+
+  // ============================
+  // Validate Form Inputs
+  // ============================
 
   const validateForm = () => {
     if (!formData.username.trim()) return 'Username is required';
@@ -41,14 +56,19 @@ const Login = () => {
     if (formData.profile === 'Developer' && !formData.extraPassword) {
       return 'Special password required for Developer';
     }
-    return null;
+    return null; // No errors
   };
+
+  // ============================
+  // Handle Login Submission
+  // ============================
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
+    // Validate input fields before sending the request
     const validationError = validateForm();
     if (validationError) {
       setError(validationError);
@@ -70,40 +90,49 @@ const Login = () => {
         }),
       });
 
-      const text = await response.text();
+      const text = await response.text(); // Handle plain text responses
       console.log("Raw response:", text);
-      const data = JSON.parse(text);
+      const data = JSON.parse(text); // Convert response to JSON
 
       if (!response.ok) {
         throw new Error(data.detail || data.error || 'Login failed');
       }
 
-      // Store tokens and navigate
+      // Store authentication tokens in localStorage
       localStorage.setItem('accessToken', data.access);
       localStorage.setItem('refreshToken', data.refresh);
       localStorage.setItem('userProfile', formData.profile);
       localStorage.setItem('username', data.user);
 
+      // Redirect based on user role
       if (formData.profile === 'Developer') {
-        // Redirect to developer dashboard
-        window.location.href = '/developer-front.html';
+        window.location.href = '/developer-front.html'; // Developer dashboard
       } else {
-        // Normal user navigation
-        navigate('/userprofile');
+        navigate('/userprofile'); // Normal user navigation
       }
     } catch (err) {
       console.error('Login error:', err);
-      setError(err.message || 'An error occurred during login');
+      setError(err.message || 'An error occurred during login'); // Show error message
     } finally {
       setLoading(false);
     }
   };
 
+  // ============================
+  // Render Login UI
+  // ============================
+
   return (
     <div className="login-container">
+      {/* Page Title */}
       <h2>Login</h2>
+
+      {/* Error Message Display */}
       {error && <div className="error-message">{error}</div>}
+
+      {/* Login Form */}
       <form onSubmit={handleLogin}>
+        {/* Username Input */}
         <div className="form-group">
           <input
             type="text"
@@ -114,6 +143,8 @@ const Login = () => {
             required
           />
         </div>
+
+        {/* Password Input */}
         <div className="form-group">
           <input
             type="password"
@@ -124,6 +155,8 @@ const Login = () => {
             required
           />
         </div>
+
+        {/* Profile Selection Dropdown */}
         <div className="form-group">
           <select name="profile" value={formData.profile} onChange={handleProfileChange} required>
             <option value="Player">Player</option>
@@ -131,6 +164,8 @@ const Login = () => {
             <option value="Developer">Developer</option>
           </select>
         </div>
+
+        {/* Extra Password Input for Game Keeper / Developer */}
         {(formData.profile === 'Game Keeper' || formData.profile === 'Developer') && (
           <div className="form-group">
             <input
@@ -143,14 +178,19 @@ const Login = () => {
             />
           </div>
         )}
+
+        {/* Login Button */}
         <button type="submit" disabled={loading}>
           {loading ? 'Logging in...' : 'Login'}
         </button>
 
+        {/* Home Button */}
         <button type="button" onClick={() => navigate('/')} className="home-button">
           Home
         </button>
       </form>
+
+      {/* Redirect to Registration */}
       <p>
         Don't have an account? <Link to="/register">Register Here!</Link>
       </p>

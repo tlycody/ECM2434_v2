@@ -1,28 +1,37 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Test API</title>
 </head>
 <body>
+
+    <!-- Button to trigger the Register API request -->
     <button onclick="register()">Register</button>
+
     <script>
+        /**
+         * Function to send a registration request to the backend API.
+         */
         function register() {
             fetch('http://localhost:8000/api/register/', {
-                method: 'POST',
+                method: 'POST', // HTTP method for user registration
                 headers: {
-                    'Content-Type': 'application/json',
+                    'Content-Type': 'application/json', // Inform the server that we're sending JSON data
                 },
                 body: JSON.stringify({
-                    username: 'testuser',
-                    password: 'test1234',
-                    passwordagain: 'test1234',
-                    email: 'test@exeter.ac.uk'
+                    username: 'testuser', // Test username
+                    password: 'test1234', // Test password
+                    passwordagain: 'test1234', // Confirm password
+                    email: 'test@exeter.ac.uk' // Must use @exeter.ac.uk email
                 }),
             })
-            .then(response => response.json())
-            .then(data => console.log(data))
-            .catch(error => console.error('Error:', error));
+            .then(response => response.json()) // Parse JSON response
+            .then(data => console.log('Response:', data)) // Log response for debugging
+            .catch(error => console.error('Error:', error)); // Log any errors
         }
     </script>
+
 </body>
 </html>
