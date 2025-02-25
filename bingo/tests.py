@@ -125,7 +125,7 @@ class RegisterUserTestCase(TestCase):
         self.assertTrue(User.objects.filter(username="newuser").exists())
 
     def test_register_password_mismatch(self):
-        """Test registration fails if passwords do not match."""
+        """Test registering a user with mismatched passwords."""
         data = {
             "username": "newuser",
             "password": "password123",
