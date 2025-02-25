@@ -1,73 +1,96 @@
-/* Home.css - Ensuring Consistency */
+/* ============================
+   Home Page Styling - Ensuring Consistency
+   ============================ */
 
-/* Main Container - Matches Leaderboard Box */
+/* Import Google Font: Poppins for a clean and modern look */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+/* ============================
+   Main Container Styling
+   ============================ */
+
+/* Styles the main home container to match the leaderboard box */
 .home-container {
-    max-width: 420px; /* ✅ Same width as leaderboard */
+    max-width: 420px; /* Matches leaderboard width for uniformity */
     margin: auto;
     padding: 20px;
     text-align: center;
-    background-color: #d5c5f1; /* ✅ Same soft purple background */
-    border-radius: 15px;
-    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
-    font-family: 'Poppins', sans-serif;
-  }
-  
-  /* Title - Same Styling as Leaderboard Title */
-  h1 {
+    background-color: #d5c5f1; /* Soft purple background, same as leaderboard */
+    border-radius: 15px; /* Smooth rounded corners */
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2); /* Soft shadow for depth */
+    font-family: 'Poppins', sans-serif; /* Ensures text consistency */
+}
+
+/* ============================
+   Header and Text Styling
+   ============================ */
+
+/* Title Styling - Matches Leaderboard Title */
+h1 {
     font-size: 24px;
     font-weight: bold;
-    color: #4c3b6d; /* ✅ Matches leaderboard text */
+    color: #4c3b6d; /* Consistent dark purple shade */
     margin-bottom: 10px;
-  }
-  
-  /* Subtitle - Ensuring Text Consistency */
-  p {
+}
+
+/* Subtitle Styling - Matches Leaderboard Text */
+p {
     font-size: 16px;
-    color: #6a5a8a; /* ✅ Same shade as leaderboard */
+    color: #6a5a8a; /* Matching lighter purple text */
     margin-bottom: 20px;
-  }
-  
-  /* Buttons - Same Styling as Leaderboard Buttons */
-  .buttons {
+}
+
+/* ============================
+   Button Styling - Ensuring Consistency
+   ============================ */
+
+/* Buttons container */
+.buttons {
     display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  button {
-    background-color: #7548d4; /* ✅ Leaderboard Button Purple */
+    flex-direction: column; /* Stack buttons vertically */
+    gap: 10px; /* Space between buttons */
+}
+
+/* Standard button styles - Matches Leaderboard buttons */
+button {
+    background-color: #7548d4; /* Same purple as leaderboard buttons */
     color: white;
     border: none;
     padding: 12px;
     font-size: 16px;
     font-weight: bold;
-    border-radius: 10px;
+    border-radius: 10px; /* Rounded corners for modern UI */
     cursor: pointer;
     transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
-  }
-  
-  button:hover {
-    background-color: #5b36a6; /* ✅ Slightly Darker Purple on Hover */
-    transform: scale(1.05);
-  }
-  
-  button:active {
-    transform: scale(0.95);
-  }
-  
-  /* Ensure Consistency Across Different Screen Sizes */
-  @media (max-width: 500px) {
+}
+
+/* Button hover effect */
+button:hover {
+    background-color: #5b36a6; /* Slightly darker purple on hover */
+    transform: scale(1.05); /* Slight enlargement */
+}
+
+/* Button click effect */
+button:active {
+    transform: scale(0.95); /* Slight shrink on click */
+}
+
+/* ============================
+   Responsive Styling
+   ============================ */
+
+/* Ensure consistency on smaller screens */
+@media (max-width: 500px) {
     .home-container {
-      width: 90%; /* ✅ Same responsive behavior */
-      padding: 15px;
+        width: 90%; /* Matches leaderboard responsive behavior */
+        padding: 15px;
     }
-  
+
     h1 {
-      font-size: 22px;
+        font-size: 22px; /* Slightly smaller for better readability */
     }
-  
+
     p {
-      font-size: 14px;
+        font-size: 14px;
     }
-  }
-  
+}

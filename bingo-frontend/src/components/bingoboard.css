@@ -1,85 +1,123 @@
-/* Updated BingoBoard CSS */
+/* ============================
+   Updated BingoBoard CSS
+   ============================ */
 
+/* Import Google Font: Poppins for a modern look */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
 
+/* ============================
+   Bingo Container Styling
+   ============================ */
+
 .bingo-container {
-  max-width: 900px;
-  margin: 40px auto;
+  max-width: 900px; /* Limits board width for responsiveness */
+  margin: 40px auto; /* Centers the board */
   padding: 30px;
   text-align: center;
-  background-color: #E6D9F5;
-  border-radius: 15px;
-  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
-  font-family: 'Poppins', sans-serif;
+  background-color: #E6D9F5; /* Light purple background */
+  border-radius: 15px; /* Smooth rounded corners */
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+  font-family: 'Poppins', sans-serif; /* Uses Poppins for readability */
 }
+
+/* ============================
+   Bingo Header Styling
+   ============================ */
 
 .bingo-header {
   font-size: 36px;
   font-weight: 700;
-  color: #4C3B6D;
+  color: #4C3B6D; /* Dark purple text */
   margin-bottom: 20px;
 }
 
+/* ============================
+   Bingo Board Grid Layout
+   ============================ */
+
 .bingo-board {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, 1fr); /* 3x3 grid */
   gap: 15px;
   padding: 20px;
-  background-color: #D0B7F1;
+  background-color: #D0B7F1; /* Lighter purple background */
   border-radius: 12px;
-  max-width: 650px;
-  margin: 0 auto;
-  border: 3px solid #4C3B6D;
+  max-width: 650px; /* Ensures board doesn't stretch too much */
+  margin: 0 auto; /* Centers the board */
+  border: 3px solid #4C3B6D; /* Matches header text color */
 }
 
+/* ============================
+   Bingo Cell Styling
+   ============================ */
+
 .bingo-cell {
-  background-color: #FFFFFF;
-  border: 2px solid #7D67A5;
+  background-color: #FFFFFF; /* Default white background */
+  border: 2px solid #7D67A5; /* Medium purple border */
   border-radius: 10px;
   padding: 15px;
   display: flex;
-  flex-direction: column;
+  flex-direction: column; /* Organizes text vertically */
   justify-content: center;
   align-items: center;
   text-align: center;
-  width: 160px;
+  width: 160px; /* Ensures uniform cell size */
   height: 160px;
   font-size: 14px;
   font-weight: 500;
-  color: #4C3B6D;
-  transition: transform 0.2s, box-shadow 0.2s;
+  color: #4C3B6D; /* Dark purple text */
+  transition: transform 0.2s, box-shadow 0.2s; /* Smooth hover effect */
 }
 
+/* Hover effect for cells */
 .bingo-cell:hover {
-  transform: scale(1.05);
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
-  background-color: #EFE2FB;
+  transform: scale(1.05); /* Slight zoom-in effect */
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15); /* Subtle shadow */
+  background-color: #EFE2FB; /* Light lavender on hover */
 }
 
+/* Completed cells (visual cue for user progress) */
 .bingo-cell.completed {
-  background-color: #8BC34A;
-  border-color: #AED581;
-  color: white;
+  background-color: #8BC34A; /* Green background for completed tasks */
+  border-color: #AED581; /* Lighter green border */
+  color: white; /* White text for better contrast */
 }
 
+/* ============================
+   Task Details Styling
+   ============================ */
+
+/* Points indicator inside each bingo cell */
 .points {
   font-weight: 600;
-  color: #FF9800;
+  color: #FF9800; /* Orange to stand out */
   font-size: 14px;
   margin-bottom: 5px;
 }
 
+/* Task description */
 .description {
   font-size: 13px;
   color: #4C3B6D;
   margin-bottom: 6px;
 }
 
+/* ============================
+   Task Indicators (Upload & Scan)
+   ============================ */
 
+/* Upload and scan task indicators */
 .upload-indicator, .scan-indicator {
   font-size: 18px;
   margin-top: 8px;
 }
 
-.upload-indicator { color: #8E44AD; }
-.scan-indicator { color: #3498DB; }
+/* Upload required task indicator */
+.upload-indicator { 
+  color: #8E44AD; /* Dark purple */
+}
+
+/* QR code scan required task indicator */
+.scan-indicator { 
+  color: #3498DB; /* Blue */
+}
