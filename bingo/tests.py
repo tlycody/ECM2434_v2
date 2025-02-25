@@ -106,10 +106,7 @@ class ProfileTests(TestCase):
 # User Registration Tests
 # ============================
 
-class RegisterUserTests(TestCase):
-    """
-    Tests for user registration.
-    """
+class RegisterUserTestCase(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.url = reverse('register')
