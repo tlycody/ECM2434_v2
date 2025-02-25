@@ -7,8 +7,6 @@
 from django.test import TestCase, RequestFactory
 from django.contrib.auth import get_user_model
 from django.urls import reverse
-from rest_framework import status
-from rest_framework.test import APIClient
 from django.core.files.uploadedfile import SimpleUploadedFile
 
 # Import models and views for testing
