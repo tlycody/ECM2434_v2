@@ -21,7 +21,8 @@ const Home = () => {
     };
 
     fetchTasks();
-  }, [setTasks]);  // ✅ Include setTasks in dependencies to satisfy ESLint
+  }, [setTasks]);  
+  // ✅ Include setTasks in dependencies to satisfy ESLint
 
   return (
     <div className="home-container">
