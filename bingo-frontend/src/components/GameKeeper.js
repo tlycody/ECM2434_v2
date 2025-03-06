@@ -12,6 +12,7 @@ const GameKeeper = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate(); // React Router navigation hook
   const [tasks, setTasks] = useState([]);
+  const [pendingTasks, setPendingTasks]= useState([]);
   const [leaderboard, setLeaderboard] = useState([]);
   const [newTask, setNewTask] = useState({
     description: '',
@@ -43,6 +44,14 @@ const fetchData = async () => {
       const tasksResponse = await axios.get(`${API_URL}/api/tasks/`);
       console.log('Tasks fetched:', tasksResponse.data);
       setTasks(tasksResponse.data);
+
+      //Get Pending tasks
+// In your fetchData function in GameKeeper.js
+      const pendingResponse = await axios.get(`${API_URL}/api/pending-tasks/`, {
+      headers: {
+      'Authorization': `Bearer ${token}`
+      }
+      });
       
       // Get leaderboard
       const leaderboardResponse = await axios.get(`${API_URL}/api/leaderboard/`);
@@ -51,6 +60,9 @@ const fetchData = async () => {
     } catch (error) {
       console.error('Error fetching data:', error);
       setError("Failed to load data. Please try again.");
+      if (error.response && error.response.status === 403) {
+        setError("You don't have permission to access this page");
+      }
     } finally {
       setLoading(false);
     }
@@ -73,6 +85,21 @@ const fetchData = async () => {
     }
   };
   
+    // Handle task approval
+    const handleApproveTask = async (userId, taskId) => {
+      try {
+        await axios.post(`${API_URL}/api/approve-task/`, {
+          user_id: userId,
+          task: taskId
+        });
+        // Update the UI after successful approval
+        fetchData();
+      } catch (error) {
+        console.error('Error approving task:', error);
+        setError("Failed to approve task");
+      }
+    };
+
   // Handle form input changes
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -96,7 +123,55 @@ const fetchData = async () => {
           Logout
         </button>
       </div>
-      
+
+{/* Pending Tasks Section */}
+<div className="pending-tasks-section">
+  <h2>Pending Task Approvals</h2>
+  {pendingTasks.length === 0 ? (
+    <p>No pending tasks to approve</p>
+  ) : (
+    <table>
+      <thead>
+        <tr>
+          <th>Username</th>
+          <th>Task Description</th>
+          <th>Points</th>
+          <th>Photo</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {pendingTasks.map((task, index) => (
+          <tr key={index}>
+            <td>{task.username}</td>
+            <td>{task.task_description}</td>
+            <td>{task.points}</td>
+            <td>
+              {task.photo_url ? (
+                <img 
+                  src={task.photo_url} 
+                  alt="Task submission" 
+                  style={{ maxWidth: '100px', maxHeight: '100px' }} 
+                />
+              ) : (
+                <span>No photo</span>
+              )}
+            </td>
+            <td>
+              <button 
+                className="approve-btn"
+                onClick={() => handleApproveTask(task.user_id, task.task_id)}
+              >
+                Approve
+              </button>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  )}
+</div>
+
       {/* Create Task Section */}
       <div className="create-task-section">
         <h2>Create New Task</h2>

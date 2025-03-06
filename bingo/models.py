@@ -104,6 +104,11 @@ class Task(models.Model):
 # ============================
 
 class UserTask(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending Approval'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected')
+    ]
     """
     Model representing a user's progress on specific tasks.
     Tracks task completion and stores proof (photo) if required.
@@ -120,16 +125,18 @@ class UserTask(models.Model):
 
     completed = models.BooleanField(default=False)  # Whether the user has completed the task
     photo = models.ImageField(
-        upload_to='uploads/', 
+        upload_to='task_photos/', 
         blank=True, 
         null=True
     )  # Stores a photo if required for verification
 
     completion_date = models.DateTimeField(auto_now_add=True)  # Timestamp of task completion
-
-    def __str__(self):
-        """Returns a formatted string of the user and task completed."""
-        return f"{self.user.username} - {self.task.description}"
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
+    approval_date = models.DateTimeField(null=True, blank=True)
+    rejection_reason = models.TextField(blank=True, null=True)
+    
+    class Meta:
+        unique_together = ('user', 'task')
 
 # ============================
 # Leaderboard Model

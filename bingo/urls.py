@@ -239,6 +239,29 @@ def check_developer_role(request):
         return Response({"is_developer": True}, status=status.HTTP_200_OK)
     return Response({"is_developer": False}, status=status.HTTP_403_FORBIDDEN)
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def pending_tasks(request):
+    """
+    Shows all the pending tasks
+    """
+    if request.user.role not in ['GameKeeper']:
+        return Response({"error":"Permission denied"}, status = status.HTTP_403_FORBIDDEN)
+    
+    pending = UserTask.objects.filter(completed = False)
+
+    result = []
+    for item in pending:
+        result.append({
+            'user_id': item.user.id,
+            'username': item.user.username,
+            'task_id': item.task.id,
+            'task_description': item.task.description,
+            'points': item.task.points,
+        })
+
+    return Response(result)
+
 # ============================
 # URL Patterns
 # ============================
@@ -249,6 +272,7 @@ urlpatterns = [
     path('register/', register_user, name='register_user'),
     path('login/', login_user, name='login_user'),
     path('tasks/', tasks, name='tasks'),
+    path('pending-tasks/', pending_tasks,name = 'pending-tasks'),
     path('complete_task/', complete_task, name='complete_task'),
     path('leaderboard/', leaderboard, name='leaderboard'),
     path('profile/update/', update_user_profile, name='update_user_profile'),

@@ -206,18 +206,29 @@ def complete_task(request):
     task = get_object_or_404(Task, id=task_id)
 
     # Check if task is already completed
-    if UserTask.objects.filter(user=user, task=task).exists():
-        return Response({"message": "Task already completed!"}, status=status.HTTP_400_BAD_REQUEST)
+    user_task = UserTask.objects.filter(user=user, task=task).first()
+    if user_task:
+        if user_task.completed:
+            return Response({"message": "Task already completed!"}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({"message": "Task already submitted and pending approval!"}, 
+                          status=status.HTTP_400_BAD_REQUEST)
 
-    # Mark task as completed
-    UserTask.objects.create(user=user, task=task, completed=True)
+    # Check if photo is required but not provided
+    if task.requires_upload and 'photo' not in request.FILES:
+        return Response({"message": "This task requires a photo upload."}, 
+                      status=status.HTTP_400_BAD_REQUEST)
+    
+    # Create new user task
+    user_task = UserTask(user=user, task=task, completed=False)
+    
+    # Save photo if provided
+    if 'photo' in request.FILES:
+        user_task.photo = request.FILES['photo']
+    
+    user_task.save()
 
-    # Update leaderboard points
-    leaderboard, _ = Leaderboard.objects.get_or_create(user=user)
-    leaderboard.points += task.points
-    leaderboard.save()
-
-    return Response({"message": "Task completed!", "points": leaderboard.points})
+    return Response({"message": "Task submitted for approval!"}, status=status.HTTP_200_OK)
 
 # ============================
 # Leaderboard Retrieval
@@ -367,3 +378,67 @@ def register_view(request):
     
     return render(request, 'accounts/register.html', {'form': form})
     
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def pending_tasks(request):
+    """
+    Shows all the pending tasks
+    """
+    print(f"User role: {request.user.role}")  # Debug print
+    if request.user.role not in ['GameKeeper']:
+        return Response({"error":"Permission denied"}, status = status.HTTP_403_FORBIDDEN)
+    
+    pending = UserTask.objects.filter(completed = False)
+
+    result = []
+    for item in pending:
+        task_data =({
+            'user_id': item.user.id,
+            'username': item.user.username,
+            'task_id': item.task.id,
+            'task_description': item.task.description,
+            'points': item.task.points,
+            'requires_upload': item.task.requires_upload,
+            'submission_date': item.submission_date,
+        })
+            # Add photo URL if exists
+        if item.photo:
+            task_data['photo_url'] = request.build_absolute_uri(item.photo.url)
+        
+        result.append(task_data)
+
+    return Response(result)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def approve_task(request):
+    """
+    Approves a pending task submission.
+    Only for GameKeepers and Developers.
+    """
+    if request.user.role not in ['GameKeeper']:
+        return Response({'error': "Permission denied"}, status = status.HTTP_403_FORBIDDEN)
+    
+    user_id = request.data.get('user_id')
+    task_id = request.data.get('task')
+
+    user = get_object_or_404(User, id = user_id)
+    task = get_object_or_404(Task, id = task_id)
+    user_task = get_object_or_404(UserTask,user=user,task=task)
+
+    if user_task.completed:
+        return Response({"message": "Tasks already approved!"}, status = status.HTTP_400_BAD_REQUEST)
+    
+    user_task.completed = True
+    user_task.save()
+
+    leaderboard, _ = Leaderboard.objects.get_or_create(user=user)
+    leaderboard.points += task.points
+    leaderboard.save()
+
+    return Response({"message": f"Task approved for {user.username}.{task.points} points rewarded."})
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def check_auth(request):
+    return Response({"authenticated": True, "username": request.user.username, "role": request.user.role})
