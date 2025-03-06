@@ -6,6 +6,9 @@
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model, authenticate
 from django.http import JsonResponse
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.contrib.auth import login
 
 # Import Django Rest Framework utilities
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -18,6 +21,8 @@ from rest_framework import status
 from .models import Task, UserTask, Leaderboard, Profile, UserConsent
 from .serializers import TaskSerializer, LeaderboardSerializer
 
+#local application imports
+from .forms import CustomUserCreationForm
 # Import Python modules
 import logging
 import json
@@ -330,3 +335,35 @@ def create_task(request):
     # Return the created task
     serializer = TaskSerializer(task)
     return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+def register_view(request):
+    if request.method == 'POST':
+        form = CustomUserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            
+            # Set the password directly (this comes from the clean() method)
+            user.set_password(form.cleaned_data.get('password1'))
+            user.save()
+            
+            # Create GDPR consent record
+            UserConsent.objects.create(
+                user=user,
+                ip_address=request.META.get('REMOTE_ADDR', None)
+            )
+            
+            # Check if the user needs approval
+            if user.role in ['Game Keeper', 'Developer']:
+                messages.info(
+                    request,
+                    "Your admin account has been created. You can now log in with your credentials."
+                )
+                return redirect('login')
+            else:
+                login(request, user)
+                return redirect('player_dashboard')
+    else:
+        form = CustomUserCreationForm()
+    
+    return render(request, 'accounts/register.html', {'form': form})
+    

@@ -149,3 +149,14 @@ class Leaderboard(models.Model):
     def __str__(self):
         """Returns a formatted string showing the user's leaderboard ranking."""
         return f"{self.user.username} - {self.points} Points"
+
+# models.py - Add this model
+class AccessCode(models.Model):
+    """Model to store access codes for admin roles"""
+    code = models.CharField(max_length=20, unique=True)
+    role = models.CharField(max_length=20, choices=User.ROLE_CHOICES)
+    is_used = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"{self.role} Access Code - {'Used' if self.is_used else 'Available'}"

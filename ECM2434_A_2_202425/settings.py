@@ -6,7 +6,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # 2️⃣ Security Settings
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'your-secret-key')
-DEBUG = True  # Change to False in production
+DEBUG = True # Change to False in production
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 TIME_ZONE = 'Europe/London'
