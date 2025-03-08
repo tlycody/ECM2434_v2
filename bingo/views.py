@@ -141,7 +141,7 @@ def register_user(request):
     # Check if username or email is already taken
     if User.objects.filter(username=username).exists():
         return Response({"error": "Username already taken."}, status=status.HTTP_400_BAD_REQUEST)
-    
+
     if User.objects.filter(email=email).exists():
         return Response({"error": "This email is already registered."}, status=status.HTTP_400_BAD_REQUEST)
 
