@@ -4,7 +4,6 @@
 
 # Import necessary Django modules
 from django.shortcuts import get_object_or_404
-from django.contrib.auth import get_user_model, authenticate
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.contrib import messages
