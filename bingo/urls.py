@@ -103,44 +103,6 @@ def update_user_profile(request):
 # User Registration
 # ============================
 
-@api_view(['POST'])
-def register_user(request):
-    """
-    Registers a new user with GDPR consent verification.
-    """
-    data = request.data
-    username = data.get("username")
-    password = data.get("password")
-    password_again = data.get("passwordagain")
-    email = data.get("email")
-    gdprConsent = data.get("gdprConsent", False)
-
-    # Validate GDPR consent
-    if not gdprConsent:
-        return Response("You must accept the Privacy Policy to register", status=status.HTTP_400_BAD_REQUEST)
-
-    # Ensure all required fields are provided
-    if not all([username, password, password_again, email]):
-        return Response({"error": "All fields are required."}, status=status.HTTP_400_BAD_REQUEST)
-
-    # Validate password confirmation
-    if password != password_again:
-        return Response({"error": "Passwords do not match."}, status=status.HTTP_400_BAD_REQUEST)
-
-    # Check if username or email is already taken
-    if User.objects.filter(username=username).exists():
-        return Response({"error": "Username already taken."}, status=status.HTTP_400_BAD_REQUEST)
-    
-    if User.objects.filter(email=email).exists():
-        return Response({"error": "This email is already registered."}, status=status.HTTP_400_BAD_REQUEST)
-
-    # Create user and related models
-    user = User.objects.create_user(username=username, email=email, password=password)
-    UserConsent.objects.create(user=user, ip_address=request.META.get('REMOTE_ADDR'))
-    Profile.objects.create(user=user)
-    Leaderboard.objects.get_or_create(user=user)
-    
-    return Response({"message": "User registered successfully!"}, status=status.HTTP_201_CREATED)
 
 # ============================
 # User Login
