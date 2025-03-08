@@ -153,6 +153,7 @@ def register_user(request):
     
     return Response({"message": "User registered successfully!"}, status=status.HTTP_201_CREATED)
 
+
 # ============================
 # User Login
 # ============================
