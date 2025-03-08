@@ -150,7 +150,7 @@ def register_user(request):
     UserConsent.objects.create(user=user, ip_address=request.META.get('REMOTE_ADDR'))
     Profile.objects.create(user=user)
     Leaderboard.objects.get_or_create(user=user)
-    
+
     return Response({"message": "User registered successfully!"}, status=status.HTTP_201_CREATED)
 
 
