@@ -121,7 +121,8 @@ def register_user(request):
 
     # Validate GDPR consent
     if not gdprConsent:
-        return Response({"error": "You must accept the Privacy Policy to register."}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"error": "You must accept the Privacy Policy to register."},
+                        status=status.HTTP_400_BAD_REQUEST)
 
     # Ensure all required fields are provided
     if not all([username, password, password_again, email]):
