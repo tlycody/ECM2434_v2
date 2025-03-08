@@ -7,7 +7,10 @@ from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from django.contrib.auth import login
+from django.contrib.auth import get_user_model, authenticate, login
+from django.contrib.auth.models import User
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 
 # Import Django Rest Framework utilities
 from rest_framework_simplejwt.tokens import RefreshToken
