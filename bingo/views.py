@@ -132,6 +132,12 @@ def register_user(request):
     if password != password_again:
         return Response({"error": "Passwords do not match."}, status=status.HTTP_400_BAD_REQUEST)
 
+    # Validate the password strength
+    try:
+        validate_password(password, User(username=username, email=email))
+    except ValidationError as e:
+        return Response({"error": list(e.messages)}, status=status.HTTP_400_BAD_REQUEST)
+
     # Check if username or email is already taken
     if User.objects.filter(username=username).exists():
         return Response({"error": "Username already taken."}, status=status.HTTP_400_BAD_REQUEST)
