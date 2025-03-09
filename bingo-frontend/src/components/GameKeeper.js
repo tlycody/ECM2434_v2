@@ -20,9 +20,15 @@ const GameKeeper = () => {
     requires_upload: false,
     requires_scan: false
   });
+
+  useEffect(() => {
+    console.log('User profile:', localStorage.getItem('userProfile'));
+    console.log('Access token:', localStorage.getItem('accessToken'));
+  }, []);
   
   // Get token from localStorage
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('accessToken');
+  const role = localStorage.getItem('userProfile');
   
   // Set up auth header
   useEffect(() => {
@@ -33,25 +39,33 @@ const GameKeeper = () => {
   }, [token]);
   
   useEffect(() => {
-    fetchData();
+    if (token) {
+      fetchData();
+    }
   }, []);
 
   // Fetch initial data
-const fetchData = async () => {
+  const fetchData = async () => {
     setLoading(true);
     try {
       // Get tasks
       const tasksResponse = await axios.get(`${API_URL}/api/tasks/`);
       console.log('Tasks fetched:', tasksResponse.data);
       setTasks(tasksResponse.data);
-
-      //Get Pending tasks
-// In your fetchData function in GameKeeper.js
+      
+      const checkAuth = await axios.get(`${API_URL}/api/check-auth/`);
+      console.log('Auth status:', checkAuth.data);
+  
+      // Get pending tasks - add explicit console logs
+      console.log('Fetching pending tasks...');
       const pendingResponse = await axios.get(`${API_URL}/api/pending-tasks/`, {
-      headers: {
-      'Authorization': `Bearer ${token}`
-      }
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       });
+      console.log('Pending tasks response:', pendingResponse);
+      console.log('Pending tasks data:', pendingResponse.data);
+      setPendingTasks(pendingResponse.data);
       
       // Get leaderboard
       const leaderboardResponse = await axios.get(`${API_URL}/api/leaderboard/`);
@@ -88,9 +102,10 @@ const fetchData = async () => {
     // Handle task approval
     const handleApproveTask = async (userId, taskId) => {
       try {
+        console.log(`Approving: user_id=${userId}, task_id=${taskId}`);
         await axios.post(`${API_URL}/api/approve-task/`, {
           user_id: userId,
-          task: taskId
+          task_id: taskId  // Changed from 'task' to 'task_id'
         });
         // Update the UI after successful approval
         fetchData();
@@ -99,7 +114,7 @@ const fetchData = async () => {
         setError("Failed to approve task");
       }
     };
-
+    
   // Handle form input changes
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -114,7 +129,7 @@ const fetchData = async () => {
     localStorage.removeItem('token');
     window.location.href = '/login';
   };
-  
+  console.log('Current pending tasks:', pendingTasks);
   return (
     <div className="gamekeeper-container">
       <div className="header">
@@ -248,7 +263,13 @@ const fetchData = async () => {
               <tr key={task.id}>
                 <td>{task.description}</td>
                 <td>{task.points}</td>
-                <td>{task.requires_upload ? 'Yes' : 'No'}</td>
+                <td>
+  {task.requires_upload ? (
+    <span>Photo requirement: Yes</span>
+  ) : (
+    <span>No photo required</span>
+  )}
+</td>
                 <td>{task.requires_scan ? 'Yes' : 'No'}</td>
               </tr>
             ))}

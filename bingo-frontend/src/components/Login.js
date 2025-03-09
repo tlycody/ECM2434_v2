@@ -50,7 +50,7 @@ const Login = () => {
   const validateForm = () => {
     if (!formData.username.trim()) return 'Username is required';
     if (!formData.password) return 'Password is required';
-    if (formData.profile === 'Game Keeper' && !formData.extraPassword) {
+    if (formData.profile === 'GameKeeper' && !formData.extraPassword) {
       return 'Special password required for Game Keeper';
     }
     if (formData.profile === 'Developer' && !formData.extraPassword) {
@@ -108,7 +108,7 @@ const Login = () => {
       // Redirect based on user role
       if (formData.profile === 'Developer') {
         window.location.href = '/developer-front.html'; // Developer dashboard
-      } else if (formData.profile === 'Game Keeper') {
+      } else if (formData.profile === 'GameKeeper') {
         window.location.href = '/gamekeeper';
       } else {
         navigate('/userprofile');
@@ -163,13 +163,13 @@ const Login = () => {
         <div className="form-group">
           <select name="profile" value={formData.profile} onChange={handleProfileChange} required>
             <option value="Player">Player</option>
-            <option value="Game Keeper">Game Keeper</option>
+            <option value="GameKeeper">Game Keeper</option> 
             <option value="Developer">Developer</option>
           </select>
         </div>
 
         {/* Extra Password Input for Game Keeper / Developer */}
-        {(formData.profile === 'Game Keeper' || formData.profile === 'Developer') && (
+        {(formData.profile === 'GameKeeper' || formData.profile === 'Developer') && (
           <div className="form-group">
             <input
               type="password"
