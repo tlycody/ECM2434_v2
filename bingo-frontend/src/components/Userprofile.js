@@ -37,17 +37,20 @@ const Profile = () => {
       }
     };
 
-    // Fetch completed tasks
     const fetchCompletedTasks = async () => {
       try {
         const response = await axios.get(`${API_URL}/api/tasks/`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
         });
-        setTasks(response.data);
+    
+        // Filter only completed tasks
+        const completedTasks = response.data.filter(task => task.status === 'completed');
+        setTasks(completedTasks);
       } catch (error) {
         console.error('Error fetching completed tasks:', error);
       }
     };
+    
 
     fetchUserData();
     fetchCompletedTasks();
