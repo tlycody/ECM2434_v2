@@ -1,54 +1,70 @@
+# ============================
 # Django View Functions for API Endpoints
+# ============================
 
-# Django Imports
-from django.shortcuts import get_object_or_404, render, redirect
+# Import necessary Django modules
+from django.shortcuts import get_object_or_404
 from django.http import JsonResponse
+from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import get_user_model, authenticate, login
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 
-# Django Rest Framework Imports
+# Import Django Rest Framework utilities
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 
-# Model and Serializer Imports
+# Import models and serializers
 from .models import Task, UserTask, Leaderboard, Profile, UserConsent
 from .serializers import TaskSerializer, LeaderboardSerializer
 
-# Local Imports
+#local application imports
 from .forms import CustomUserCreationForm
-
-# Standard Library Imports
+# Import Python modules
 import logging
 import json
 import os
 
-# Logger Setup
+# Set up logging for debugging
 logger = logging.getLogger(__name__)
 
-# Constants
+# Allowed image types for profile picture uploads
 ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png"]
+
+# Get custom user model
 User = get_user_model()
 
-# Task Loading Function
+# ============================
+# Load Initial Tasks into Database
+# ============================
+
 def load_initial_tasks():
-    """Loads initial tasks from JSON file if the database is empty."""
+    """
+    Loads initial tasks from 'initial_data.json' if no tasks exist in the database.
+    Ensures the game has predefined tasks available.
+    """
     if not Task.objects.exists():
         try:
             json_file_path = os.path.join(os.path.dirname(__file__), 'initial_data.json')
-            with open(json_file_path, 'r', encoding='utf-8') as file:
-                data = json.load(file)
-            for item in data:
-                Task.objects.create(**item['fields'], id=item['pk'])
-            logger.info("Initial tasks loaded successfully.")
-        except Exception as e:
-            logger.error(f"Failed to load initial tasks: {e}")
+            with open(json_file_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
 
+            for item in data:
+                Task.objects.create(
+                    id=item['pk'],
+                    description=item['fields']['description'],
+                    points=item['fields']['points'],
+                    requires_upload=item['fields']['requires_upload'],
+                    requires_scan=item['fields']['requires_scan']
+                )
+            logger.info("✅ Auto-loaded initial_data.json into Task model.")
+        except Exception as e:
+            logger.error(f"❌ Failed to auto-load data: {str(e)}")
 
 # ============================
 # User Profile Update
