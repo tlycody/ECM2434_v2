@@ -8,11 +8,11 @@ class CustomPasswordValidator:
     @staticmethod
     def validate(password, user=None):
         conditions = [
-            (any(char.isdigit() for char in password), _('Password must contain at least one digit.')),
-            (any(char.isalpha() for char in password), _('Password must contain at least one letter.')),
-            (any(char.isupper() for char in password), _('Password must contain at least one uppercase letter.')),
-            (any(char.islower() for char in password), _('Password must contain at least one lowercase letter.')),
-            (any(char in '!@#$%^&*()_+' for char in password), _('Password must contain at least one special character: !@#$%^&*()_+'))
+            (any(char.isdigit() for char in password), _('Password must contain at least one digit. ')),
+            (any(char.isalpha() for char in password), _('Password must contain at least one letter. ')),
+            (any(char.isupper() for char in password), _('Password must contain at least one uppercase letter. ')),
+            (any(char.islower() for char in password), _('Password must contain at least one lowercase letter. ')),
+            (any(char in '!@#$%^&*()_+' for char in password), _('Password must contain at least one special character: !@#$%^&*()_+ '))
         ]
 
         errors = [ValidationError(_(message)) for condition, message in conditions if not condition]
