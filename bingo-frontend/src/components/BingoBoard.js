@@ -79,13 +79,6 @@ const BingoBoard = () => {
 
   return (
     <div className="bingo-container">
-      {/* Navigation Bar */}
-      <div className="navigation-bar">
-        <button onClick={() => navigate('/userprofile')} className="nav-button"> 
-          View Profile
-        </button>
-      </div>
-
       {/* Bingo Header */}
       <h1 className="bingo-header">Sustainability Bingo</h1>
 
@@ -116,6 +109,14 @@ const BingoBoard = () => {
           )) : <p>No tasks available.</p>}
         </div>
       )}
+
+      {/* Navigation Bar */}
+      <div className="navigation-bar">
+        <button onClick={() => navigate('/userprofile')} className="nav-button"> 
+          View Profile
+        </button>
+      </div>
+      
     </div>
   );
 };

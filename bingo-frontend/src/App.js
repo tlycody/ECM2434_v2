@@ -16,6 +16,8 @@ import Upload from './components/Upload';
 import Scan from './components/Scan';
 import GameKeeper from './components/GameKeeper';
 import PrivacyPolicy from './components/PrivacyPolicy'; 
+import Overview from './components/Overview'; 
+import BingoPatterns from './components/BingoPatterns'; 
 
 const App = () => {
   return (
@@ -38,6 +40,8 @@ const App = () => {
         <Route path="/upload" element={<Upload />} />
         <Route path="/gamekeeper" element={<GameKeeper />} />
         <Route path="/scan" element={<Scan />} />
+        <Route path="/overview" element={<Overview />} />
+        <Route path="/patterns" element={<BingoPatterns />} />
 
         {/* Developer Dashboard - Restricted Access */}
         <Route 

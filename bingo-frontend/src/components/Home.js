@@ -51,6 +51,7 @@ const Home = () => {
       <div className="buttons">
         <button onClick={() => navigate('/leaderboard')}>View Leaderboard</button>
         <button onClick={() => navigate('/login')}>Login</button>
+        <button onClick={() => navigate('/overview')}>Game Guide</button>
       </div>
     </div>
   );

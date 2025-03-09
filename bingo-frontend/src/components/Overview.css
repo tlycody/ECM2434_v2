@@ -1,0 +1,98 @@
+/* ============================
+   Overview Component Styling
+   ============================ */
+
+   .overview-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+    background-color: #f0e6ff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    font-family: Arial, sans-serif;
+    text-align: center;
+  }
+  
+  /* Header Styling */
+  .overview-container h2 {
+    color: #4b2e83;
+    text-align: center;
+    margin-bottom: 2rem;
+    font-size: 2rem;
+  }
+  
+  .overview-container h3 {
+    color: #4b2e83;
+    border-bottom: 2px solid #4b2e83;
+    padding-bottom: 0.5rem;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    text-align: left;
+  }
+  
+  /* Section Styling */
+  .overview-section {
+    margin-bottom: 2rem;
+    text-align: left;
+  }
+  
+  .overview-section p {
+    line-height: 1.6;
+    color: #333;
+  }
+  
+  /* Instructions List Styling */
+  .instructions-list {
+    padding-left: 1.5rem;
+    text-align: left;
+  }
+  
+  .instructions-list li {
+    margin-bottom: 1rem;
+  }
+  
+  .instruction-title {
+    font-weight: bold;
+    color: #4b2e83;
+    display: block;
+    margin-bottom: 0.3rem;
+  }
+  
+
+  /* Link Styling */
+  .pattern-link {
+    color: #4b2e83;
+    text-decoration: underline;
+  }
+  
+  /* Navigation Buttons */
+  .navigation-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 2rem;
+  }
+  
+  .action-button {
+    background-color: #4b2e83;
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s;
+    width: 100%;
+  }
+  
+  .action-button:hover {
+    background-color: #3a2266;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .overview-container {
+      padding: 1rem;
+      margin: 0 1rem;
+    }
+  }
