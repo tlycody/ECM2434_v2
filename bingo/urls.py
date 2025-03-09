@@ -20,7 +20,8 @@ from rest_framework import status
 # Import models and serializers
 from .models import Task, UserTask, Leaderboard, Profile, UserConsent
 from .serializers import TaskSerializer, LeaderboardSerializer
-from .views import force_award_pattern, get_user_profile, register_user
+from .views import force_award_pattern
+from .views import get_user_profile, register_user, check_auth, approve_task, debug_user_tasks, debug_media_urls
 
 # Import other Python modules
 import logging
