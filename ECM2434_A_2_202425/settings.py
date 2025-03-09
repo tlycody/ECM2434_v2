@@ -6,7 +6,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # 2️⃣ Security Settings
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'your-secret-key')
-DEBUG = False # Change to False in production
+DEBUG = True # Change to False in production
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 TIME_ZONE = 'Europe/London'
@@ -126,11 +126,23 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # 1️⃣1️⃣ JWT Token Expiry
 from datetime import timedelta
+# Update the JWT settings to include role in the token payload
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
+    'UPDATE_LAST_LOGIN': False,
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,
+    'VERIFYING_KEY': None,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user_id',
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+    'TOKEN_TYPE_CLAIM': 'token_type',
+    'JTI_CLAIM': 'jti',
+    'USER_AUTHENTICATION_RULE': 'ECM2434_A_2_202425.auth_utils.custom_user_authentication_rule',
 }
 
 TEMPLATES = [
@@ -151,7 +163,10 @@ TEMPLATES = [
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES':(
+        'ECM2434_A_2_202425.auth_utils.CustomJWTAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
     )
 }
 
