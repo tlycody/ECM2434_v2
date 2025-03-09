@@ -16,7 +16,7 @@ const Upload = () => {
 
   useEffect(() => {
     const choice = localStorage.getItem('selectedChoice'); // Retrieve the stored task choice
-    console.log('Selected task:', choice);
+    console.log('Selected Task:', choice);
     if (choice) {
       setSelectedTask(choice);
     }
