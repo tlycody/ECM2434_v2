@@ -20,6 +20,7 @@ from rest_framework import status
 # Model and Serializer Imports
 from .models import Task, UserTask, Leaderboard, Profile, UserConsent
 from .serializers import TaskSerializer, LeaderboardSerializer
+from .bingo_patterns import BingoPatternDetector
 
 # Local Imports
 from .forms import CustomUserCreationForm
@@ -473,6 +474,8 @@ def approve_task(request):
     leaderboard.points += task.points
     leaderboard.save()
 
+    check_and_award_patterns(user)
+
     return Response({
         "message": f"Task approved for {user.username}. {task.points} points rewarded."
     })
@@ -573,3 +576,71 @@ def debug_media_urls(request):
         'media_info': media_info,
         'config': config_info
     })
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_badges(request):
+    """
+    Get all badges earned by the authenticated user
+    """
+    user = request.user
+    user_badges = UserBadge.objects.filter(user=user).select_related('pattern')
+    
+    badges = []
+    for badge in user_badges:
+        badges.append({
+            'id': badge.pattern.id,
+            'name': badge.pattern.name,
+            'type': badge.pattern.pattern_type,
+            'description': badge.pattern.description,
+            'bonus_points': badge.pattern.bonus_points,
+            'earned_at': badge.earned_at
+        })
+    
+    return Response(badges)
+
+def check_and_award_patterns(user):
+    """
+    Check if the user has completed any patterns and award badges and points
+    
+    This function should be called after a task is approved
+    """
+    # Get all completed tasks for the user
+    completed_tasks = UserTask.objects.filter(user=user, completed=True)
+    
+    # Get all tasks
+    all_tasks = Task.objects.all().order_by('id')
+    
+    # Create grid representation
+    grid = BingoPatternDetector.create_grid_from_tasks(completed_tasks, all_tasks, grid_size=3)
+    
+    # Detect patterns
+    detected_patterns = BingoPatternDetector.detect_patterns(grid, size=3)
+    
+    # Get existing badges for user
+    existing_badges = UserBadge.objects.filter(user=user).values_list('pattern__pattern_type', flat=True)
+    
+    # Get user's leaderboard entry
+    leaderboard, _ = Leaderboard.objects.get_or_create(user=user)
+    
+    # Award new badges and points
+    for pattern_type in detected_patterns:
+        # Skip if user already has this badge
+        if pattern_type in existing_badges:
+            continue
+            
+        # Get the pattern details
+        try:
+            pattern = BingoPattern.objects.get(pattern_type=pattern_type)
+            
+            # Create badge for user
+            with transaction.atomic():
+                UserBadge.objects.create(user=user, pattern=pattern)
+                
+                # Award bonus points
+                leaderboard.points += pattern.bonus_points
+                leaderboard.save()
+                
+            print(f"Awarded {pattern.name} badge to {user.username}")
+        except BingoPattern.DoesNotExist:
+            print(f"Pattern {pattern_type} not found in database")

@@ -167,3 +167,30 @@ class AccessCode(models.Model):
     
     def __str__(self):
         return f"{self.role} Access Code - {'Used' if self.is_used else 'Available'}"
+
+class BingoPattern(models.Model):
+    """
+    Model to store different bingo patterns that can be achieved
+    """
+    name = models.CharField(max_length=50)  # e.g. "Zero Waste Hero"
+    pattern_type = models.CharField(max_length=20)  # e.g. "O", "X", "H", "V"
+    description = models.TextField()
+    bonus_points = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"{self.name} ({self.pattern_type})"
+
+class UserBadge(models.Model):
+    """
+    Model to track badges earned by users
+    """
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    pattern = models.ForeignKey(BingoPattern, on_delete=models.CASCADE)
+    earned_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ('user', 'pattern')
+        
+    def __str__(self):
+        return f"{self.user.username} - {self.pattern.name}"
