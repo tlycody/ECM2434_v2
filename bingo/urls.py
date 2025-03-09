@@ -30,6 +30,14 @@ import os
 from django.contrib.auth import get_user_model
 User = get_user_model()
 
+
+from django.urls import path
+from .views import monthly_leaderboard
+
+urlpatterns = [
+    path('api/monthly-leaderboard/', monthly_leaderboard, name="monthly_leaderboard"),
+]
+
 # Set up logging for debugging
 logger = logging.getLogger(__name__)
 

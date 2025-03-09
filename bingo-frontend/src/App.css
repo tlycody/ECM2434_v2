@@ -1,61 +1,32 @@
-/* ============================
-   Global App Styling
-   ============================ */
+/* Navigation Bar Styling */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #6a0dad; /* Purple theme */
+  padding: 15px 30px;
+  font-family: 'Arial', sans-serif;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
 
-   .App {
-    text-align: center; /*   Centers all content within the App */
-  }
-  
-  /* ============================
-     App Logo Styling
-     ============================ */
-  
-  /* Logo Styling */
-  .App-logo {
-    height: 40vmin; /*   Responsive size based on viewport */
-    pointer-events: none; /*   Prevents unwanted interactions */
-  }
-  
-  /* Logo Animation (if motion is preferred) */
-  @media (prefers-reduced-motion: no-preference) {
-    .App-logo {
-      animation: App-logo-spin infinite 20s linear; /*   Smooth infinite spin */
-    }
-  }
-  
-  /* ============================
-     Header Styling
-     ============================ */
-  
-  .App-header {
-    background-color: #282c34; /*   Dark background for contrast */
-    min-height: 100vh; /*   Full height viewport */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-size: calc(10px + 2vmin); /*   Responsive font scaling */
-    color: white; /*   Ensures readability */
-  }
-  
-  /* ============================
-     Link Styling
-     ============================ */
-  
-  .App-link {
-    color: #61dafb; /*   React blue for branding */
-  }
-  
-  /* ============================
-     Logo Animation Keyframes
-     ============================ */
-  
-  @keyframes App-logo-spin {
-    from {
-      transform: rotate(0deg); /*   Start position */
-    }
-    to {
-      transform: rotate(360deg); /*   Rotates 360 degrees */
-    }
-  }
-  
+/* Navigation Buttons */
+.nav-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.nav-button {
+  text-decoration: none;
+  background-color: #8a2be2; /* Lighter Purple */
+  color: white;
+  font-weight: bold;
+  padding: 10px 15px;
+  border-radius: 5px;
+  transition: background 0.3s ease, transform 0.2s ease;
+  border: none;
+}
+
+.nav-button:hover {
+  background-color: #9b30ff; /* Slightly lighter shade */
+  transform: scale(1.05);
+}

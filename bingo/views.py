@@ -30,6 +30,86 @@ import logging
 import json
 import os
 
+from django.db.models import F
+from django.utils.timezone import now
+from .models import MonthlyLeaderboard  # Import the new MonthlyLeaderboard model
+
+
+@api_view(['GET'])
+def monthly_leaderboard(request):
+    """
+    Retrieves the monthly leaderboard for the current month.
+    Orders users by highest points.
+    """
+    from django.utils.timezone import now
+
+    month, year = now().month, now().year
+    top_players = MonthlyLeaderboard.objects.filter(
+        month=month, year=year
+    ).order_by('-points')[:10]  # Top 10 players
+
+    leaderboard_data = [
+        {
+            "username": entry.user.username,
+            "points": entry.points,
+            "month": entry.month,
+            "year": entry.year
+        }
+        for entry in top_players
+    ]
+
+    return Response({"monthly_leaderboard": leaderboard_data})
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def approve_task(request):
+    """
+    Approves a pending task submission.
+    Only for GameKeepers and Developers.
+    """
+    if request.user.role.lower() not in ['gamekeeper', 'developer']:
+        return Response({'error': "Permission denied"}, status=status.HTTP_403_FORBIDDEN)
+    
+    user_id = request.data.get('user_id')
+    task_id = request.data.get('task_id')
+
+    user = get_object_or_404(User, id=user_id)
+    task = get_object_or_404(Task, id=task_id)
+    user_task = get_object_or_404(UserTask, user=user, task=task)
+
+    if user_task.completed:
+        return Response({"message": "Task already approved!"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Mark as completed and update status
+    user_task.completed = True
+    user_task.status = 'approved'
+    user_task.approval_date = now()
+    user_task.save()
+
+    # Update all-time leaderboard
+    leaderboard, _ = Leaderboard.objects.get_or_create(user=user)
+    leaderboard.points = F('points') + task.points
+    leaderboard.save()
+
+    # Update monthly leaderboard
+    month, year = now().month, now().year
+    monthly_entry, created = MonthlyLeaderboard.objects.get_or_create(
+        user=user, month=month, year=year, defaults={'points': 0}
+    )
+    monthly_entry.points = F('points') + task.points
+    monthly_entry.save()
+
+    # Award patterns and badges if necessary
+    from django.db import transaction
+
+    with transaction.atomic():
+        check_and_award_patterns(user)
+
+    return Response({
+        "message": f"Task approved for {user.username}. {task.points} points awarded this month."
+    })
+
 # Logger Setup
 logger = logging.getLogger(__name__)
 
@@ -343,7 +423,8 @@ def create_task(request):
     """
     # Check if user has appropriate permissions
     user = request.user
-    if user.profile not in ['GameKeeper', 'Developer']:
+    if user.role not in ['GameKeeper', 'Developer']:
+
         return Response({"error": "You don't have permission to create tasks."}, 
                         status=status.HTTP_403_FORBIDDEN)
     
@@ -388,7 +469,7 @@ def register_view(request):
             )
             
             # Check if the user needs approval
-            if user.role in ['Game Keeper', 'Developer']:
+            if user.role in ['GameKeeper', 'Developer']:
                 messages.info(
                     request,
                     "Your admin account has been created. You can now log in with your credentials."

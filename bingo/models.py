@@ -2,6 +2,9 @@
 from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
+from django.utils.timezone import now
+
+
 
 # ============================
 # Custom User Model
@@ -194,3 +197,34 @@ class UserBadge(models.Model):
         
     def __str__(self):
         return f"{self.user.username} - {self.pattern.name}"
+
+
+class MonthlyLeaderboard(models.Model):
+    """
+    Model to track monthly rankings.
+    """
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    points = models.IntegerField(default=0)
+    month = models.IntegerField()
+    year = models.IntegerField()
+
+    class Meta:
+        unique_together = ('user', 'month', 'year')
+
+    def __str__(self):
+        return f"{self.user.username} - {self.points} Points in {self.month}/{self.year}"
+
+
+from django.db.models import F
+
+def update_monthly_leaderboard(user, task_points):
+    """Updates the Monthly Leaderboard when a user earns points."""
+    from django.utils.timezone import now
+    leaderboard_entry, created = MonthlyLeaderboard.objects.get_or_create(
+        user=user,
+        month=now().month,
+        year=now().year,
+        defaults={'points': 0}
+    )
+    leaderboard_entry.points = F('points') + task_points
+    leaderboard_entry.save()

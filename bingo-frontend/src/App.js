@@ -4,6 +4,7 @@
 
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import './App.css'; // Import CSS for styling
 
 // Importing Application Components
 import Home from './components/Home';
@@ -11,6 +12,7 @@ import Userprofile from './components/Userprofile';
 import Login from './components/Login';
 import Register from './components/Register';
 import Leaderboard from './components/Leaderboard';
+import MonthlyLeaderboard from './components/MonthlyLeaderboard';
 import BingoBoard from './components/BingoBoard';
 import Upload from './components/Upload';
 import Scan from './components/Scan';
@@ -35,6 +37,7 @@ const App = () => {
 
         {/* Game Features Routes */}
         <Route path="/leaderboard" element={<Leaderboard />} />
+        <Route path="/monthly-leaderboard" element={<MonthlyLeaderboard />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/bingo" element={<BingoBoard />} />
         <Route path="/upload" element={<Upload />} />
