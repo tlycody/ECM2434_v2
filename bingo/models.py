@@ -14,7 +14,7 @@ class User(AbstractUser):
     """
     ROLE_CHOICES = [
         ('Player', 'Player'),  # Regular players in the game
-        ('Game Keeper', 'Game Keeper'),  # Moderators who verify game tasks
+        ('GameKeeper', 'GameKeeper'),  # Moderators who verify game tasks
         ('Developer', 'Developer'),  # Developers with admin privileges
     ]
 
