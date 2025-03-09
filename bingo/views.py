@@ -610,7 +610,7 @@ def check_and_award_patterns(user):
     
     # Get all completed tasks for the user
     completed_tasks = UserTask.objects.filter(user=user, completed=True)
-    print(f"Found {completed_tasks.count()} completed tasks")
+    print(f"Found {completed_tasks.count()} completed tasks: {[t.task.id for t in completed_tasks]}")
     
     # Get all tasks
     all_tasks = Task.objects.all().order_by('id')
@@ -645,6 +645,7 @@ def check_and_award_patterns(user):
         # Get the pattern details
         try:
             pattern = BingoPattern.objects.get(pattern_type=pattern_type)
+            print(f"Found pattern in database: {pattern.name} ({pattern.pattern_type})")
             
             # Create badge for user
             with transaction.atomic():
@@ -666,33 +667,36 @@ def check_and_award_patterns(user):
     
     # Award additional points for completing a task that forms a bingo pattern
     if new_patterns_completed:
+        print("Attempting to award extra 20 points...")
+        # Force add 20 points regardless of latest task
         try:
-            # Just use the first completed task to avoid field issues
-            latest_task = completed_tasks.first()
+            task_completion_bonus = 20  # You can adjust this value
+            old_points = leaderboard.points
             
-            if latest_task:
-                # Award extra points for the task that completed the pattern
-                task_completion_bonus = 20  # You can adjust this value
-                old_points = leaderboard.points
+            with transaction.atomic():
+                leaderboard.points += task_completion_bonus
+                leaderboard.save()
                 
-                try:
-                    with transaction.atomic():
-                        leaderboard.points += task_completion_bonus
-                        leaderboard.save()
-                        
-                        print(f"Awarded {task_completion_bonus} extra points to {user.username} for completing a bingo pattern (total: {old_points} -> {leaderboard.points})")
-                        
-                        # Fix the TaskBonus creation with proper field references
+                print(f"SUCCESS: Awarded {task_completion_bonus} extra points to {user.username} (total: {old_points} -> {leaderboard.points})")
+                
+                # Try to find any completed task to link the bonus to
+                some_task = completed_tasks.first()
+                if some_task:
+                    try:
                         TaskBonus.objects.create(
                             user=user,
-                            task=latest_task.task,
+                            task=some_task.task,
                             bonus_points=task_completion_bonus,
                             reason="Completed bingo pattern"
                         )
-                        print(f"Created TaskBonus record for task #{latest_task.task.id}")
-                except Exception as e:
-                    print(f"Error in TaskBonus creation: {str(e)}")
+                        print(f"SUCCESS: Created TaskBonus record for task #{some_task.task.id}")
+                    except Exception as e:
+                        print(f"ERROR creating TaskBonus: {str(e)}")
+                else:
+                    print("ERROR: No completed task found to link bonus to")
         except Exception as e:
-            print(f"Error in task bonus awarding: {str(e)}")
+            print(f"ERROR in task bonus awarding: {str(e)}")
+    else:
+        print("No new patterns completed, skipping extra points")
     
     return detected_patterns, new_patterns_completed

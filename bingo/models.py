@@ -206,4 +206,4 @@ class TaskBonus(models.Model):
         unique_together = ('user', 'task', 'reason')
         
     def __str__(self):
-        return f"{self.user.username} - {self.bonus_points} points for {self.task.title} ({self.reason})"
+       return f"{self.user.username} - {self.bonus_points} points for task #{self.task.id} ({self.reason})"
