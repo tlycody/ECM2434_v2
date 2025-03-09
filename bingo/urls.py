@@ -1,7 +1,17 @@
-# Django Imports
-from django.urls import path
+# ============================
+# Django View Functions for API Endpoints
+# ============================
 
-# DRF Imports
+# Import Django utilities for authentication and file handling
+from django.shortcuts import render, get_object_or_404
+from django.contrib.auth import get_user_model, authenticate
+from django.http import JsonResponse
+from django.urls import path
+from django.core.files.storage import default_storage
+
+# Import Django Rest Framework utilities
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -102,10 +112,12 @@ def update_user_profile(request):
 def login_user(request):
     """
     Authenticates a user and returns JWT tokens.
+    Ensures username and password validation.
     """
     data = request.data
     username = data.get('username')
     password = data.get('password')
+    profile = data.get('profile')
 
     # Validate input fields
     if not username or not password:
@@ -113,11 +125,25 @@ def login_user(request):
 
     user = authenticate(username=username, password=password)
     if user:
+        # Assign role based on the profile field
+        if profile == "GameKeeper":
+            user.role = "GameKeeper"  # Update the user's role
+            user.save()  # Save the updated role to the database
+            role = "GameKeeper"
+        else:
+            role = "Player"
+        
+        # Create a new token AFTER updating the role
         refresh = RefreshToken.for_user(user)
+        
+        # Add custom claims to the token payload
+        refresh['role'] = user.role
+        
         return Response({
             'refresh': str(refresh),
             'access': str(refresh.access_token),
-            'user': username
+            'user': username,
+            'role': user.role  # Include the updated role in the response
         }, status=status.HTTP_200_OK)
 
     return Response({"error": "Invalid username or password"}, status=status.HTTP_401_UNAUTHORIZED)
@@ -144,25 +170,39 @@ def tasks(request):
 @permission_classes([IsAuthenticated])
 def complete_task(request):
     """
-    Marks a task as completed by the user and updates their leaderboard score.
+    Submits a task for approval by the user.
+    Task points are only awarded after GameKeeper approval.
     """
     user = request.user
     task_id = request.data.get('task_id')
     task = get_object_or_404(Task, id=task_id)
 
-    # Check if task is already completed
-    if UserTask.objects.filter(user=user, task=task).exists():
-        return Response({"message": "Task already completed!"}, status=status.HTTP_400_BAD_REQUEST)
+    # Check if task is already submitted or completed
+    user_task = UserTask.objects.filter(user=user, task=task).first()
+    if user_task:
+        if user_task.completed:
+            return Response({"message": "Task already completed and approved!"}, 
+                          status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({"message": "Task already submitted and pending approval!"}, 
+                          status=status.HTTP_400_BAD_REQUEST)
 
-    # Mark task as completed
-    UserTask.objects.create(user=user, task=task, completed=True)
+    # Check if photo is required but not provided
+    if task.requires_upload and 'photo' not in request.FILES:
+        return Response({"message": "This task requires a photo upload."}, 
+                      status=status.HTTP_400_BAD_REQUEST)
+    
+    # Create new user task - marked as not completed (pending approval)
+    user_task = UserTask(user=user, task=task, completed=False)
+    
+    # Save photo if provided
+    if 'photo' in request.FILES:
+        user_task.photo = request.FILES['photo']
+    
+    user_task.save()
 
-    # Update leaderboard points
-    leaderboard, _ = Leaderboard.objects.get_or_create(user=user)
-    leaderboard.points += task.points
-    leaderboard.save()
-
-    return Response({"message": "Task completed!", "points": leaderboard.points})
+    return Response({"message": "Task submitted successfully and awaiting GameKeeper approval!"}, 
+                  status=status.HTTP_200_OK)
 
 # ============================
 # Leaderboard Retrieval
@@ -191,37 +231,186 @@ def check_developer_role(request):
         return Response({"is_developer": True}, status=status.HTTP_200_OK)
     return Response({"is_developer": False}, status=status.HTTP_403_FORBIDDEN)
 
+# Update the pending_tasks function in views.py
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def pending_tasks(request):
     """
-    Shows all the pending tasks
+    Shows all the pending tasks for GameKeepers to review
     """
-    if request.user.role not in ['GameKeeper']:
-        return Response({"error":"Permission denied"}, status = status.HTTP_403_FORBIDDEN)
+    # Make the role check case-insensitive and include Developer role
+    if request.user.role.lower() not in ['gamekeeper', 'developer']:
+        return Response({"error": "Permission denied"}, status=status.HTTP_403_FORBIDDEN)
     
-    pending = UserTask.objects.filter(completed = False)
-
+    # Filter tasks with status 'pending' or completed=False (for backward compatibility)
+    pending = UserTask.objects.filter(status='pending', completed=False)
+    
+    # For debugging
+    print(f"Found {pending.count()} pending tasks")
+    
     result = []
     for item in pending:
-        result.append({
+        task_data = {
             'user_id': item.user.id,
             'username': item.user.username,
             'task_id': item.task.id,
             'task_description': item.task.description,
             'points': item.task.points,
-        })
+            'requires_upload': item.task.requires_upload,
+            'completion_date': item.completion_date,  # Changed from submission_date to completion_date
+        }
+        
+        # Add photo URL if exists
+        if item.photo:
+            task_data['photo_url'] = request.build_absolute_uri(item.photo.url)
+        
+        result.append(task_data)
 
     return Response(result)
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def check_auth(request):
+    return Response({
+        "authenticated": True, 
+        "username": request.user.username, 
+        "role": request.user.role,
+        "role_lowercase": request.user.role.lower() if request.user.role else None
+    })
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def debug_user_tasks(request):
+    """
+    Debug endpoint to check all UserTask records and their statuses
+    """
+    if request.user.role.lower() not in ['gamekeeper', 'developer']:
+        return Response({"error": "Permission denied"}, status=status.HTTP_403_FORBIDDEN)
+    
+    # Get all tasks
+    all_tasks = UserTask.objects.all()
+    
+    result = {
+        'total_tasks': all_tasks.count(),
+        'pending_tasks': UserTask.objects.filter(status='pending', completed=False).count(),
+        'completed_tasks': UserTask.objects.filter(completed=True).count(),
+        'tasks_by_status': {
+            'pending': UserTask.objects.filter(status='pending').count(),
+            'approved': UserTask.objects.filter(status='approved').count(),
+            'rejected': UserTask.objects.filter(status='rejected').count(),
+        },
+        'tasks_details': []
+    }
+    
+    # Add details for each task
+    for task in all_tasks:
+        result['tasks_details'].append({
+            'id': task.id,
+            'user': task.user.username,
+            'task_description': task.task.description,
+            'status': task.status,
+            'completed': task.completed,
+            'has_photo': bool(task.photo),
+            'completion_date': task.completion_date,
+        })
+    
+    return Response(result)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def debug_media_urls(request):
+    """Debug endpoint to check media URLs and file existence"""
+    if request.user.role.lower() not in ['gamekeeper', 'developer']:
+        return Response({"error": "Permission denied"}, status=status.HTTP_403_FORBIDDEN)
+    
+    # Get all task photos
+    pending_tasks = UserTask.objects.filter(completed=False)
+    
+    media_info = []
+    for task in pending_tasks:
+        task_info = {
+            'task_id': task.id,
+            'user': task.user.username,
+            'has_photo_field': bool(task.photo),
+            'photo_field_value': str(task.photo) if task.photo else None,
+            'photo_url': None,
+            'file_exists': False
+        }
+        
+        if task.photo:
+            # Get URL
+            task_info['photo_url'] = request.build_absolute_uri(task.photo.url)
+            
+            # Check if file exists
+            import os
+            from django.conf import settings
+            
+            file_path = os.path.join(settings.MEDIA_ROOT, str(task.photo))
+            task_info['file_exists'] = os.path.exists(file_path)
+            task_info['file_path'] = file_path
+        
+        media_info.append(task_info)
+    
+    # Add server configuration for context
+    config_info = {
+        'MEDIA_URL': settings.MEDIA_URL,
+        'MEDIA_ROOT': settings.MEDIA_ROOT,
+        'DEBUG': settings.DEBUG,
+        'BASE_DIR': str(settings.BASE_DIR)
+    }
+    
+    return Response({
+        'media_info': media_info,
+        'config': config_info
+    })
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def approve_task(request):
+    """
+    Approves a pending task submission.
+    Only for GameKeepers and Developers.
+    """
+    if request.user.role.lower() not in ['gamekeeper', 'developer']:
+        return Response({'error': "Permission denied"}, status=status.HTTP_403_FORBIDDEN)
+    
+    user_id = request.data.get('user_id')
+    task_id = request.data.get('task_id')  # Changed 'task' to 'task_id' for consistency
+
+    user = get_object_or_404(User, id=user_id)
+    task = get_object_or_404(Task, id=task_id)
+    user_task = get_object_or_404(UserTask, user=user, task=task)
+
+    if user_task.completed:
+        return Response({"message": "Task already approved!"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    # Mark as completed and update status
+    user_task.completed = True
+    user_task.status = 'approved'
+    user_task.save()
+
+    # Update leaderboard
+    leaderboard, _ = Leaderboard.objects.get_or_create(user=user)
+    leaderboard.points += task.points
+    leaderboard.save()
+
+    return Response({
+        "message": f"Task approved for {user.username}. {task.points} points rewarded."
+    })
+
 # ============================
 # URL Patterns
+# ============================
+
+from django.urls import path
+
 urlpatterns = [
     path('register/', register_user, name='register_user'),
     path('login/', login_user, name='login_user'),
     path('check-auth/', check_auth, name='check_auth'),
     path('tasks/', tasks, name='tasks'),
-    path('pending-tasks/', pending_tasks, name='pending_tasks'),
+    path('pending-tasks/', pending_tasks,name = 'pending-tasks'),
     path('complete_task/', complete_task, name='complete_task'),
     path('approve-task/', approve_task, name='approve_task'),
     path('leaderboard/', leaderboard, name='leaderboard'),
@@ -231,4 +420,3 @@ urlpatterns = [
     path('debug-tasks/', debug_user_tasks, name='debug_user_tasks'),
     path('debug-media/', debug_media_urls, name='debug_media_urls'),
 ]
-
