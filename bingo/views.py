@@ -606,23 +606,30 @@ def check_and_award_patterns(user):
     
     This function should be called after a task is approved
     """
+    print(f"\n\n==== CHECKING PATTERNS FOR USER: {user.username} ====")
+    
     # Get all completed tasks for the user
     completed_tasks = UserTask.objects.filter(user=user, completed=True)
+    print(f"Found {completed_tasks.count()} completed tasks")
     
     # Get all tasks
     all_tasks = Task.objects.all().order_by('id')
     
     # Create grid representation
     grid = BingoPatternDetector.create_grid_from_tasks(completed_tasks, all_tasks, grid_size=3)
+    print(f"Grid: {grid}")
     
     # Detect patterns
     detected_patterns = BingoPatternDetector.detect_patterns(grid, size=3)
+    print(f"Detected patterns: {detected_patterns}")
     
     # Get existing badges for user
     existing_badges = UserBadge.objects.filter(user=user).values_list('pattern__pattern_type', flat=True)
+    print(f"Existing badges: {list(existing_badges)}")
     
     # Get user's leaderboard entry
     leaderboard, _ = Leaderboard.objects.get_or_create(user=user)
+    print(f"Current points: {leaderboard.points}")
     
     # Track if any new patterns were completed
     new_patterns_completed = False
@@ -631,8 +638,10 @@ def check_and_award_patterns(user):
     for pattern_type in detected_patterns:
         # Skip if user already has this badge
         if pattern_type in existing_badges:
+            print(f"User already has badge for pattern: {pattern_type}")
             continue
         
+        print(f"New pattern detected: {pattern_type}")
         # Get the pattern details
         try:
             pattern = BingoPattern.objects.get(pattern_type=pattern_type)
@@ -642,49 +651,48 @@ def check_and_award_patterns(user):
                 UserBadge.objects.create(user=user, pattern=pattern)
                 
                 # Award bonus points
+                old_points = leaderboard.points
                 leaderboard.points += pattern.bonus_points
                 leaderboard.save()
                 
                 # Set flag to indicate a new pattern was completed
                 new_patterns_completed = True
                 
-            print(f"Awarded {pattern.name} badge to {user.username} with {pattern.bonus_points} bonus points")
+                print(f"Awarded {pattern.name} badge to {user.username} with {pattern.bonus_points} bonus points (total: {old_points} -> {leaderboard.points})")
         except BingoPattern.DoesNotExist:
             print(f"Pattern {pattern_type} not found in database")
     
+    print(f"New patterns completed: {new_patterns_completed}")
+    
     # Award additional points for completing a task that forms a bingo pattern
-    # This runs only if this task completion resulted in a new pattern
     if new_patterns_completed:
-        # Try getting the most recently completed task using different approaches
         try:
-            # First try using completion_date
-            latest_task = completed_tasks.order_by('-completion_date').first()
+            # Just use the first completed task to avoid field issues
+            latest_task = completed_tasks.first()
             
-            # If that didn't work, try using approval_date if it exists
-            if not latest_task and hasattr(UserTask, 'approval_date'):
-                latest_task = completed_tasks.order_by('-approval_date').first()
-                
-            # If still no task, just get any task
-            if not latest_task:
-                latest_task = completed_tasks.first()
-                
             if latest_task:
                 # Award extra points for the task that completed the pattern
                 task_completion_bonus = 20  # You can adjust this value
-                with transaction.atomic():
-                    leaderboard.points += task_completion_bonus
-                    leaderboard.save()
-                    
-                    print(f"Awarded {task_completion_bonus} extra points to {user.username} for completing a bingo pattern with task #{latest_task.task.id}")
-                    
-                    # You could also store this information if needed
-                    TaskBonus.objects.create(
-                        user=user,
-                        task=latest_task.task,
-                        bonus_points=task_completion_bonus,
-                        reason="Completed bingo pattern"
-                    )
+                old_points = leaderboard.points
+                
+                try:
+                    with transaction.atomic():
+                        leaderboard.points += task_completion_bonus
+                        leaderboard.save()
+                        
+                        print(f"Awarded {task_completion_bonus} extra points to {user.username} for completing a bingo pattern (total: {old_points} -> {leaderboard.points})")
+                        
+                        # Fix the TaskBonus creation with proper field references
+                        TaskBonus.objects.create(
+                            user=user,
+                            task=latest_task.task,
+                            bonus_points=task_completion_bonus,
+                            reason="Completed bingo pattern"
+                        )
+                        print(f"Created TaskBonus record for task #{latest_task.task.id}")
+                except Exception as e:
+                    print(f"Error in TaskBonus creation: {str(e)}")
         except Exception as e:
-            print(f"Error in awarding bonus points: {str(e)}")
+            print(f"Error in task bonus awarding: {str(e)}")
     
     return detected_patterns, new_patterns_completed
