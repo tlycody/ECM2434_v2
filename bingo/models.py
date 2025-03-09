@@ -194,3 +194,16 @@ class UserBadge(models.Model):
         
     def __str__(self):
         return f"{self.user.username} - {self.pattern.name}"
+    
+class TaskBonus(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    task = models.ForeignKey(Task, on_delete=models.CASCADE)
+    bonus_points = models.IntegerField(default=0)
+    reason = models.CharField(max_length=255)
+    awarded_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ('user', 'task', 'reason')
+        
+    def __str__(self):
+        return f"{self.user.username} - {self.bonus_points} points for {self.task.title} ({self.reason})"

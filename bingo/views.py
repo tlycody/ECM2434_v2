@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.utils import timezone
+from django.db import transaction
 
 # Django Rest Framework Imports
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -18,7 +19,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 # Model and Serializer Imports
-from .models import Task, UserTask, Leaderboard, Profile, UserConsent
+from .models import BingoPattern, Task, TaskBonus, UserBadge, UserTask, Leaderboard, Profile, UserConsent
 from .serializers import TaskSerializer, LeaderboardSerializer
 from .bingo_patterns import BingoPatternDetector
 
@@ -654,23 +655,36 @@ def check_and_award_patterns(user):
     # Award additional points for completing a task that forms a bingo pattern
     # This runs only if this task completion resulted in a new pattern
     if new_patterns_completed:
-        # Get the most recently completed task
-        latest_task = completed_tasks.order_by('-completed_at').first()
-        if latest_task:
-            # Award extra points for the task that completed the pattern
-            task_completion_bonus = 20  # You can adjust this value
-            with transaction.atomic():
-                leaderboard.points += task_completion_bonus
-                leaderboard.save()
+        # Try getting the most recently completed task using different approaches
+        try:
+            # First try using completion_date
+            latest_task = completed_tasks.order_by('-completion_date').first()
+            
+            # If that didn't work, try using approval_date if it exists
+            if not latest_task and hasattr(UserTask, 'approval_date'):
+                latest_task = completed_tasks.order_by('-approval_date').first()
                 
-                print(f"Awarded {task_completion_bonus} extra points to {user.username} for completing a bingo pattern with task #{latest_task.task.id}")
+            # If still no task, just get any task
+            if not latest_task:
+                latest_task = completed_tasks.first()
                 
-                # You could also store this information if needed
-                TaskBonus.objects.create(
-                    user=user,
-                    task=latest_task.task,
-                    bonus_points=task_completion_bonus,
-                    reason="Completed bingo pattern"
-                )
+            if latest_task:
+                # Award extra points for the task that completed the pattern
+                task_completion_bonus = 20  # You can adjust this value
+                with transaction.atomic():
+                    leaderboard.points += task_completion_bonus
+                    leaderboard.save()
+                    
+                    print(f"Awarded {task_completion_bonus} extra points to {user.username} for completing a bingo pattern with task #{latest_task.task.id}")
+                    
+                    # You could also store this information if needed
+                    TaskBonus.objects.create(
+                        user=user,
+                        task=latest_task.task,
+                        bonus_points=task_completion_bonus,
+                        reason="Completed bingo pattern"
+                    )
+        except Exception as e:
+            print(f"Error in awarding bonus points: {str(e)}")
     
     return detected_patterns, new_patterns_completed
