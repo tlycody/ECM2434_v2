@@ -329,9 +329,11 @@ def user_rank(points):
     """
     Determine user rank based on points
     """
-    if points < 50:
+    if points < 51:
         return "Beginner"
-    elif points < 1250:
+    elif points < 1251:
+        return "Intermediate"
+    elif points >= 1251:
         return "Expert"
     else:
         return "None"
