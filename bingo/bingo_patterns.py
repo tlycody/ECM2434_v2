@@ -17,7 +17,7 @@ class BingoPatternDetector:
             2D grid where True represents completed tasks and False represents incomplete tasks
         """
         # Create a set of completed task IDs for quick lookup
-        completed_task_ids = {task.task.id for task in user_tasks if task.completed}
+        completed_task_ids = {task.task.id for task in user_tasks}
         
         # Map all tasks to grid positions (assuming tasks are ordered from 1-9)
         task_map = {}
