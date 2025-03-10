@@ -1,0 +1,46 @@
+[
+    {
+      "model": "bingo.bingopattern",
+      "pk": 1,
+      "fields": {
+        "name": "Zero Waste Hero",
+        "pattern_type": "O",
+        "description": "You've completed the outer edge of the bingo board, demonstrating your commitment to closing the loop on waste.",
+        "bonus_points": 25,
+        "created_at": "2025-03-08T12:00:00Z"
+      }
+    },
+    {
+      "model": "bingo.bingopattern",
+      "pk": 2,
+      "fields": {
+        "name": "Climate Action Influencer",
+        "pattern_type": "X",
+        "description": "You've completed the X pattern, showing you're at the intersection of action and awareness.",
+        "bonus_points": 20,
+        "created_at": "2025-03-08T12:00:00Z"
+      }
+    },
+    {
+      "model": "bingo.bingopattern",
+      "pk": 3,
+      "fields": {
+        "name": "Eco Horizon Pioneer",
+        "pattern_type": "H",
+        "description": "You've completed a horizontal line, breaking new ground in sustainability across campus.",
+        "bonus_points": 15,
+        "created_at": "2025-03-08T12:00:00Z"
+      }
+    },
+    {
+      "model": "bingo.bingopattern",
+      "pk": 4,
+      "fields": {
+        "name": "Green Growth Champion",
+        "pattern_type": "V",
+        "description": "You've completed a vertical line, showing your upward momentum in sustainable practices.",
+        "bonus_points": 15,
+        "created_at": "2025-03-08T12:00:00Z"
+      }
+    }
+  ]

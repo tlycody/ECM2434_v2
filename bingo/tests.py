@@ -374,8 +374,8 @@ class GetUserProfileTestCase(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.user = User.objects.create_user(username='testuser', email='test@example.com', password='password123')
-        self.profile = Profile.objects.create(user=self.user, rank="Beginner")
-        self.leaderboard = Leaderboard.objects.create(user=self.user, points=50)
+        self.profile = Profile.objects.create(user=self.user, rank="Intermediate")
+        self.leaderboard = Leaderboard.objects.create(user=self.user, points=51)
         self.client.force_authenticate(user=self.user)
 
     def test_get_user_profile(self):
@@ -384,7 +384,7 @@ class GetUserProfileTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.json()["username"], "testuser")
         self.assertEqual(response.json()["email"], "test@example.com")
-        self.assertEqual(response.json()["total_points"], 50)
+        self.assertEqual(response.json()["total_points"], 51)
         self.assertEqual(response.json()["rank"], "Intermediate")
 
     def test_get_user_profile_no_leaderboard_entry(self):
@@ -404,26 +404,26 @@ class UserRankTests(TestCase):
     Tests the ranking system based on user points.
     """
     def test_user_rank_beginner(self):
-        """Test that users with 0-49 points are ranked as 'Beginner'."""
+        """Test that users with 0-50 points are ranked as 'Beginner'."""
         self.assertEqual(user_rank(10), "Beginner")
         self.assertEqual(user_rank(0), "Beginner")
-        self.assertEqual(user_rank(49), "Beginner")
+        self.assertEqual(user_rank(50), "Beginner")
 
     def test_user_rank_intermediate(self):
-        """Test that users with 50-1250 points are ranked as 'Intermediate'."""
-        self.assertEqual(user_rank(50), "Intermediate")
+        """Test that users with 51-1250 points are ranked as 'Intermediate'."""
+        self.assertEqual(user_rank(51), "Intermediate")
         self.assertEqual(user_rank(100), "Intermediate")
         self.assertEqual(user_rank(1250), "Intermediate")
 
     def test_user_rank_expert(self):
-        """Test that users with more than 1250 points are ranked as 'Expert'."""
+        """Test that users with more than 1251 points are ranked as 'Expert'."""
         self.assertEqual(user_rank(1300), "Expert")
         self.assertEqual(user_rank(5000), "Expert")
         self.assertEqual(user_rank(1251), "Expert")
 
     def test_user_rank_boundary_cases(self):
         """Test boundary cases to ensure correct ranking transitions."""
-        self.assertEqual(user_rank(49), "Beginner")
-        self.assertEqual(user_rank(50), "Intermediate")
+        self.assertEqual(user_rank(50), "Beginner")
+        self.assertEqual(user_rank(51), "Intermediate")
         self.assertEqual(user_rank(1250), "Intermediate")
         self.assertEqual(user_rank(1251), "Expert")

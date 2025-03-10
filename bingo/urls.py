@@ -20,8 +20,7 @@ from rest_framework import status
 # Import models and serializers
 from .models import Task, UserTask, Leaderboard, Profile, UserConsent
 from .serializers import TaskSerializer, LeaderboardSerializer
-from .views import get_user_profile, register_user, check_auth, approve_task, debug_user_tasks, debug_media_urls
-
+from .views import force_award_pattern, get_user_profile, register_user, check_auth, approve_task, debug_user_tasks, debug_media_urls
 
 # Import other Python modules
 import logging
@@ -420,4 +419,5 @@ urlpatterns = [
     path('profile/', get_user_profile, name='get_user_profile'),
     path('debug-tasks/', debug_user_tasks, name='debug_user_tasks'),
     path('debug-media/', debug_media_urls, name='debug_media_urls'),
+    path('force-award-pattern/', force_award_pattern, name='force_award_pattern'),
 ]
