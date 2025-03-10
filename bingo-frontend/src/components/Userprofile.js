@@ -196,10 +196,10 @@ const Profile = () => {
           <div className="badge-hints">
             <p>Complete patterns on your bingo board to earn badges!</p>
             <div className="hint-icons">
-              <span className="hint-item">♻️ Zero Waste Hero</span>
-              <span className="hint-item">❌ Climate Action Influencer</span>
-              <span className="hint-item">🌈 Eco Horizon Pioneer</span>
-              <span className="hint-item">🌱 Green Growth Champion</span>
+              <span className="hint-item">♻️ Ozone Defender</span>
+              <span className="hint-item">❌ Xtra Green</span>
+              <span className="hint-item">🌈 Healthy Hero</span>
+              <span className="hint-item">🌱 Green Champion</span>
             </div>
           </div>
         )}
