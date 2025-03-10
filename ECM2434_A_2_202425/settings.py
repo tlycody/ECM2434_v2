@@ -179,10 +179,8 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',  # Keep the default backend as fallback
 ]
 
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Directory for collected static files
-
-# Add this if it's not already there
+SSTATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
+    os.path.join(BASE_DIR, 'static'),  # This path needs to match the directory you created
 ]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # For collected static files
