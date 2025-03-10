@@ -45,13 +45,17 @@ const BingoBoard = () => {
     // If task requires an upload, navigate to the upload page
     if (task.requires_upload) {
       localStorage.setItem("selectedChoice", task.description);
+      localStorage.setItem("selectedTaskId", task.id.toString());
       navigate("/upload");
-    } 
+      }
+
     // If task requires a scan, navigate to the scan page
     else if (task.requires_scan) {
       localStorage.setItem("selectedChoice", task.description);
+      localStorage.setItem("selectedTaskId", task.id.toString());
       navigate("/scan");
-    } 
+    }
+    
     // Otherwise, mark the task as completed via API
     else {
       try {
