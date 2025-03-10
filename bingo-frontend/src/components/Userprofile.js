@@ -91,7 +91,6 @@ const Profile = () => {
     fetchCompletedTasks();
     debugFetch(); // Add this to get extra debug information
     fetchUserBadges();
-  main
   }, []);
 
   // ============================
