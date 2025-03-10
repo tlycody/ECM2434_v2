@@ -11,6 +11,7 @@ import Userprofile from './components/Userprofile';
 import Login from './components/Login';
 import Register from './components/Register';
 import Leaderboard from './components/Leaderboard';
+import Homeboard from './components/Homeboard';
 import BingoBoard from './components/BingoBoard';
 import Upload from './components/Upload';
 import Scan from './components/Scan';
@@ -35,6 +36,7 @@ const App = () => {
 
         {/* Game Features Routes */}
         <Route path="/leaderboard" element={<Leaderboard />} />
+        <Route path="/homeboard" element={<Homeboard />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/bingo" element={<BingoBoard />} />
         <Route path="/upload" element={<Upload />} />
