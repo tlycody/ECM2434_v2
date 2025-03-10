@@ -23,7 +23,6 @@ const Profile = () => {
   // ============================
   // Fetch User Data, Completed Tasks & Badges
   // ============================
-
   useEffect(() => {
     // Fetch user profile data
     const fetchUserData = async () => {
@@ -31,6 +30,7 @@ const Profile = () => {
         const response = await axios.get(`${API_URL}/api/profile/`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
         });
+        console.log('User profile data:', response.data);
         setUserData(response.data);
         setUpdatedUser(response.data);
       } catch (error) {
@@ -38,20 +38,42 @@ const Profile = () => {
       }
     };
 
+    // Debug fetch to directly get task data
+    const debugFetch = async () => {
+      try {
+        // Get direct API data for debugging
+        const response = await axios.get(`${API_URL}/api/debug-tasks/`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
+        });
+        console.log('Debug task data from API:', response.data);
+      } catch (error) {
+        console.error('Error in debug fetch:', error);
+      }
+    };
+
+    // Fetch tasks for display in the list
     const fetchCompletedTasks = async () => {
       try {
         const response = await axios.get(`${API_URL}/api/tasks/`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
         });
     
-        // Filter only completed tasks
-        const completedTasks = response.data.filter(task => task.status === 'completed');
+        // Log the response to debug
+        console.log('All tasks data:', response.data);
+        
+        // Filter tasks that are completed or approved
+        const completedTasks = response.data.filter(task => 
+          task.status === 'completed' || 
+          task.status === 'approved' || 
+          task.completed === true
+        );
+        
+        console.log('Filtered completed tasks:', completedTasks);
         setTasks(completedTasks);
       } catch (error) {
         console.error('Error fetching completed tasks:', error);
       }
     };
-    
 
     // Fetch user badges
     const fetchUserBadges = async () => {
@@ -67,7 +89,9 @@ const Profile = () => {
 
     fetchUserData();
     fetchCompletedTasks();
+    debugFetch(); // Add this to get extra debug information
     fetchUserBadges();
+  main
   }, []);
 
   // ============================
@@ -163,7 +187,7 @@ const Profile = () => {
             <p><strong>Email:</strong> {userData?.email || 'N/A'}</p>
             <p><strong>Rank:</strong> {userData?.rank || 'Unranked'}</p>
             <p><strong>Total Points:</strong> {userData?.total_points || 0}</p>
-            <p><strong>Completed Tasks:</strong> {tasks.length}</p>
+            <p><strong>Completed Tasks:</strong> {userData?.completed_tasks || 0}</p>
             <button className="edit-profile-btn" onClick={() => setEditMode(true)}>Edit Profile</button>
           </div>
         ) : (
