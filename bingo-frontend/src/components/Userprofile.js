@@ -108,25 +108,6 @@ const Profile = () => {
   };
 
   // ============================
-  // Badge Emoji Selector
-  // ============================
-  
-  const getBadgeEmoji = (type) => {
-    switch (type) {
-      case 'O':
-        return '♻️'; // Recycling symbol for Zero Waste Hero
-      case 'X':
-        return '❌'; // X for Climate Action Influencer
-      case 'H':
-        return '🌈'; // Rainbow for Eco Horizon Pioneer
-      case 'V':
-        return '🌱'; // Seedling for Green Growth Champion
-      default:
-        return '🏆';
-    }
-  };
-
-  // ============================
   // Handle Profile Update
   // ============================
 

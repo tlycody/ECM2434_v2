@@ -1,15 +1,83 @@
-// ============================
-// Overview Component
-// ============================
-
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import axios from 'axios';
 import './Overview.css';
 
+// Define API URL (should be moved to environment variable in production)
+const API_URL = 'https://your-api-endpoint.com';
 
 const Overview = () => {
   const navigate = useNavigate(); // React Router navigation hook
+  const [badges, setBadges] = useState([]);
 
+  // ============================
+  // Badge Emoji Selector
+  // ============================
+  
+  const getBadgeEmoji = (type) => {
+    switch (type) {
+      case 'O':
+        return '♻️'; // Recycling symbol for Ozone Defender
+      case 'X':
+        return '❌'; // X for Xtra Green
+      case 'H':
+        return '🌈'; // Rainbow for Healthy Hero
+      case 'V':
+        return '🌱'; // Seedling for Green Champion
+      default:
+        return '🏆';
+    }
+  };
+
+  useEffect(() => {
+    // Fetch user data
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/api/user/`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
+        });
+        // Handle user data
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+
+    // Fetch completed tasks
+    const fetchCompletedTasks = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/api/tasks/completed`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
+        });
+        // Handle completed tasks
+      } catch (error) {
+        console.error('Error fetching completed tasks:', error);
+      }
+    };
+
+    // Debug function
+    const debugFetch = () => {
+      console.log('Debug information logged');
+      // Add additional debug code here
+    };
+
+    // Fetch user badges
+    const fetchUserBadges = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/api/badges/`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
+        });
+        setBadges(response.data);
+      } catch (error) {
+        console.error('Error fetching badges:', error);
+      }
+    };
+
+    fetchUserData();
+    fetchCompletedTasks();
+    debugFetch(); // Add this to get extra debug information
+    fetchUserBadges();
+  }, []);
+  
   return (
     <div className="overview-container">
       {/* Title */}
@@ -49,8 +117,8 @@ const Overview = () => {
         </ol>
       </div>
 
-            {/* Sustainability Badges Section */}
-            <div className="sustainability-badges">
+      {/* Sustainability Badges Section */}
+      <div className="sustainability-badges">
         <h3>Sustainability Badges</h3>
         {badges.length > 0 ? (
           <div className="badges-grid">
