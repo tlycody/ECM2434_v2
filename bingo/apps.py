@@ -9,3 +9,7 @@ class BingoConfig(AppConfig):
     
     # Define the name of the app as "bingo"
     name = "bingo"
+    
+    def ready(self):
+        # Import signals when the app is ready
+        import bingo.signals

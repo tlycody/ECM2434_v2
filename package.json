@@ -8,6 +8,6 @@
     "html5-qrcode": "^2.2.7",
     "jsar": "^0.0.1",
     "jsqr": "^1.4.0",
-    "react-scripts": "^5.0.1"
+    "react-scripts": "^3.0.1"
   }
 }

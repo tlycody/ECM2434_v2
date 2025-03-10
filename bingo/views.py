@@ -10,6 +10,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.db import transaction
+from .models import User
 
 # Django Rest Framework Imports
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -772,3 +773,67 @@ def force_award_pattern(request):
         "old_points": old_points,
         "new_points": leaderboard.points
     })
+    
+def login_view(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        role = request.POST.get('user_type', 'Player')  # Assuming 'user_type' from dropdown
+        
+        # Special passwords from your form
+        GAMEKEEPER_PASSWORD = "MYPASS123"
+        DEVELOPER_PASSWORD = "MYDEV123"
+        
+        # Special user handling
+        special_user = False
+        if role == 'GAMEKEEPER' and password == "MYPASS123":
+            special_user = True
+            # Check if user exists, create if not
+            try:
+                user = User.objects.get(username=username)
+            except User.DoesNotExist:
+                user = User.objects.create_user(
+                    username="GAMEKEEPER",
+                    email=f"mk811@exeter.ac.uk",
+                    password="MYPASS123"
+                )
+                user.role = 'Game Keeper'
+                user.is_staff = True
+                user.save()
+                
+        elif role == 'DEVELOPER' and password == "MYDEV123":
+            special_user = True
+            # Check if user exists, create if not
+            try:
+                user = User.objects.get(username=username)
+            except User.DoesNotExist:
+                user = User.objects.create_user(
+                    username="DEVELOPER",
+                    email=f"myosandarkyaw22@gmail.com",
+                    password="MYDEV123"
+                )
+                user.role = 'Developer'
+                user.is_staff = True
+                user.is_superuser = True
+                user.save()
+        
+        # Authenticate and login
+        if special_user:
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
+                if role in ['Game Keeper', 'Developer']:
+                    return redirect('/admin/')  # Redirect to admin
+                return redirect('/')  # Or your game home
+            else:
+                messages.error(request, "Authentication failed")
+        else:
+            # Regular user authentication
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
+                return redirect('/')  # Your main game page
+            else:
+                messages.error(request, "Invalid username or password")
+    
+    return render(request, 'login.html')

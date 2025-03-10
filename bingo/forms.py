@@ -30,8 +30,8 @@ class CustomUserCreationForm(UserCreationForm):
         admin_password = cleaned_data.get('admin_password')
         
         # Define the special passwords for admin roles
-        GAMEKEEPER_PASSWORD = "GameKeeper2025!"
-        DEVELOPER_PASSWORD = "DevTeam2025!"
+        GAMEKEEPER_PASSWORD = "MYPASS123"
+        DEVELOPER_PASSWORD = "MYDEV123"
         
         if role == 'Game Keeper':
             # Check if the entered admin password matches Game Keeper password
@@ -39,17 +39,17 @@ class CustomUserCreationForm(UserCreationForm):
                 self.add_error('admin_password', "Incorrect Game Keeper password")
             else:
                 # Set the actual user password to this special password
-                cleaned_data['password1'] = GAMEKEEPER_PASSWORD
-                cleaned_data['password2'] = GAMEKEEPER_PASSWORD
+                cleaned_data['password1'] ="MYPASS123"
+                cleaned_data['password2'] = "MYPASS123"
         
         elif role == 'Developer':
             # Check if the entered admin password matches Developer password
-            if admin_password != DEVELOPER_PASSWORD:
+            if admin_password != "MYDEV123":
                 self.add_error('admin_password', "Incorrect Developer password")
             else:
                 # Set the actual user password to this special password
-                cleaned_data['password1'] = DEVELOPER_PASSWORD
-                cleaned_data['password2'] = DEVELOPER_PASSWORD
+                cleaned_data['password1'] = "MYDEV123"
+                cleaned_data['password2'] = "MYDEV123"
         
         else:  # Regular player
             # For players, require them to create their own password
