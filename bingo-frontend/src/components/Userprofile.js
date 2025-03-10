@@ -200,34 +200,6 @@ const Profile = () => {
         )}
       </div>
 
-      {/* Sustainability Badges Section */}
-      <div className="sustainability-badges">
-        <h3>Sustainability Badges</h3>
-        {badges.length > 0 ? (
-          <div className="badges-grid">
-            {badges.map(badge => (
-              <div key={badge.id} className="badge-item">
-                <div className="badge-emoji">{getBadgeEmoji(badge.type)}</div>
-                <div className="badge-info">
-                  <h4>{badge.name}</h4>
-                  <p className="badge-points">+{badge.bonus_points} points</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="badge-hints">
-            <p>Complete patterns on your bingo board to earn badges!</p>
-            <div className="hint-icons">
-              <span className="hint-item">♻️ Ozone Defender</span>
-              <span className="hint-item">❌ Xtra Green</span>
-              <span className="hint-item">🌈 Healthy Hero</span>
-              <span className="hint-item">🌱 Green Champion</span>
-            </div>
-          </div>
-        )}
-      </div>
-
       {/* Completed Tasks Section */}
       <div className="completed-tasks">
         <h3>Completed Bingo Tasks</h3>
