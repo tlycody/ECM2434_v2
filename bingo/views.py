@@ -9,6 +9,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.utils import timezone
+from django.db import transaction
+from .models import User
 
 # Django Rest Framework Imports
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -18,8 +20,9 @@ from rest_framework.response import Response
 from rest_framework import status
 
 # Model and Serializer Imports
-from .models import Task, UserTask, Leaderboard, Profile, UserConsent
+from .models import BingoPattern, Task, TaskBonus, UserBadge, UserTask, Leaderboard, Profile, UserConsent
 from .serializers import TaskSerializer, LeaderboardSerializer
+from .bingo_patterns import BingoPatternDetector
 
 # Local Imports
 from .forms import CustomUserCreationForm
@@ -327,9 +330,11 @@ def user_rank(points):
     """
     Determine user rank based on points
     """
-    if points < 50:
+    if points < 51:
         return "Beginner"
-    elif points < 1250:
+    elif points < 1251:
+        return "Intermediate"
+    elif points >= 1251:
         return "Expert"
     else:
         return "None"
@@ -473,6 +478,8 @@ def approve_task(request):
     leaderboard.points += task.points
     leaderboard.save()
 
+    check_and_award_patterns(user)
+
     return Response({
         "message": f"Task approved for {user.username}. {task.points} points rewarded."
     })
@@ -573,3 +580,260 @@ def debug_media_urls(request):
         'media_info': media_info,
         'config': config_info
     })
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_badges(request):
+    """
+    Get all badges earned by the authenticated user
+    """
+    user = request.user
+    user_badges = UserBadge.objects.filter(user=user).select_related('pattern')
+    
+    badges = []
+    for badge in user_badges:
+        badges.append({
+            'id': badge.pattern.id,
+            'name': badge.pattern.name,
+            'type': badge.pattern.pattern_type,
+            'description': badge.pattern.description,
+            'bonus_points': badge.pattern.bonus_points,
+            'earned_at': badge.earned_at
+        })
+    
+    return Response(badges)
+
+def check_and_award_patterns(user):
+    """
+    Check if the user has completed any patterns and award badges and points
+    
+    This function should be called after a task is approved
+    """
+    try:
+        print(f"\n\n==== CHECKING PATTERNS FOR USER: {user.username} ====")
+        
+        # Get all completed tasks for the user
+        completed_tasks = UserTask.objects.filter(user=user, completed=True)
+        print(f"Found {completed_tasks.count()} completed tasks: {[t.task.id for t in completed_tasks]}")
+        
+        # Get all tasks
+        all_tasks = Task.objects.all().order_by('id')
+        
+        # Create grid representation
+        grid = BingoPatternDetector.create_grid_from_tasks(completed_tasks, all_tasks, grid_size=3)
+        print(f"Grid: {grid}")
+        
+        # Detect patterns
+        detected_patterns = BingoPatternDetector.detect_patterns(grid, size=3)
+        print(f"Detected patterns: {detected_patterns}")
+        
+        # Get existing badges for user
+        existing_badges = UserBadge.objects.filter(user=user).values_list('pattern__pattern_type', flat=True)
+        print(f"Existing badges: {list(existing_badges)}")
+        
+        # Get user's leaderboard entry
+        leaderboard, _ = Leaderboard.objects.get_or_create(user=user)
+        print(f"Current points: {leaderboard.points}")
+        
+        # Track if any new patterns were completed
+        new_patterns_completed = False
+        
+        # Award new badges and points
+        for pattern_type in detected_patterns:
+            try:
+                # Skip if user already has this badge
+                if pattern_type in existing_badges:
+                    print(f"User already has badge for pattern: {pattern_type}")
+                    continue
+                
+                print(f"New pattern detected: {pattern_type}")
+                
+                # Get the pattern details
+                try:
+                    pattern = BingoPattern.objects.get(pattern_type=pattern_type)
+                    print(f"Found pattern in database: {pattern.name} ({pattern.pattern_type})")
+                    
+                    # Create badge for user and award bonus points
+                    UserBadge.objects.create(user=user, pattern=pattern)
+                    print(f"Created UserBadge for pattern: {pattern.pattern_type}")
+                    
+                    # Award pattern bonus points
+                    leaderboard.points += pattern.bonus_points
+                    leaderboard.save()
+                    print(f"Awarded {pattern.bonus_points} bonus points for pattern")
+                    
+                    # Set flag to indicate a new pattern was completed
+                    new_patterns_completed = True
+                    
+                except BingoPattern.DoesNotExist:
+                    print(f"ERROR: Pattern {pattern_type} not found in database")
+                except Exception as e:
+                    print(f"ERROR creating badge: {str(e)}")
+            except Exception as inner_e:
+                print(f"ERROR processing pattern {pattern_type}: {str(inner_e)}")
+        
+        print(f"New patterns completed: {new_patterns_completed}")
+        
+        # Award additional points for completing a task that forms a bingo pattern
+        if new_patterns_completed:
+            print("Attempting to award extra 20 points...")
+            
+            # Award extra 20 points
+            try:
+                task_completion_bonus = 5
+                leaderboard.points += task_completion_bonus
+                leaderboard.save()
+                print(f"Awarded {task_completion_bonus} extra points for pattern completion")
+                
+                # Create bonus record
+                try:
+                    # Get any completed task to link bonus to
+                    some_task = completed_tasks.first()
+                    if some_task:
+                        TaskBonus.objects.create(
+                            user=user,
+                            task=some_task.task,
+                            bonus_points=task_completion_bonus,
+                            reason="Completed bingo pattern"
+                        )
+                        print(f"Created TaskBonus record")
+                    else:
+                        print("ERROR: No completed task found to link bonus to")
+                except Exception as tb_error:
+                    print(f"ERROR creating TaskBonus: {str(tb_error)}")
+                    # Don't let TaskBonus creation failure prevent points from being awarded
+                    pass
+            except Exception as bonus_error:
+                print(f"ERROR awarding extra points: {str(bonus_error)}")
+        
+        return detected_patterns, new_patterns_completed
+    except Exception as e:
+        print(f"ERROR in check_and_award_patterns: {str(e)}")
+        return [], False
+    
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def force_award_pattern(request):
+    """
+    Manually force award a pattern to a user
+    """
+    if request.user.role.lower() not in ['gamekeeper', 'developer']:
+        return Response({"error": "Permission denied"}, status=status.HTTP_403_FORBIDDEN)
+    
+    user_id = request.data.get('user_id')
+    pattern_type = request.data.get('pattern_type', 'V')  # Default to vertical
+    
+    user = get_object_or_404(User, id=user_id)
+    
+    # Get or create the pattern
+    pattern, created = BingoPattern.objects.get_or_create(
+        pattern_type=pattern_type,
+        defaults={
+            'name': f"{pattern_type} Pattern",
+            'description': f"Complete tasks in a {pattern_type} pattern",
+            'bonus_points': 30
+        }
+    )
+    
+    # Check if user already has this badge
+    if UserBadge.objects.filter(user=user, pattern=pattern).exists():
+        return Response({"message": f"User already has the {pattern_type} badge"})
+    
+    # Award badge and points
+    with transaction.atomic():
+        # Create badge
+        UserBadge.objects.create(user=user, pattern=pattern)
+        
+        # Get leaderboard
+        leaderboard, _ = Leaderboard.objects.get_or_create(user=user)
+        old_points = leaderboard.points
+        
+        # Award pattern bonus
+        leaderboard.points += pattern.bonus_points
+        
+        # Award extra completion bonus
+        leaderboard.points += 5
+        leaderboard.save()
+        
+        # Create bonus record
+        some_task = UserTask.objects.filter(user=user, completed=True).first()
+        if some_task:
+            try:
+                TaskBonus.objects.create(
+                    user=user,
+                    task=some_task.task,
+                    bonus_points=5,
+                    reason=f"Completed {pattern_type} pattern"
+                )
+            except Exception as e:
+                print(f"Error creating TaskBonus: {str(e)}")
+    
+    return Response({
+        "message": f"Awarded {pattern_type} badge and {pattern.bonus_points + 5} bonus points to {user.username}",
+        "old_points": old_points,
+        "new_points": leaderboard.points
+    })
+    
+def login_view(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        role = request.POST.get('user_type', 'Player')  # Assuming 'user_type' from dropdown
+        
+        # Special passwords from your form
+        GAMEKEEPER_PASSWORD = "MYPASS123"
+        DEVELOPER_PASSWORD = "MYDEV123"
+        
+        # Special user handling
+        special_user = False
+        if role == 'GAMEKEEPER' and password == "MYPASS123":
+            special_user = True
+            # Check if user exists, create if not
+            try:
+                user = User.objects.get(username=username)
+            except User.DoesNotExist:
+                user = User.objects.create_user(
+                    username="GAMEKEEPER",
+                    email=f"mk811@exeter.ac.uk",
+                    password="MYPASS123"
+                )
+                user.role = 'Game Keeper'
+                user.is_staff = True
+                user.save()
+                
+        elif role == 'DEVELOPER' and password == "MYDEV123":
+            special_user = True
+            # Check if user exists, create if not
+            try:
+                user = User.objects.get(username=username)
+            except User.DoesNotExist:
+                user = User.objects.create_user(
+                    username="DEVELOPER",
+                    email=f"myosandarkyaw22@gmail.com",
+                    password="MYDEV123"
+                )
+                user.role = 'Developer'
+                user.is_staff = True
+                user.is_superuser = True
+                user.save()
+        
+        # Authenticate and login
+        if special_user:
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
+                if role in ['Game Keeper', 'Developer']:
+                    return redirect('/admin/')  # Redirect to admin
+                return redirect('/')  # Or your game home
+            else:
+                messages.error(request, "Authentication failed")
+        else:
+            # Regular user authentication
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                login(request, user)
+                return redirect('/')  # Your main game page
+            else:
+                messages.error(request, "Invalid username or password")
+    
+    return render(request, 'login.html')

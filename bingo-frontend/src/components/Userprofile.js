@@ -1,5 +1,5 @@
 // ============================
-// User Profile Component
+// User Profile Component with Badges
 // ============================
 
 import React, { useEffect, useState } from 'react';
@@ -14,13 +14,14 @@ const Profile = () => {
   // State variables for user data, completed tasks, edit mode, and profile image
   const [userData, setUserData] = useState(null);
   const [tasks, setTasks] = useState([]);
+  const [badges, setBadges] = useState([]);
   const [editMode, setEditMode] = useState(false);
   const [updatedUser, setUpdatedUser] = useState({});
   const [profileImage, setProfileImage] = useState(null);
   const navigate = useNavigate(); // React Router navigation hook
 
   // ============================
-  // Fetch User Data & Completed Tasks
+  // Fetch User Data, Completed Tasks & Badges
   // ============================
   useEffect(() => {
     // Fetch user profile data
@@ -74,9 +75,23 @@ const Profile = () => {
       }
     };
 
+    // Fetch user badges
+    const fetchUserBadges = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/api/badges/`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
+        });
+        setBadges(response.data);
+      } catch (error) {
+        console.error('Error fetching badges:', error);
+      }
+    };
+
     fetchUserData();
     fetchCompletedTasks();
     debugFetch(); // Add this to get extra debug information
+    fetchUserBadges();
+  main
   }, []);
 
   // ============================
@@ -91,6 +106,25 @@ const Profile = () => {
   // Handle profile picture selection
   const handleFileChange = (e) => {
     setProfileImage(e.target.files[0]);
+  };
+
+  // ============================
+  // Badge Emoji Selector
+  // ============================
+  
+  const getBadgeEmoji = (type) => {
+    switch (type) {
+      case 'O':
+        return '♻️'; // Recycling symbol for Zero Waste Hero
+      case 'X':
+        return '❌'; // X for Climate Action Influencer
+      case 'H':
+        return '🌈'; // Rainbow for Eco Horizon Pioneer
+      case 'V':
+        return '🌱'; // Seedling for Green Growth Champion
+      default:
+        return '🏆';
+    }
   };
 
   // ============================
@@ -154,7 +188,7 @@ const Profile = () => {
             <p><strong>Rank:</strong> {userData?.rank || 'Unranked'}</p>
             <p><strong>Total Points:</strong> {userData?.total_points || 0}</p>
             <p><strong>Completed Tasks:</strong> {userData?.completed_tasks || 0}</p>
-            <button onClick={() => setEditMode(true)}>Edit Profile</button>
+            <button className="edit-profile-btn" onClick={() => setEditMode(true)}>Edit Profile</button>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="edit-profile-form">
@@ -164,6 +198,34 @@ const Profile = () => {
             <button type="submit">Save Changes</button>
             <button type="button" onClick={() => setEditMode(false)}>Cancel</button>
           </form>
+        )}
+      </div>
+
+      {/* Sustainability Badges Section */}
+      <div className="sustainability-badges">
+        <h3>Sustainability Badges</h3>
+        {badges.length > 0 ? (
+          <div className="badges-grid">
+            {badges.map(badge => (
+              <div key={badge.id} className="badge-item">
+                <div className="badge-emoji">{getBadgeEmoji(badge.type)}</div>
+                <div className="badge-info">
+                  <h4>{badge.name}</h4>
+                  <p className="badge-points">+{badge.bonus_points} points</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="badge-hints">
+            <p>Complete patterns on your bingo board to earn badges!</p>
+            <div className="hint-icons">
+              <span className="hint-item">♻️ Zero Waste Hero</span>
+              <span className="hint-item">❌ Climate Action Influencer</span>
+              <span className="hint-item">🌈 Eco Horizon Pioneer</span>
+              <span className="hint-item">🌱 Green Growth Champion</span>
+            </div>
+          </div>
         )}
       </div>
 

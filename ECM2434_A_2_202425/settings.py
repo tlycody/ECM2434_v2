@@ -173,3 +173,14 @@ REST_FRAMEWORK = {
 ROOT_URLCONF = 'ECM2434_A_2_202425.urls'
 print(f"Database location: {os.path.join(BASE_DIR, 'db.sqlite3')}")
 print(f"Does database file exist: {os.path.exists(os.path.join(BASE_DIR, 'db.sqlite3'))}")
+
+AUTHENTICATION_BACKENDS = [
+    'bingo.backends.SpecialUserBackend',  # Change 'bingo' to your app name
+    'django.contrib.auth.backends.ModelBackend',  # Keep the default backend as fallback
+]
+
+SSTATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),  # This path needs to match the directory you created
+]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # For collected static files
