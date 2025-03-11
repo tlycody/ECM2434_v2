@@ -10,6 +10,9 @@ import './UserProfile.css';
 // Fetch API URL from environment variables (fallback to localhost if not set)
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
+// Default profile picture path with the correct filename
+const DEFAULT_PROFILE_PIC = "/media/profile_pics/default.png";
+
 const Profile = () => {
   // State variables for user data, completed tasks, edit mode, and profile image
   const [userData, setUserData] = useState(null);
@@ -202,8 +205,8 @@ const Profile = () => {
       return savedPicture.startsWith('http') ? savedPicture : `${API_URL}${savedPicture}`;
     }
     
-    // Use placeholder as last resort
-    return 'https://via.placeholder.com/150';
+    // Use our custom default picture instead of placeholder
+    return `${API_URL}${DEFAULT_PROFILE_PIC}`;
   };
 
   // Handle cancel with preview cleanup
@@ -253,7 +256,12 @@ const Profile = () => {
             }
             
             // Final fallback to placeholder
-            e.target.src = 'https://via.placeholder.com/150';
+            e.target.src = `${API_URL}${DEFAULT_PROFILE_PIC}`;
+
+            e.target.onerror = () => {
+              e.target.src = 'https://via.placeholder.com/150';
+              e.target.onerror = null; // Prevent infinite loop
+            };
           }}
           data-userData={JSON.stringify(userData)} // Pass userData to the error handler
         />
