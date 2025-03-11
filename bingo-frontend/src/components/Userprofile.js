@@ -18,6 +18,7 @@ const Profile = () => {
   const [editMode, setEditMode] = useState(false);
   const [updatedUser, setUpdatedUser] = useState({});
   const [profileImage, setProfileImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
   const navigate = useNavigate(); // React Router navigation hook
 
   // ============================
@@ -104,7 +105,14 @@ const Profile = () => {
 
   // Handle profile picture selection
   const handleFileChange = (e) => {
-    setProfileImage(e.target.files[0]);
+    const file = e.target.files[0];
+    if (file) {
+      setProfileImage(file);
+
+      const previewUrl = URL.createObjectURL(file);
+      setImagePreview(previewUrl);
+    }
+    
   };
 
   // ============================
@@ -136,11 +144,28 @@ const Profile = () => {
 
       // Update state with new profile data
       setUserData(response.data);
+
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
+      }
+
+
       setProfileImage(null); // Clear the selected image after upload
+      setImagePreview(null);
+
     } catch (error) {
       console.error('Error updating profile:', error);
       alert('Failed to update profile');
     }
+  };
+
+  const handleCancel = () => {
+    setEditMode(false);
+    if (imagePreview) {
+      URL.revokeObjectURL(imagePreview);
+    }
+    setProfileImage(null);
+    setImagePreview(null);
   };
 
   // ============================
@@ -155,7 +180,13 @@ const Profile = () => {
       <div className="profile-header">
         {/* Display profile image */}
         <img
-          src={userData?.profile_picture ? `${API_URL}${userData.profile_picture}` : 'https://via.placeholder.com/150'}
+          src= {
+            editMode && imagePreview 
+              ? imagePreview 
+              : userData?.profile_picture 
+                ? `${API_URL}${userData.profile_picture}` 
+                : 'https://via.placeholder.com/150'
+          }
           alt="Profile"
           className="profile-image"
         />
@@ -174,9 +205,13 @@ const Profile = () => {
           <form onSubmit={handleSubmit} className="edit-profile-form">
             <input type="text" name="username" value={updatedUser.username} onChange={handleInputChange} placeholder="Enter your username"/>
             <input type="email" name="email" value={updatedUser.email} onChange={handleInputChange} placeholder="Email"/>
-            <input type="file" accept="image/*" onChange={handleFileChange} />
+
+            <input type="file" accept="image/*" onChange={handleFileChange} className="file-input-standard" />
+
+            <div className="form-buttons">
             <button type="submit">Save Changes</button>
-            <button type="button" onClick={() => setEditMode(false)}>Cancel</button>
+            <button type="button" onClick={handleCancel}>Cancel</button>
+            </div>
           </form>
         )}
       </div>
