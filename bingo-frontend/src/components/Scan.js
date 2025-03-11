@@ -2,9 +2,15 @@ import { Html5QrcodeScanner } from "html5-qrcode";
 
 const Scan = () => {
     const root = document.getElementById("root");
-    
+
     if (!root) {
         console.error("Root element not found");
+        return;
+    }
+
+    // Prevent multiple scanner instances by checking if it already exists
+    if (document.getElementById("reader")) {
+        console.warn("Scanner already exists. Skipping initialization.");
         return;
     }
 
@@ -13,7 +19,7 @@ const Scan = () => {
     scannerContainer.id = "reader";
     scannerContainer.style.width = "600px";
     root.appendChild(scannerContainer);
-    
+
     // Create result container
     const resultContainer = document.createElement("div");
     resultContainer.id = "result";
@@ -37,9 +43,13 @@ const Scan = () => {
             <h2>Success!</h2>
             <p><a href="${result}">${result}</a></p>
         `;
-        
+
         scanner.clear();
-        scannerContainer.remove();
+
+        // Ensure scannerContainer exists before removing
+        if (scannerContainer && scannerContainer.parentNode) {
+            scannerContainer.parentNode.removeChild(scannerContainer);
+        }
     }
 
     function error(err) {

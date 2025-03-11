@@ -7,11 +7,11 @@ import qrcode
 
 # Dictionary containing predefined locations with their latitude and longitude values
 LOCATIONS = {
-    "clydesdale house": {"lat": 50.73640075076695, "lon": -3.5403583050147263},
-    "british heart foundation1": {"lat": 50.72665675075289, "lon": -3.524533819396889},
-    "british heart foundation2": {"lat": 50.72212089681603, "lon": -3.5329984815588897},
-    "zero waste shop": {"lat": 50.72116105745902, "lon": -3.520127589180877},
-    "community garden": {"lat": 50.74041515153113, "lon": -3.5296544924117383}
+    "clydesdale house": {"lat": 50.736, "lon": -3.540},
+    "british heart foundation1": {"lat": 50.727, "lon": -3.525},
+    "british heart foundation2": {"lat": 50.722, "lon": -3.533},
+    "zero waste shop": {"lat": 50.721, "lon": -3.520},
+    "community garden": {"lat": 50.740, "lon": -3.530}
 }
 
 # ============================
