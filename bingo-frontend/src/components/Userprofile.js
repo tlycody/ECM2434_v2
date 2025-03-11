@@ -32,6 +32,17 @@ const Profile = () => {
           headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
         });
         console.log('User profile data:', response.data);
+
+
+        // Log the profile picture URL for debugging
+        if (response.data.profile_picture) {
+          console.log('Original profile picture path:', response.data.profile_picture);
+          console.log('Constructed profile picture URL:', `${API_URL}${response.data.profile_picture}`);
+        } else {
+          console.log('No profile picture found in the response data');
+        }
+
+
         setUserData(response.data);
         setUpdatedUser(response.data);
       } catch (error) {
@@ -39,18 +50,6 @@ const Profile = () => {
       }
     };
 
-    // Debug fetch to directly get task data
-    const debugFetch = async () => {
-      try {
-        // Get direct API data for debugging
-        const response = await axios.get(`${API_URL}/api/debug-tasks/`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
-        });
-        console.log('Debug task data from API:', response.data);
-      } catch (error) {
-        console.error('Error in debug fetch:', error);
-      }
-    };
 
     // Fetch tasks for display in the list
     const fetchCompletedTasks = async () => {
@@ -59,8 +58,7 @@ const Profile = () => {
           headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
         });
     
-        // Log the response to debug
-        console.log('All tasks data:', response.data);
+  
         
         // Filter tasks that are completed or approved
         const completedTasks = response.data.filter(task => 
@@ -69,7 +67,6 @@ const Profile = () => {
           task.completed === true
         );
         
-        console.log('Filtered completed tasks:', completedTasks);
         setTasks(completedTasks);
       } catch (error) {
         console.error('Error fetching completed tasks:', error);
@@ -90,7 +87,6 @@ const Profile = () => {
 
     fetchUserData();
     fetchCompletedTasks();
-    debugFetch(); // Add this to get extra debug information
     fetchUserBadges();
   }, []);
 
@@ -139,6 +135,13 @@ const Profile = () => {
         },
       });
 
+      console.log('Profile update response:', response.data);
+
+      // Log the updated profile picture URL
+      if (response.data.profile_picture) {
+        console.log('Updated profile picture path:', response.data.profile_picture);
+      }
+
       alert('Profile updated successfully');
       setEditMode(false);
 
@@ -153,10 +156,54 @@ const Profile = () => {
 
 
       setProfileImage(null); // Clear the selected image after upload
+
+      // Make sure to save the updated profile picture URL in localStorage for persistence
+      if (response.data.profile_picture) {
+        localStorage.setItem('profilePicture', response.data.profile_picture);
+      }
+
+
     } catch (error) {
       console.error('Error updating profile:', error);
       alert('Failed to update profile');
     }
+  };
+
+
+  // Helper function to get proper image URL
+  const getProfileImageUrl = () => {
+    if (editMode && imagePreview) {
+      return imagePreview;
+    }
+    
+    // First check if userData has a profile picture
+    if (userData?.profile_picture) {
+      let picturePath = userData.profile_picture;
+      
+      // If the path doesn't start with 'http' or '/', add a leading slash
+      if (!picturePath.startsWith('http') && !picturePath.startsWith('/')) {
+        picturePath = `/${picturePath}`;
+      }
+      
+      // Check if the path is a relative path that needs the API_URL
+      if (!picturePath.startsWith('http')) {
+        return `${API_URL}${picturePath}`;
+      }
+      
+      return picturePath;
+    }
+    
+    // Check if we have a saved profile picture in localStorage as fallback
+    const savedPicture = localStorage.getItem('profilePicture');
+    if (savedPicture) {
+      if (!savedPicture.startsWith('http') && !savedPicture.startsWith('/')) {
+        return `${API_URL}/${savedPicture}`;
+      }
+      return savedPicture.startsWith('http') ? savedPicture : `${API_URL}${savedPicture}`;
+    }
+    
+    // Use placeholder as last resort
+    return 'https://via.placeholder.com/150';
   };
 
   // Handle cancel with preview cleanup
@@ -182,14 +229,33 @@ const Profile = () => {
       <div className="profile-header">
         {/* Display profile image */}
         <img
-          src={editMode && imagePreview 
-            ? imagePreview 
-            : userData?.profile_picture 
-              ? `${API_URL}${userData.profile_picture}` 
-              : 'https://via.placeholder.com/150'
-          }
+          src={getProfileImageUrl()}
           alt="Profile"
           className="profile-image"
+          onError={(e) => {
+            console.error('Image load error, falling back to alternative path');
+
+            // Try an alternative path format if the main one fails
+            // This handles the case where the server might be storing paths differently
+            const userData = e.target.dataset.userData || '';
+            if (userData && userData.profile_picture) {
+              // Try with /media/ prefix if the regular path failed
+              if (userData.profile_picture.includes('profile_pics') && !userData.profile_picture.includes('/media/')) {
+                e.target.src = `${API_URL}/media/${userData.profile_picture}`;
+                return;
+              }
+              
+              // Try with /ECM2434_v2/media/ prefix based on your path info
+              if (!userData.profile_picture.includes('ECM2434_v2/media/')) {
+                e.target.src = `${API_URL}/ECM2434_v2/media/${userData.profile_picture.split('/').pop()}`;
+                return;
+              }
+            }
+            
+            // Final fallback to placeholder
+            e.target.src = 'https://via.placeholder.com/150';
+          }}
+          data-userData={JSON.stringify(userData)} // Pass userData to the error handler
         />
 
         {/* Profile Info - View or Edit Mode */}
@@ -233,6 +299,7 @@ const Profile = () => {
         <button onClick={() => navigate('/leaderboard')}>View Leaderboard</button>
         <button onClick={() => { 
           localStorage.removeItem('accessToken'); 
+          localStorage.removeItem('profilePicture'); // Also clear the profile picture from localStorage
           navigate('/login'); 
         }}>Logout</button>
       </div>
