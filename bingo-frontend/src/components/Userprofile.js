@@ -18,6 +18,7 @@ const Profile = () => {
   const [editMode, setEditMode] = useState(false);
   const [updatedUser, setUpdatedUser] = useState({});
   const [profileImage, setProfileImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
   const navigate = useNavigate(); // React Router navigation hook
 
   // ============================
@@ -104,7 +105,14 @@ const Profile = () => {
 
   // Handle profile picture selection
   const handleFileChange = (e) => {
-    setProfileImage(e.target.files[0]);
+    const file = e.target.files[0];
+    if (file) {
+      setProfileImage(file);
+      
+      // Create a preview URL for the selected image
+      const previewUrl = URL.createObjectURL(file);
+      setImagePreview(previewUrl);
+    }
   };
 
   // ============================
@@ -136,11 +144,30 @@ const Profile = () => {
 
       // Update state with new profile data
       setUserData(response.data);
+
+      // Clean up preview URL
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
+        setImagePreview(null);
+      }
+
+
       setProfileImage(null); // Clear the selected image after upload
     } catch (error) {
       console.error('Error updating profile:', error);
       alert('Failed to update profile');
     }
+  };
+
+  // Handle cancel with preview cleanup
+  const handleCancel = () => {
+    setEditMode(false);
+    // Clean up preview URL when canceling
+    if (imagePreview) {
+      URL.revokeObjectURL(imagePreview);
+      setImagePreview(null);
+    }
+    setProfileImage(null);
   };
 
   // ============================
@@ -155,7 +182,12 @@ const Profile = () => {
       <div className="profile-header">
         {/* Display profile image */}
         <img
-          src={userData?.profile_picture ? `${API_URL}${userData.profile_picture}` : 'https://via.placeholder.com/150'}
+          src={editMode && imagePreview 
+            ? imagePreview 
+            : userData?.profile_picture 
+              ? `${API_URL}${userData.profile_picture}` 
+              : 'https://via.placeholder.com/150'
+          }
           alt="Profile"
           className="profile-image"
         />

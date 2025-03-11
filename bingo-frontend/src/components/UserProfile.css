@@ -37,6 +37,7 @@
     object-fit: cover; /*   Ensures image maintains aspect ratio */
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
     margin-bottom: 10px;
+    transition: all 0.3s ease;
   }
   
   /* ============================
@@ -166,6 +167,7 @@
     border-radius: 8px;
     cursor: pointer;
     font-weight: bold;
+    margin-top: 5px;
   }
   
   .edit-profile-form button[type="button"] {
