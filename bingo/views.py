@@ -203,14 +203,13 @@ def login_user(request):
         if profile == "GameKeeper":
             user.role = "GameKeeper"  # Update the user's role
             user.save()  # Save the updated role to the database
-            role = "GameKeeper"
-        else:
-            role = "Player"
+            
         
         # Create a new token AFTER updating the role
         refresh = RefreshToken.for_user(user)
         
         # Add custom claims to the token payload
+        
         refresh['role'] = user.role
         
         return Response({
