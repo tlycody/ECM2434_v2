@@ -22,6 +22,7 @@ const Profile = () => {
   const [updatedUser, setUpdatedUser] = useState({});
   const [profileImage, setProfileImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const navigate = useNavigate(); // React Router navigation hook
 
   // ============================
@@ -172,6 +173,78 @@ const Profile = () => {
     }
   };
 
+  // ============================
+  // Handle Profile Deletion
+  // ============================
+  
+  const handleDeleteProfile = async () => {
+    try {
+      // First, try to see what API endpoints are available by checking profile data
+      console.log('Checking available endpoints in userData:', userData);
+      
+      // Option 1: Try standard DELETE method first
+      try {
+        console.log('Attempting DELETE to /api/profile/');
+        const response = await axios.delete(`${API_URL}/api/profile/`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+          },
+        });
+        
+        console.log('Profile deletion response:', response.data);
+        
+        // If we get here, deletion was successful
+        localStorage.clear();
+        alert('Your profile has been successfully deleted');
+        window.location.href = '/login';
+        return;
+      } catch (deleteError) {
+        console.error('DELETE method failed:', deleteError);
+        // Continue to alternative methods if DELETE fails
+      }
+      
+      // Option 2: Try using the update endpoint with a "delete" flag
+      // This is a common pattern when DELETE endpoints aren't implemented
+      console.log('Attempting PUT to /api/profile/update/ with delete flag');
+      const updateResponse = await axios.put(
+        `${API_URL}/api/profile/update/`,
+        { is_deleted: true, delete_account: true },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      
+      console.log('Profile update (delete) response:', updateResponse.data);
+      
+      // Clear ALL local storage items
+      localStorage.clear();
+      
+      // Show success message
+      alert('Your profile has been successfully deleted');
+      
+      // Force redirect to login page
+      window.location.href = '/login';
+    } catch (error) {
+      console.error('All profile deletion attempts failed:', error);
+      
+      // Try one more approach - logout and show instructions
+      try {
+        localStorage.clear();
+        alert('We could not delete your profile automatically. Please contact support to complete the deletion.');
+        window.location.href = '/login';
+      } catch (finalError) {
+        console.error('Final attempt failed:', finalError);
+        alert('Could not process your request. Please try again later or contact support.');
+        setShowDeleteConfirm(false);
+      }
+    }
+  };
+
+
+  
 
   // Helper function to get proper image URL
   const getProfileImageUrl = () => {
@@ -275,6 +348,7 @@ const Profile = () => {
             <p><strong>Total Points:</strong> {userData?.total_points || 0}</p>
             <p><strong>Completed Tasks:</strong> {userData?.completed_tasks || 0}</p>
             <button className="edit-profile-btn" onClick={() => setEditMode(true)}>Edit Profile</button>
+            <button className="delete-profile-btn" onClick={() => setShowDeleteConfirm(true)}>Delete Profile</button>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="edit-profile-form">
@@ -311,6 +385,31 @@ const Profile = () => {
           navigate('/login'); 
         }}>Logout</button>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      {showDeleteConfirm && (
+        <div className="delete-confirmation-overlay">
+          <div className="delete-confirmation-dialog">
+            <h3>Delete Your Profile?</h3>
+            <p>This action cannot be undone. All your data will be permanently removed.</p>
+            <div className="delete-confirmation-buttons">
+              <button 
+                className="delete-confirm-btn"
+                onClick={handleDeleteProfile}
+              >
+                Yes, Delete My Profile
+              </button>
+              <button 
+                className="delete-cancel-btn"
+                onClick={() => setShowDeleteConfirm(false)}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };

@@ -67,6 +67,39 @@ def update_user_profile(request):
     """
     user = request.user
     data = request.data
+
+
+    # Check if this is a delete request
+    is_delete_request = data.get('delete_account') == True or data.get('is_deleted') == True
+    
+    if is_delete_request:
+        # Handle profile deletion
+        try:
+            # Delete profile picture if it exists
+            profile = Profile.objects.filter(user=user).first()
+            if profile and profile.profile_picture:
+                profile.profile_picture.delete()
+            
+            # Delete user tasks
+            UserTask.objects.filter(user=user).delete()
+            
+            # Delete user badges
+            UserBadge.objects.filter(user=user).delete()
+            
+            # Delete leaderboard entry
+            Leaderboard.objects.filter(user=user).delete()
+            
+            # Delete profile
+            Profile.objects.filter(user=user).delete()
+            
+            # Delete the user (this will cascade to delete related objects)
+            user.delete()
+            
+            return Response({"message": "User account deleted successfully"}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": f"Failed to delete user: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    # If not deleting, proceed with normal update
     profile, _ = Profile.objects.get_or_create(user=user)
 
     # Update username and email if provided
