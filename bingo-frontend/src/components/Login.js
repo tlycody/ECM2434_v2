@@ -3,7 +3,7 @@
 // ============================
 
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import './Login.css';
 
 // Fetch API URL from environment variables (fallback to localhost if not set)
@@ -15,7 +15,7 @@ const Login = () => {
     username: '',
     password: '',
     profile: 'Player', // Default role selection
-    // extraPassword: '',
+    extraPassword: '',
   });
 
   const [error, setError] = useState('');
@@ -39,7 +39,7 @@ const Login = () => {
     setFormData((prev) => ({
       ...prev,
       profile: value, // Update profile selection
-      // extraPassword: value === 'Player' ? '' : prev.extraPassword, // Clear special password if switching back to Player
+      extraPassword: value === 'Player' ? '' : prev.extraPassword, // Clear special password if switching back to Player
     }));
   };
 
@@ -50,12 +50,12 @@ const Login = () => {
   const validateForm = () => {
     if (!formData.username.trim()) return 'Username is required';
     if (!formData.password) return 'Password is required';
-    // if (formData.profile === 'GameKeeper' && !formData.extraPassword) {
-     // return 'Special password required for Game Keeper';
-    //}
-    //if (formData.profile === 'Developer' && !formData.extraPassword) {
-     // return 'Special password required for Developer';
-    //}
+    if (formData.profile === 'GameKeeper' && !formData.extraPassword) {
+      return 'Special password required for Game Keeper';
+    }
+    if (formData.profile === 'Developer' && !formData.extraPassword) {
+      return 'Special password required for Developer';
+    }
     return null; // No errors
   };
 
@@ -86,7 +86,7 @@ const Login = () => {
           username: formData.username,
           password: formData.password,
           profile: formData.profile,
-          // extraPassword: formData.extraPassword,
+          extraPassword: formData.extraPassword,
         }),
       });
 
@@ -168,7 +168,19 @@ const Login = () => {
           </select>
         </div>
 
-        
+        {/* Extra Password Input for Game Keeper / Developer */}
+        {(formData.profile === 'GameKeeper' || formData.profile === 'Developer') && (
+          <div className="form-group">
+            <input
+              type="password"
+              placeholder="Special Password"
+              name="extraPassword"
+              value={formData.extraPassword}
+              onChange={handleChange}
+              required
+            />
+          </div>
+        )}
 
         {/* Login Button */}
         <button type="submit" disabled={loading}>
