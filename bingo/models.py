@@ -18,13 +18,7 @@ class User(AbstractUser):
         ('Developer', 'Developer'),  # Developers with admin privileges
     ]
 
-    role = models.CharField(
-        max_length=20,
-        choices=ROLE_CHOICES,
-        default='Player',
-        blank=True,
-        null=True
-    )
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='Player')
 
     email = models.EmailField(unique=True)  # Ensures each user has a unique email
 

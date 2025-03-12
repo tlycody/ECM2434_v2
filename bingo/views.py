@@ -108,7 +108,7 @@ def register_user(request):
     password_again = data.get("passwordagain")
     email = data.get("email")
     gdprConsent = data.get("gdprConsent", False)
-    role = data.get("role", "Player") 
+    # role = data.get("role", "Player") 
 
     # Validate GDPR consent
     if not gdprConsent:
@@ -418,6 +418,9 @@ def pending_tasks(request):
     if request.user.role.lower() not in ['gamekeeper', 'developer']:
         return Response({"error": "Permission denied"}, status=status.HTTP_403_FORBIDDEN)
     
+    if not request.user.is_staff:
+        return Response({"error": "Permission denied"}, status=status.HTTP_403_FORBIDDEN)
+    
     # Filter tasks with status 'pending' or completed=False (for backward compatibility)
     pending = UserTask.objects.filter(status='pending')
     
@@ -458,6 +461,9 @@ def approve_task(request):
     if request.user.role.lower() not in ['gamekeeper', 'developer']:
         return Response({'error': "Permission denied"}, status=status.HTTP_403_FORBIDDEN)
     
+    if not request.user.is_staff:
+        return Response({'error': "Permission denied"}, status=status.HTTP_403_FORBIDDEN)
+    
     user_id = request.data.get('user_id')
     task_id = request.data.get('task_id')  # Changed 'task' to 'task_id' for consistency
 
@@ -489,9 +495,8 @@ def approve_task(request):
 def check_auth(request):
     return Response({
         "authenticated": True, 
-        "username": request.user.username, 
-        "role": request.user.role,
-        "role_lowercase": request.user.role.lower() if request.user.role else None
+        "username": request.user.username,
+        
     })
 
 @api_view(['GET'])
