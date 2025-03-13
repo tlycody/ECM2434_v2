@@ -11,17 +11,36 @@ const Scan = () => {
   const isScannerInitialized = useRef(false);
   const navigate = useNavigate();
 
-  const onScanSuccess = (decodedText) => {
-    console.log("QR Code scanned successfully:", decodedText);
-    setScanResult(decodedText);
+  // List of valid QR codes
+  const VALID_QR_CODES = [
+    "https://maps.app.goo.gl/tzWHSuGUG35X8m3MA",
+    "https://maps.app.goo.gl/ZFQUUL5xqUQQp8BD7?g_st=com.google.maps.preview.copy",
+    "https://maps.app.goo.gl/9zrjkXXHMJDXtMrC8?g_st=com.google.maps.preview.copy",
+    "https://maps.app.goo.gl/FnhwTw3eB2zvpnzq6?g_st=com.google.maps.preview.copy"
+  ];
 
-    if (scannerRef.current && scannerRef.current.isScanning) {
-      scannerRef.current.stop()
-        .then(() => {
-          setIsScanning(false);
-          handleScanResult(decodedText);
-        })
-        .catch(() => {});
+  const isValidQRCode = (decodedText) => {
+    return VALID_QR_CODES.includes(decodedText);
+  };
+
+  const onScanSuccess = (decodedText) => {
+    console.log("Scanned QR Code Data:", decodedText);
+
+    // Validate the QR code
+    if (isValidQRCode(decodedText)) {
+      setScanResult(decodedText);
+
+      // Stop scanning
+      if (scannerRef.current && scannerRef.current.isScanning) {
+        scannerRef.current.stop()
+          .then(() => {
+            setIsScanning(false);
+            handleScanResult(decodedText);
+          })
+          .catch(() => setError("Error stopping the scanner"));
+      }
+    } else {
+      setError("Invalid QR Code. Please scan the correct QR code.");
     }
   };
 
@@ -32,14 +51,67 @@ const Scan = () => {
     }
   };
 
+  const handleScanResult = async (result) => {
+    try {
+      const taskId = localStorage.getItem('selectedTaskId');
+      const isResubmission = localStorage.getItem('isResubmission') === 'true';
+      const token = localStorage.getItem('accessToken');
+
+      if (!token) {
+        setError('You must be logged in to submit a task.');
+        setTimeout(() => navigate('/login'), 2000);
+        return;
+      }
+
+      if (!taskId) {
+        setError('No task selected. Redirecting to Bingo Board...');
+        setTimeout(() => navigate('/bingo'), 2000);
+        return;
+      }
+
+      setScanResult(`Processing: ${result}`);
+
+      const requestData = {
+        task_id: taskId,
+        qr_code_data: result,
+        is_resubmission: isResubmission
+      };
+
+      const response = await fetch('http://localhost:8000/api/complete_task/', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        localStorage.removeItem('isResubmission');
+        setScanResult(`Success! ${data.message || 'Submission received.'}`);
+        setTimeout(() => navigate('/bingo'), 2000);
+      } else {
+        setError(data.message || 'Failed to submit scan. Please try again.');
+      }
+    } catch (error) {
+      setError('An error occurred while processing your scan.');
+    }
+  };
+
   useEffect(() => {
     const readerElement = document.getElementById('reader');
 
-    // Clear the #reader element before initialization
-    if (readerElement) {
-      while (readerElement.firstChild) {
-        readerElement.removeChild(readerElement.firstChild);
-      }
+    // Clear previous scanner instance
+    if (scannerRef.current) {
+      scannerRef.current.clear();
+    }
+
+    if (!isScannerInitialized.current && readerElement) {
+      const html5QrCode = new Html5Qrcode("reader", true);
+      scannerRef.current = html5QrCode;
+      isScannerInitialized.current = true;
     }
 
     if (!isScannerInitialized.current) {
@@ -52,17 +124,14 @@ const Scan = () => {
         qrbox: { width: 300, height: 300 }, // Makes the scanner area a square
       };
       
-
       html5QrCode.start(
         { facingMode: "environment" },
-        config,
+        { fps: 10, qrbox: { width: 250, height: 250 } },
         onScanSuccess,
         onScanError
-      )
-      .then(() => {
+      ).then(() => {
         setIsScanning(true);
-      })
-      .catch(err => {
+      }).catch(err => {
         console.error("Failed to start scanner:", err);
         setError("Failed to start camera. Please check camera permissions.");
       });
@@ -83,60 +152,7 @@ const Scan = () => {
     };
   }, []);
 
-  const handleScanResult = async (result) => {
-    try {
-      const taskId = localStorage.getItem('selectedTaskId');
-      const isResubmission = localStorage.getItem('isResubmission') === 'true';
-      const token = localStorage.getItem('accessToken');
-
-      if (!token) {
-        setError('You must be logged in to submit a task');
-        setTimeout(() => navigate('/login'), 2000);
-        return;
-      }
-
-      if (!taskId) {
-        setError('Task ID not found. Please select a task again.');
-        setTimeout(() => navigate('/bingo'), 2000);
-        return;
-      }
-
-      setScanResult(`Processing: ${result}`);
-
-      const requestData = {
-        task_id: taskId,
-        qr_code_data: result,
-        is_resubmission: isResubmission
-      };
-
-      const response = await fetch('http://localhost:8000/api/complete_task/', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(requestData)
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        localStorage.removeItem('isResubmission');
-        setScanResult(`Success! ${data.message || 'Submission received.'}`);
-        setTimeout(() => navigate('/bingo'), 2000);
-      } else {
-        setError(data.message || 'Failed to submit scan. Please try again.');
-      }
-    } catch (error) {
-      setError('An error occurred while processing your scan.');
-    }
-  };
-
   const handleBack = () => {
-    if (scannerRef.current && scannerRef.current.isScanning) {
-      scannerRef.current.stop().catch(() => {});
-    }
-
     localStorage.removeItem('isResubmission');
     navigate('/bingo');
   };
@@ -144,6 +160,8 @@ const Scan = () => {
   return (
     <div className="scan-container">
       <h1>Scan QR Code</h1>
+
+      {error && <div className="error-message">{error}</div>}
 
       <div id="reader-container">
         <div id="reader"></div>
@@ -155,7 +173,6 @@ const Scan = () => {
 
       {scanResult && (
         <div className="scan-result">
-          <h2>Successfully Scanned!</h2>
           <p>{scanResult}</p>
         </div>
       )}
@@ -170,3 +187,4 @@ const Scan = () => {
 };
 
 export default Scan;
+
