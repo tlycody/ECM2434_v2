@@ -162,6 +162,12 @@ const Scan = () => {
         </div>
       )}
 
+      {error && (
+        <div className="error-message">
+          <p></p>
+        </div>
+      )}
+
       <div className="button-container">
         <button onClick={handleBack} className="back-button">
           Back to Bingo Board
