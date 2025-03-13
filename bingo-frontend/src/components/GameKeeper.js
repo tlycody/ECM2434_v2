@@ -1,19 +1,19 @@
-// SimpleGameKeeper.js - Minimal admin component for game keepers
+// GameKeeper.js - Enhanced with image details for fraud detection
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './GameKeeper.css';
-import { useNavigate } from 'react-router-dom'; 
+import { useNavigate } from 'react-router-dom';
 
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
-
 
 const GameKeeper = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate(); // React Router navigation hook
+  const navigate = useNavigate();
   const [tasks, setTasks] = useState([]);
-  const [pendingTasks, setPendingTasks]= useState([]);
+  const [pendingTasks, setPendingTasks] = useState([]);
   const [leaderboard, setLeaderboard] = useState([]);
+  const [selectedImage, setSelectedImage] = useState(null);
   const [newTask, setNewTask] = useState({
     description: '',
     points: 10,
@@ -21,15 +21,9 @@ const GameKeeper = () => {
     requires_scan: false
   });
 
-  useEffect(() => {
-    console.log('User profile:', localStorage.getItem('userProfile'));
-    console.log('Access token:', localStorage.getItem('accessToken'));
-  }, []);
-  
   // Get token from localStorage
   const token = localStorage.getItem('accessToken');
-  const role = localStorage.getItem('userProfile');
-  
+
   // Set up auth header
   useEffect(() => {
     if (token) {
@@ -37,12 +31,6 @@ const GameKeeper = () => {
       fetchData();
     }
   }, [token]);
-  
-  useEffect(() => {
-    if (token) {
-      fetchData();
-    }
-  }, []);
 
   // Fetch initial data
   const fetchData = async () => {
@@ -50,26 +38,25 @@ const GameKeeper = () => {
     try {
       // Get tasks
       const tasksResponse = await axios.get(`${API_URL}/api/tasks/`);
-      console.log('Tasks fetched:', tasksResponse.data);
       setTasks(tasksResponse.data);
-      
-      const checkAuth = await axios.get(`${API_URL}/api/check-auth/`);
-      console.log('Auth status:', checkAuth.data);
-  
-      // Get pending tasks - add explicit console logs
-      console.log('Fetching pending tasks...');
-      const pendingResponse = await axios.get(`${API_URL}/api/pending-tasks/`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      console.log('Pending tasks response:', pendingResponse);
-      console.log('Pending tasks data:', pendingResponse.data);
-      setPendingTasks(pendingResponse.data);
-      
+
+      // Get pending tasks with debug logs
+      console.log("Fetching pending tasks...");
+      try {
+        const pendingResponse = await axios.get(`${API_URL}/api/pending-tasks/`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        console.log("Pending tasks response:", pendingResponse);
+        setPendingTasks(pendingResponse.data);
+      } catch (pendingError) {
+        console.error("Error fetching pending tasks:", pendingError);
+        setError("Failed to load pending tasks: " + (pendingError.response?.data?.error || pendingError.message));
+      }
+
       // Get leaderboard
       const leaderboardResponse = await axios.get(`${API_URL}/api/leaderboard/`);
-      console.log("Leaderboard fetched:", leaderboardResponse.data);
       setLeaderboard(leaderboardResponse.data);
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -81,12 +68,12 @@ const GameKeeper = () => {
       setLoading(false);
     }
   };
-  
+
   // Handle creating a new task
   const handleCreateTask = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://127.0.0.1:8000/admin/tasks/create/', newTask);
+      await axios.post(`${API_URL}/admin/tasks/create/`, newTask);
       setNewTask({
         description: '',
         points: 10,
@@ -98,23 +85,38 @@ const GameKeeper = () => {
       console.error('Error creating task:', error);
     }
   };
-  
-    // Handle task approval
-    const handleApproveTask = async (userId, taskId) => {
-      try {
-        console.log(`Approving: user_id=${userId}, task_id=${taskId}`);
-        await axios.post(`${API_URL}/api/approve-task/`, {
-          user_id: userId,
-          task_id: taskId  // Changed from 'task' to 'task_id'
-        });
-        // Update the UI after successful approval
-        fetchData();
-      } catch (error) {
-        console.error('Error approving task:', error);
-        setError("Failed to approve task");
-      }
-    };
-    
+
+  // Handle task approval
+  const handleApproveTask = async (userId, taskId) => {
+    try {
+      console.log(`Approving: user_id=${userId}, task_id=${taskId}`);
+      await axios.post(`${API_URL}/api/approve-task/`, {
+        user_id: userId,
+        task_id: taskId
+      });
+      // Update the UI after successful approval
+      fetchData();
+    } catch (error) {
+      console.error('Error approving task:', error);
+      setError("Failed to approve task");
+    }
+  };
+
+  // Handle task rejection (new feature)
+  const handleRejectTask = async (userId, taskId) => {
+    try {
+      await axios.post(`${API_URL}/api/reject-task/`, {
+        user_id: userId,
+        task_id: taskId,
+        reason: "Photo appears to be fraudulent or inappropriate"
+      });
+      fetchData();
+    } catch (error) {
+      console.error('Error rejecting task:', error);
+      setError("Failed to reject task");
+    }
+  };
+
   // Handle form input changes
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -123,13 +125,36 @@ const GameKeeper = () => {
       [name]: type === 'checkbox' ? checked : value
     });
   };
-  
+
+  // Handle image click to show enlarged view
+  const handleImageClick = (imageUrl) => {
+    setSelectedImage(imageUrl);
+  };
+
+  // Close enlarged image view
+  const closeImageView = () => {
+    setSelectedImage(null);
+  };
+
   // Handle logout
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    window.location.href = '/login';
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('userProfile');
+    navigate('/login');
   };
-  console.log('Current pending tasks:', pendingTasks);
+
+  // Check user submissions for the same task
+  const checkUserSubmissions = async (userId, taskId) => {
+    try {
+      const response = await axios.get(`${API_URL}/api/user-submissions/?user_id=${userId}&task_id=${taskId}`);
+      return response.data.submissions || [];
+    } catch (error) {
+      console.error("Error checking user submissions:", error);
+      return [];
+    }
+  };
+
+  // Enhanced render method with user image history and fraud detection tools
   return (
     <div className="gamekeeper-container">
       <div className="header">
@@ -139,53 +164,85 @@ const GameKeeper = () => {
         </button>
       </div>
 
-{/* Pending Tasks Section */}
-<div className="pending-tasks-section">
-  <h2>Pending Task Approvals</h2>
-  {pendingTasks.length === 0 ? (
-    <p>No pending tasks to approve</p>
-  ) : (
-    <table>
-      <thead>
-        <tr>
-          <th>Username</th>
-          <th>Task Description</th>
-          <th>Points</th>
-          <th>Photo</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        {pendingTasks.map((task, index) => (
-          <tr key={index}>
-            <td>{task.username}</td>
-            <td>{task.task_description}</td>
-            <td>{task.points}</td>
-            <td>
-              {task.photo_url ? (
-                <img 
-                  src={task.photo_url} 
-                  alt="Task submission" 
-                  style={{ maxWidth: '100px', maxHeight: '100px' }} 
-                />
-              ) : (
-                <span>No photo</span>
-              )}
-            </td>
-            <td>
-              <button 
-                className="approve-btn"
-                onClick={() => handleApproveTask(task.user_id, task.task_id)}
-              >
-                Approve
-              </button>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  )}
-</div>
+      {error && <div className="error-message">{error}</div>}
+
+      {/* Image Modal for enlarged view */}
+      {selectedImage && (
+        <div className="image-modal-overlay" onClick={closeImageView}>
+          <div className="image-modal-content" onClick={e => e.stopPropagation()}>
+            <span className="close-button" onClick={closeImageView}>&times;</span>
+            <img src={selectedImage} alt="Enlarged view" />
+          </div>
+        </div>
+      )}
+
+      {/* Pending Tasks Section with Enhanced Fraud Detection */}
+      <div className="pending-tasks-section">
+        <h2>Pending Task Approvals</h2>
+        {loading ? (
+          <p>Loading pending tasks...</p>
+        ) : pendingTasks.length === 0 ? (
+          <p>No pending tasks to approve</p>
+        ) : (
+          <div className="task-cards-container">
+            {pendingTasks.map((task, index) => (
+              <div key={index} className="task-approval-card">
+                <div className="task-header">
+                  <h3>{task.username}</h3>
+                  <span className="task-points">{task.points} points</span>
+                </div>
+
+                <div className="task-description">
+                  <p>{task.task_description}</p>
+                </div>
+
+                <div className="submission-details">
+                  <p>Submitted: {new Date(task.completion_date).toLocaleString()}</p>
+                </div>
+
+                <div className="task-photo">
+                  {task.photo_url ? (
+                    <>
+                      <img
+                        src={task.photo_url}
+                        alt="Task submission"
+                        onClick={() => handleImageClick(task.photo_url)}
+                        className="submission-photo"
+                      />
+                      <div className="image-tools">
+                        <button
+                          className="enlarge-btn"
+                          onClick={() => handleImageClick(task.photo_url)}
+                        >
+                          🔍 Zoom
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="no-photo">No photo provided</div>
+                  )}
+                </div>
+
+                <div className="task-actions">
+                  <button
+                    className="approve-btn"
+                    onClick={() => handleApproveTask(task.user_id, task.task_id)}
+                  >
+                    ✅ Approve
+                  </button>
+
+                  <button
+                    className="reject-btn"
+                    onClick={() => handleRejectTask(task.user_id, task.task_id)}
+                  >
+                    ❌ Reject
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Create Task Section */}
       <div className="create-task-section">
@@ -202,7 +259,7 @@ const GameKeeper = () => {
               />
             </label>
           </div>
-          
+
           <div className="form-group">
             <label>
               Points:
@@ -215,7 +272,7 @@ const GameKeeper = () => {
               />
             </label>
           </div>
-          
+
           <div className="form-group checkbox">
             <label>
               <input
@@ -227,7 +284,7 @@ const GameKeeper = () => {
               Requires Photo Upload
             </label>
           </div>
-          
+
           <div className="form-group checkbox">
             <label>
               <input
@@ -239,13 +296,13 @@ const GameKeeper = () => {
               Requires QR Scan
             </label>
           </div>
-          
+
           <button type="submit" className="create-btn">
             Create Task
           </button>
         </form>
       </div>
-      
+
       {/* Tasks List */}
       <div className="tasks-section">
         <h2>Current Tasks</h2>
@@ -264,12 +321,12 @@ const GameKeeper = () => {
                 <td>{task.description}</td>
                 <td>{task.points}</td>
                 <td>
-  {task.requires_upload ? (
-    <span>Photo requirement: Yes</span>
-  ) : (
-    <span>No photo required</span>
-  )}
-</td>
+                  {task.requires_upload ? (
+                    <span>Photo requirement: Yes</span>
+                  ) : (
+                    <span>No photo required</span>
+                  )}
+                </td>
                 <td>{task.requires_scan ? 'Yes' : 'No'}</td>
               </tr>
             ))}

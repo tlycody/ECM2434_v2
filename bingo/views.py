@@ -249,6 +249,7 @@ def complete_task(request):
     """
     Submits a task for approval by the user.
     Task points are only awarded after GameKeeper approval.
+    Includes basic fraud detection for uploaded photos.
     """
     user = request.user
     task_id = request.data.get('task_id')
@@ -258,37 +259,80 @@ def complete_task(request):
     user_task = UserTask.objects.filter(user=user, task=task).first()
     if user_task:
         if user_task.completed:
-            return Response({"message": "Task already completed and approved!"}, 
-                          status=status.HTTP_400_BAD_REQUEST)
+            return Response({"message": "Task already completed and approved!"},
+                            status=status.HTTP_400_BAD_REQUEST)
         else:
-            return Response({"message": "Task already submitted and pending approval!"}, 
-                          status=status.HTTP_400_BAD_REQUEST)
+            return Response({"message": "Task already submitted and pending approval!"},
+                            status=status.HTTP_400_BAD_REQUEST)
 
     # Check if photo is required but not provided
     if task.requires_upload and 'photo' not in request.FILES:
-        return Response({"message": "This task requires a photo upload."}, 
-                      status=status.HTTP_400_BAD_REQUEST)
-    
+        return Response({"message": "This task requires a photo upload."},
+                        status=status.HTTP_400_BAD_REQUEST)
+
+    # If photo is provided, check for fraud
+    if 'photo' in request.FILES:
+        photo_file = request.FILES['photo']
+
+        # Check file size
+        if photo_file.size > 10 * 1024 * 1024:  # 10MB limit
+            return Response({"message": "Photo is too large. Maximum size is 10MB."},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        # Check file type
+        if not photo_file.content_type.startswith('image/'):
+            return Response({"message": "Uploaded file is not an image."},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        # Check for image fraud
+        try:
+            from .basic_image_fraud_detector import BasicImageFraudDetector
+
+            # Read the file data
+            photo_data = photo_file.read()
+
+            # Reset file pointer for later use
+            photo_file.seek(0)
+
+            # Initialize fraud detector
+            detector = BasicImageFraudDetector(similarity_threshold=30)
+
+            # Check if image is fraudulent
+            is_fraudulent, similarity, matched_task = detector.is_image_fraudulent(photo_data, user.id)
+
+            # Log the result for debugging
+            logger.info(
+                f"Fraud detection result: is_fraudulent={is_fraudulent}, similarity={similarity:.2f}%, task={matched_task}")
+
+            if is_fraudulent:
+                return Response({
+                    "message": "This photo appears to be too similar to a previously submitted image. Please provide a new photo.",
+                    "similarity": f"{similarity:.2f}%"
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            # Log the error but don't prevent submission
+            logger.error(f"Error in fraud detection: {str(e)}")
+
     # Create new user task - mark as pending approval
     user_task = UserTask(
-        user=user, 
-        task=task, 
+        user=user,
+        task=task,
         completed=False,  # Not completed until approved
         status='pending'  # Explicitly mark as pending
     )
-    
+
     # Save photo if provided
     if 'photo' in request.FILES:
         user_task.photo = request.FILES['photo']
-    
+
     user_task.save()
-    
+
     # Debug info
     print(f"Created new task submission: UserTask(user={user.username}, task_id={task_id}, status={user_task.status})")
 
-    return Response({"message": "Task submitted successfully and awaiting GameKeeper approval!"}, 
-                  status=status.HTTP_200_OK)
-
+    return Response({"message": "Task submitted successfully and awaiting GameKeeper approval!"},
+                    status=status.HTTP_200_OK)
 # ============================
 # Leaderboard Retrieval
 # ============================
@@ -487,10 +531,11 @@ def approve_task(request):
     """
     Approves a pending task submission.
     Only for GameKeepers and Developers.
+    Stores approved image signatures for fraud detection.
     """
     if request.user.role.lower() not in ['gamekeeper', 'developer']:
         return Response({'error': "Permission denied"}, status=status.HTTP_403_FORBIDDEN)
-    
+
     user_id = request.data.get('user_id')
     task_id = request.data.get('task_id')  # Changed 'task' to 'task_id' for consistency
 
@@ -500,7 +545,26 @@ def approve_task(request):
 
     if user_task.completed:
         return Response({"message": "Task already approved!"}, status=status.HTTP_400_BAD_REQUEST)
-    
+
+    # Store image signatures for approved photos (for fraud detection)
+    if user_task.photo and user_task.photo.name:
+        try:
+            from .basic_image_fraud_detector import BasicImageFraudDetector
+
+            # Open and read the photo file
+            user_task.photo.open('rb')
+            photo_data = user_task.photo.read()
+            user_task.photo.close()
+
+            # Initialize fraud detector and save signatures
+            detector = BasicImageFraudDetector()
+            detector.save_image_signature(user_task.id, photo_data)
+
+            logger.info(f"Saved image signature for task {user_task.id}")
+        except Exception as e:
+            # Log error but don't prevent approval
+            logger.error(f"Error saving image signature: {str(e)}")
+
     # Mark as completed and update status
     user_task.completed = True
     user_task.status = 'approved'
@@ -515,6 +579,38 @@ def approve_task(request):
 
     return Response({
         "message": f"Task approved for {user.username}. {task.points} points rewarded."
+    })
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def reject_task(request):
+    """
+    Rejects a pending task submission.
+    Only for GameKeepers and Developers.
+    """
+    if request.user.role.lower() not in ['gamekeeper', 'developer']:
+        return Response({'error': "Permission denied"}, status=status.HTTP_403_FORBIDDEN)
+
+    user_id = request.data.get('user_id')
+    task_id = request.data.get('task_id')
+    reason = request.data.get('reason', 'Task rejected by game keeper')
+
+    user = get_object_or_404(User, id=user_id)
+    task = get_object_or_404(Task, id=task_id)
+    user_task = get_object_or_404(UserTask, user=user, task=task)
+
+    if user_task.completed:
+        return Response({"message": "Task already approved and cannot be rejected."},
+                        status=status.HTTP_400_BAD_REQUEST)
+
+    # Mark as rejected
+    user_task.status = 'rejected'
+    user_task.rejection_reason = reason
+    user_task.save()
+
+    return Response({
+        "message": f"Task submission from {user.username} has been rejected."
     })
 
 @api_view(['GET'])
