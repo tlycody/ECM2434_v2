@@ -3,23 +3,27 @@
   margin: 0 auto;
   padding: 20px;
   text-align: center;
-  display: flex;          /* Added */
-  flex-direction: column; /* Added */
-  align-items: center;    /* Added */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 #reader-container {
   width: 100%;
-  max-width: 600px;
-  margin: 20px auto;
-  /* Removed align-self: center */
+  max-width: 300px; /* 👈 Matches scanner size */
+  height: 300px; /* 👈 Makes it a square */
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 #reader {
-  width: 100%;
-  /* Removed align-self: center */
-  margin: 0 auto;         /* Added */
+  width: 100% !important;
+  height: 100% !important;
+  border: none !important; /* 👈 Removes the white outline */
+  border-radius: 0 !important; /* 👈 Ensures no rounded corners */
 }
+
 
 .scan-result, .error-message {
   padding: 15px;
@@ -35,10 +39,6 @@
   color: #155724;
 }
 
-.error-message {
-  background-color: #f8d7da;
-  color: #721c24;
-}
 
 .button-container {
   margin-top: 20px;
