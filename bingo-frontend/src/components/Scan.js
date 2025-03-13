@@ -13,8 +13,10 @@ const Scan = () => {
 
   // List of valid QR codes
   const VALID_QR_CODES = [
-    "https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d2525.637356142877!2d-3.527102723426415!3d50.72666667164626!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zNTDCsDQzJzE2LjYiTiAzwrAzMSc1Ny4wIkU!5e0!3m2!1sen!2suk!4v1741890389776!5m2!1sen!2suk",
-    "https://www.google.com/maps/embed"
+    "https://maps.app.goo.gl/tzWHSuGUG35X8m3MA",
+    "https://maps.app.goo.gl/ZFQUUL5xqUQQp8BD7?g_st=com.google.maps.preview.copy",
+    "https://maps.app.goo.gl/9zrjkXXHMJDXtMrC8?g_st=com.google.maps.preview.copy",
+    "https://maps.app.goo.gl/FnhwTw3eB2zvpnzq6?g_st=com.google.maps.preview.copy"
   ];
 
   const isValidQRCode = (decodedText) => {
