@@ -170,12 +170,20 @@ def register_user(request):
         return Response({"error": "This email is already registered."}, status=status.HTTP_400_BAD_REQUEST)
 
     # Create user and related models
-    user = User.objects.create_user(username=username, email=email, password=password, role=role)  # Set role here
-    UserConsent.objects.create(user=user, ip_address=request.META.get('REMOTE_ADDR'))
-    Profile.objects.create(user=user)
-    Leaderboard.objects.get_or_create(user=user)
-
-    return Response({"message": "User registered successfully!"}, status=status.HTTP_201_CREATED)
+    try:
+        user = User.objects.create_user(username=username, email=email, password=password, role=role)
+        UserConsent.objects.create(user=user, ip_address=request.META.get('REMOTE_ADDR'))
+        Profile.objects.create(user=user)
+        Leaderboard.objects.get_or_create(user=user)
+        
+        # Verify the user was created (this will show in your console/logs)
+        print(f"✅ Created user {username} (ID: {user.id})")
+        print(f"✅ Total users in database: {User.objects.count()}")
+        
+        return Response({"message": "User registered successfully!"}, status=status.HTTP_201_CREATED)
+    except Exception as e:
+        print(f"❌ Error creating user: {str(e)}")
+        return Response({"error": f"Registration failed: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 # ============================
