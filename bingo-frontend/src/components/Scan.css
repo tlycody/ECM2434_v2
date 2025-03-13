@@ -1,0 +1,60 @@
+.scan-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  text-align: center;
+  display: flex;          /* Added */
+  flex-direction: column; /* Added */
+  align-items: center;    /* Added */
+}
+
+#reader-container {
+  width: 100%;
+  max-width: 600px;
+  margin: 20px auto;
+  /* Removed align-self: center */
+}
+
+#reader {
+  width: 100%;
+  /* Removed align-self: center */
+  margin: 0 auto;         /* Added */
+}
+
+.scan-result, .error-message {
+  padding: 15px;
+  border-radius: 5px;
+  margin: 15px auto;
+  width: 100%;
+  max-width: 600px;
+  align-self: center;
+}
+
+.scan-result {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.button-container {
+  margin-top: 20px;
+}
+
+.back-button {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+.back-button:hover {
+  background-color: #5a6268;
+}
