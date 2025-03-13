@@ -67,6 +67,39 @@ def update_user_profile(request):
     """
     user = request.user
     data = request.data
+
+
+    # Check if this is a delete request
+    is_delete_request = data.get('delete_account') == True or data.get('is_deleted') == True
+    
+    if is_delete_request:
+        # Handle profile deletion
+        try:
+            # Delete profile picture if it exists
+            profile = Profile.objects.filter(user=user).first()
+            if profile and profile.profile_picture:
+                profile.profile_picture.delete()
+            
+            # Delete user tasks
+            UserTask.objects.filter(user=user).delete()
+            
+            # Delete user badges
+            UserBadge.objects.filter(user=user).delete()
+            
+            # Delete leaderboard entry
+            Leaderboard.objects.filter(user=user).delete()
+            
+            # Delete profile
+            Profile.objects.filter(user=user).delete()
+            
+            # Delete the user (this will cascade to delete related objects)
+            user.delete()
+            
+            return Response({"message": "User account deleted successfully"}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": f"Failed to delete user: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    # If not deleting, proceed with normal update
     profile, _ = Profile.objects.get_or_create(user=user)
 
     # Update username and email if provided
@@ -108,7 +141,7 @@ def register_user(request):
     password_again = data.get("passwordagain")
     email = data.get("email")
     gdprConsent = data.get("gdprConsent", False)
-    # role = data.get("role", "Player") 
+    role = data.get("role", "Player") 
 
     # Validate GDPR consent
     if not gdprConsent:
@@ -170,14 +203,13 @@ def login_user(request):
         if profile == "GameKeeper":
             user.role = "GameKeeper"  # Update the user's role
             user.save()  # Save the updated role to the database
-            role = "GameKeeper"
-        else:
-            role = "Player"
+            
         
         # Create a new token AFTER updating the role
         refresh = RefreshToken.for_user(user)
         
         # Add custom claims to the token payload
+        
         refresh['role'] = user.role
         
         return Response({
@@ -216,6 +248,7 @@ def complete_task(request):
     """
     Submits a task for approval by the user.
     Task points are only awarded after GameKeeper approval.
+    Includes basic fraud detection for uploaded photos.
     """
     user = request.user
     task_id = request.data.get('task_id')
@@ -225,37 +258,80 @@ def complete_task(request):
     user_task = UserTask.objects.filter(user=user, task=task).first()
     if user_task:
         if user_task.completed:
-            return Response({"message": "Task already completed and approved!"}, 
-                          status=status.HTTP_400_BAD_REQUEST)
+            return Response({"message": "Task already completed and approved!"},
+                            status=status.HTTP_400_BAD_REQUEST)
         else:
-            return Response({"message": "Task already submitted and pending approval!"}, 
-                          status=status.HTTP_400_BAD_REQUEST)
+            return Response({"message": "Task already submitted and pending approval!"},
+                            status=status.HTTP_400_BAD_REQUEST)
 
     # Check if photo is required but not provided
     if task.requires_upload and 'photo' not in request.FILES:
-        return Response({"message": "This task requires a photo upload."}, 
-                      status=status.HTTP_400_BAD_REQUEST)
-    
+        return Response({"message": "This task requires a photo upload."},
+                        status=status.HTTP_400_BAD_REQUEST)
+
+    # If photo is provided, check for fraud
+    if 'photo' in request.FILES:
+        photo_file = request.FILES['photo']
+
+        # Check file size
+        if photo_file.size > 10 * 1024 * 1024:  # 10MB limit
+            return Response({"message": "Photo is too large. Maximum size is 10MB."},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        # Check file type
+        if not photo_file.content_type.startswith('image/'):
+            return Response({"message": "Uploaded file is not an image."},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        # Check for image fraud
+        try:
+            from .basic_image_fraud_detector import BasicImageFraudDetector
+
+            # Read the file data
+            photo_data = photo_file.read()
+
+            # Reset file pointer for later use
+            photo_file.seek(0)
+
+            # Initialize fraud detector
+            detector = BasicImageFraudDetector(similarity_threshold=95)
+
+            # Check if image is fraudulent
+            is_fraudulent, similarity, matched_task = detector.is_image_fraudulent(photo_data, user.id)
+
+            # Log the result for debugging
+            logger.info(
+                f"Fraud detection result: is_fraudulent={is_fraudulent}, similarity={similarity:.2f}%, task={matched_task}")
+
+            if is_fraudulent:
+                return Response({
+                    "message": "This photo appears to be too similar to a previously submitted image. Please provide a new photo.",
+                    "similarity": f"{similarity:.2f}%"
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            # Log the error but don't prevent submission
+            logger.error(f"Error in fraud detection: {str(e)}")
+
     # Create new user task - mark as pending approval
     user_task = UserTask(
-        user=user, 
-        task=task, 
+        user=user,
+        task=task,
         completed=False,  # Not completed until approved
         status='pending'  # Explicitly mark as pending
     )
-    
+
     # Save photo if provided
     if 'photo' in request.FILES:
         user_task.photo = request.FILES['photo']
-    
+
     user_task.save()
-    
+
     # Debug info
     print(f"Created new task submission: UserTask(user={user.username}, task_id={task_id}, status={user_task.status})")
 
-    return Response({"message": "Task submitted successfully and awaiting GameKeeper approval!"}, 
-                  status=status.HTTP_200_OK)
-
+    return Response({"message": "Task submitted successfully and awaiting GameKeeper approval!"},
+                    status=status.HTTP_200_OK)
 # ============================
 # Leaderboard Retrieval
 # ============================
@@ -288,31 +364,43 @@ def check_developer_role(request):
         'username': user.username
     })
 
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_user_profile(request):
     """
-    Get the current user's profile information
+    Get the current user's profile information including task status
     """
     user = request.user
     profile, created = Profile.objects.get_or_create(user=user)
     leaderboard, _ = Leaderboard.objects.get_or_create(user=user)
-    
+
     # Count completed tasks
     completed_tasks = UserTask.objects.filter(user=user, completed=True).count()
-    
+
+    # Get all user tasks for status display
+    user_tasks_list = UserTask.objects.filter(user=user)
+    user_tasks_data = []
+    for task in user_tasks_list:
+        user_tasks_data.append({
+            'task_id': task.task.id,
+            'status': task.status,
+            'completed': task.completed,
+            'submission_date': task.completion_date
+        })
+
     # Calculate user rank
     user_points = leaderboard.points
     rank = user_rank(user_points)
-    
+
     # Update rank in profile if different
     if profile.rank != rank:
         profile.rank = rank
         profile.save()
-    
+
     # Get user's position in leaderboard
     leaderboard_position = Leaderboard.objects.filter(points__gt=user_points).count() + 1
-    
+
     # Prepare profile data
     profile_data = {
         "username": user.username,
@@ -321,9 +409,10 @@ def get_user_profile(request):
         "completed_tasks": completed_tasks,
         "leaderboard_rank": leaderboard_position,
         "profile_picture": request.build_absolute_uri(profile.profile_picture.url) if profile.profile_picture else None,
-        "rank": profile.rank
+        "rank": profile.rank,
+        "user_tasks": user_tasks_data  # Include tasks status
     }
-    
+
     return Response(profile_data)
 
 def user_rank(points):
@@ -418,9 +507,6 @@ def pending_tasks(request):
     if request.user.role.lower() not in ['gamekeeper', 'developer']:
         return Response({"error": "Permission denied"}, status=status.HTTP_403_FORBIDDEN)
     
-    if not request.user.is_staff:
-        return Response({"error": "Permission denied"}, status=status.HTTP_403_FORBIDDEN)
-    
     # Filter tasks with status 'pending' or completed=False (for backward compatibility)
     pending = UserTask.objects.filter(status='pending')
     
@@ -457,13 +543,11 @@ def approve_task(request):
     """
     Approves a pending task submission.
     Only for GameKeepers and Developers.
+    Stores approved image signatures for fraud detection.
     """
     if request.user.role.lower() not in ['gamekeeper', 'developer']:
         return Response({'error': "Permission denied"}, status=status.HTTP_403_FORBIDDEN)
-    
-    if not request.user.is_staff:
-        return Response({'error': "Permission denied"}, status=status.HTTP_403_FORBIDDEN)
-    
+
     user_id = request.data.get('user_id')
     task_id = request.data.get('task_id')  # Changed 'task' to 'task_id' for consistency
 
@@ -473,7 +557,26 @@ def approve_task(request):
 
     if user_task.completed:
         return Response({"message": "Task already approved!"}, status=status.HTTP_400_BAD_REQUEST)
-    
+
+    # Store image signatures for approved photos (for fraud detection)
+    if user_task.photo and user_task.photo.name:
+        try:
+            from .basic_image_fraud_detector import BasicImageFraudDetector
+
+            # Open and read the photo file
+            user_task.photo.open('rb')
+            photo_data = user_task.photo.read()
+            user_task.photo.close()
+
+            # Initialize fraud detector and save signatures
+            detector = BasicImageFraudDetector()
+            detector.save_image_signature(user_task.id, photo_data)
+
+            logger.info(f"Saved image signature for task {user_task.id}")
+        except Exception as e:
+            # Log error but don't prevent approval
+            logger.error(f"Error saving image signature: {str(e)}")
+
     # Mark as completed and update status
     user_task.completed = True
     user_task.status = 'approved'
@@ -490,13 +593,46 @@ def approve_task(request):
         "message": f"Task approved for {user.username}. {task.points} points rewarded."
     })
 
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def reject_task(request):
+    """
+    Rejects a pending task submission.
+    Only for GameKeepers and Developers.
+    """
+    if request.user.role.lower() not in ['gamekeeper', 'developer']:
+        return Response({'error': "Permission denied"}, status=status.HTTP_403_FORBIDDEN)
+
+    user_id = request.data.get('user_id')
+    task_id = request.data.get('task_id')
+    reason = request.data.get('reason', 'Task rejected by game keeper')
+
+    user = get_object_or_404(User, id=user_id)
+    task = get_object_or_404(Task, id=task_id)
+    user_task = get_object_or_404(UserTask, user=user, task=task)
+
+    if user_task.completed:
+        return Response({"message": "Task already approved and cannot be rejected."},
+                        status=status.HTTP_400_BAD_REQUEST)
+
+    # Mark as rejected
+    user_task.status = 'rejected'
+    user_task.rejection_reason = reason
+    user_task.save()
+
+    return Response({
+        "message": f"Task submission from {user.username} has been rejected."
+    })
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def check_auth(request):
     return Response({
         "authenticated": True, 
-        "username": request.user.username,
-        
+        "username": request.user.username, 
+        "role": request.user.role,
+        "role_lowercase": request.user.role.lower() if request.user.role else None
     })
 
 @api_view(['GET'])
@@ -842,3 +978,28 @@ def login_view(request):
                 messages.error(request, "Invalid username or password")
     
     return render(request, 'login.html')
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_tasks_status(request):
+    """
+    Retrieves the status of all tasks for the current user.
+    This enables the frontend to show different colors for task status.
+    """
+    user = request.user
+
+    # Get all user tasks
+    user_tasks = UserTask.objects.filter(user=user)
+
+    # Format the response data
+    tasks_status = []
+    for user_task in user_tasks:
+        tasks_status.append({
+            'task_id': user_task.task.id,
+            'status': user_task.status,
+            'completed': user_task.completed,
+            'submission_date': user_task.completion_date
+        })
+
+    return Response(tasks_status)

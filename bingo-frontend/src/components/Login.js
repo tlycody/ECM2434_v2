@@ -39,7 +39,7 @@ const Login = () => {
     setFormData((prev) => ({
       ...prev,
       profile: value, // Update profile selection
-      // extraPassword: value === 'Player' ? '' : prev.extraPassword, // Clear special password if switching back to Player
+      extraPassword: value === 'Player' ? '' : prev.extraPassword, // Clear special password if switching back to Player
     }));
   };
 
@@ -50,12 +50,7 @@ const Login = () => {
   const validateForm = () => {
     if (!formData.username.trim()) return 'Username is required';
     if (!formData.password) return 'Password is required';
-    // if (formData.profile === 'GameKeeper' && !formData.extraPassword) {
-     // return 'Special password required for Game Keeper';
-    //}
-    //if (formData.profile === 'Developer' && !formData.extraPassword) {
-     // return 'Special password required for Developer';
-    //}
+    
     return null; // No errors
   };
 

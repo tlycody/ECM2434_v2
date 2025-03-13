@@ -3,6 +3,7 @@ from .views import (
     pending_tasks, complete_task, approve_task,
     leaderboard, update_user_profile, check_developer_role,
     get_user_profile, debug_user_tasks, debug_media_urls, force_award_pattern
+    , reject_task
 )
 
 # ============================
@@ -26,4 +27,5 @@ urlpatterns = [
     path('debug-tasks/', debug_user_tasks, name='debug_user_tasks'),
     path('debug-media/', debug_media_urls, name='debug_media_urls'),
     path('force-award-pattern/', force_award_pattern, name='force_award_pattern'),
+    path('reject-task/', reject_task, name='reject_task'),
 ]
