@@ -364,31 +364,43 @@ def check_developer_role(request):
         'username': user.username
     })
 
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_user_profile(request):
     """
-    Get the current user's profile information
+    Get the current user's profile information including task status
     """
     user = request.user
     profile, created = Profile.objects.get_or_create(user=user)
     leaderboard, _ = Leaderboard.objects.get_or_create(user=user)
-    
+
     # Count completed tasks
     completed_tasks = UserTask.objects.filter(user=user, completed=True).count()
-    
+
+    # Get all user tasks for status display
+    user_tasks_list = UserTask.objects.filter(user=user)
+    user_tasks_data = []
+    for task in user_tasks_list:
+        user_tasks_data.append({
+            'task_id': task.task.id,
+            'status': task.status,
+            'completed': task.completed,
+            'submission_date': task.completion_date
+        })
+
     # Calculate user rank
     user_points = leaderboard.points
     rank = user_rank(user_points)
-    
+
     # Update rank in profile if different
     if profile.rank != rank:
         profile.rank = rank
         profile.save()
-    
+
     # Get user's position in leaderboard
     leaderboard_position = Leaderboard.objects.filter(points__gt=user_points).count() + 1
-    
+
     # Prepare profile data
     profile_data = {
         "username": user.username,
@@ -397,9 +409,10 @@ def get_user_profile(request):
         "completed_tasks": completed_tasks,
         "leaderboard_rank": leaderboard_position,
         "profile_picture": request.build_absolute_uri(profile.profile_picture.url) if profile.profile_picture else None,
-        "rank": profile.rank
+        "rank": profile.rank,
+        "user_tasks": user_tasks_data  # Include tasks status
     }
-    
+
     return Response(profile_data)
 
 def user_rank(points):
@@ -965,3 +978,28 @@ def login_view(request):
                 messages.error(request, "Invalid username or password")
     
     return render(request, 'login.html')
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_tasks_status(request):
+    """
+    Retrieves the status of all tasks for the current user.
+    This enables the frontend to show different colors for task status.
+    """
+    user = request.user
+
+    # Get all user tasks
+    user_tasks = UserTask.objects.filter(user=user)
+
+    # Format the response data
+    tasks_status = []
+    for user_task in user_tasks:
+        tasks_status.append({
+            'task_id': user_task.task.id,
+            'status': user_task.status,
+            'completed': user_task.completed,
+            'submission_date': user_task.completion_date
+        })
+
+    return Response(tasks_status)

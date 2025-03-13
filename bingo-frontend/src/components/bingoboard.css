@@ -1,6 +1,3 @@
-/* ============================
-   Updated BingoBoard CSS
-   ============================ */
 
 /* Import Google Font: Poppins for a modern look */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
@@ -66,7 +63,8 @@
   font-size: 14px;
   font-weight: 500;
   color: #4C3B6D; /* Dark purple text */
-  transition: transform 0.2s, box-shadow 0.2s; /* Smooth hover effect */
+  transition: all 0.2s ease; /* Smooth transition for hover & status changes */
+  position: relative; /* For positioning status indicators */
 }
 
 /* Hover effect for cells */
@@ -76,11 +74,37 @@
   background-color: #EFE2FB; /* Light lavender on hover */
 }
 
-/* Completed cells (visual cue for user progress) */
+/* Status styling for cells */
+
+/* Completed cells - green background */
 .bingo-cell.completed {
   background-color: #8BC34A; /* Green background for completed tasks */
-  border-color: #AED581; /* Lighter green border */
+  border-color: #689F38; /* Darker green border */
   color: white; /* White text for better contrast */
+}
+
+.bingo-cell.completed:hover {
+  background-color: #7CB342; /* Slightly darker green on hover */
+}
+
+/* Pending cells - yellow background */
+.bingo-cell.pending {
+  background-color: #FFC107; /* Yellow background for pending tasks */
+  border-color: #FFA000; /* Darker yellow border */
+}
+
+.bingo-cell.pending:hover {
+  background-color: #FFB300; /* Slightly darker yellow on hover */
+}
+
+/* Rejected cells - light red background */
+.bingo-cell.rejected {
+  background-color: #FFCDD2; /* Light red background for rejected tasks */
+  border-color: #E57373; /* Red border */
+}
+
+.bingo-cell.rejected:hover {
+  background-color: #EF9A9A; /* Slightly darker red on hover */
 }
 
 /* ============================
@@ -95,11 +119,33 @@
   margin-bottom: 5px;
 }
 
+/* Change points color for better visibility on colored backgrounds */
+.bingo-cell.completed .points,
+.bingo-cell.pending .points {
+  color: #FFFFFF;
+}
+
 /* Task description */
 .description {
   font-size: 13px;
-  color: #4C3B6D;
   margin-bottom: 6px;
+}
+
+/* Status indicator text */
+.status-indicator {
+  font-size: 12px;
+  font-weight: 600;
+  background-color: rgba(255, 255, 255, 0.8);
+  color: #4C3B6D;
+  padding: 3px 8px;
+  border-radius: 10px;
+  margin-top: 8px;
+}
+
+/* Change status indicator for rejected tasks */
+.status-indicator.rejected {
+  background-color: #F44336;
+  color: white;
 }
 
 /* ============================
@@ -113,11 +159,99 @@
 }
 
 /* Upload required task indicator */
-.upload-indicator { 
+.upload-indicator {
   color: #8E44AD; /* Dark purple */
 }
 
 /* QR code scan required task indicator */
-.scan-indicator { 
+.scan-indicator {
   color: #3498DB; /* Blue */
+}
+
+/* Change icon colors for better visibility on colored backgrounds */
+.bingo-cell.completed .upload-indicator,
+.bingo-cell.completed .scan-indicator,
+.bingo-cell.pending .upload-indicator,
+.bingo-cell.pending .scan-indicator {
+  color: #FFFFFF;
+}
+
+/* ============================
+   Status Legend
+   ============================ */
+
+.status-legend {
+  display: flex;
+  justify-content: center;
+  margin: 20px auto;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin: 0 10px;
+}
+
+.legend-color {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  margin-right: 5px;
+}
+
+.legend-color.not-started {
+  background-color: #FFFFFF;
+  border: 1px solid #7D67A5;
+}
+
+.legend-color.pending {
+  background-color: #FFC107;
+  border: 1px solid #FFA000;
+}
+
+.legend-color.completed {
+  background-color: #8BC34A;
+  border: 1px solid #689F38;
+}
+
+.legend-color.rejected {
+  background-color: #FFCDD2;
+  border: 1px solid #E57373;
+}
+
+/* ============================
+   Navigation Bar
+   ============================ */
+
+.navigation-bar {
+  margin-top: 20px;
+}
+
+.nav-button {
+  background-color: #7D67A5;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.nav-button:hover {
+  background-color: #6A5A8E;
+}
+
+/* Error message styling */
+.error-message {
+  background-color: #FFCDD2;
+  color: #B71C1C;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  font-weight: 500;
 }
