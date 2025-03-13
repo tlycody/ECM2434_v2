@@ -294,7 +294,7 @@ def complete_task(request):
             photo_file.seek(0)
 
             # Initialize fraud detector
-            detector = BasicImageFraudDetector(similarity_threshold=30)
+            detector = BasicImageFraudDetector(similarity_threshold=88)
 
             # Check if image is fraudulent
             is_fraudulent, similarity, matched_task = detector.is_image_fraudulent(photo_data, user.id)
