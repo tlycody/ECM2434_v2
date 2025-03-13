@@ -4,6 +4,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
+import './PrivacyPolicy.css';
 
 const PrivacyPolicy = () => {
     return (
@@ -14,9 +15,7 @@ const PrivacyPolicy = () => {
 
             {/* Introduction */}
             <p>
-            This Privacy Policy explains how we collect, use, and disclose your information
-            when you use our website and related services. 
-            "We", "Our", "Us" is committed to protecting and respecting your privacy.
+            This Privacy Policy explains how we collect, use, and disclose your information when you use our website and related services. "We", "Our", "Us" is committed to protecting and respecting your privacy.
             </p>
 
             {/* Data Controller */}
@@ -60,8 +59,7 @@ const PrivacyPolicy = () => {
             {/* Data Retention */}
             <h2>Data Retention</h2>
             <p>
-                We will retain your personal data only for as long as necessary to fulfill the purposes 
-                for which it was collected. Specifically:
+                We will retain your personal data only for as long as necessary to fulfill the purposes for which it was collected. Specifically:
             </p>
             <ul>
                 <li>Account information will be retained as long as you maintain an active account</li>
@@ -109,8 +107,7 @@ const PrivacyPolicy = () => {
             {/* Changes to Privacy Policy */}
             <h2>Changes to This Privacy Policy</h2>
             <p>
-            We may update this Privacy Policy occasionally. Please visit our website to check for any updates. 
-            We recommend reviewing the Privacy Policy periodically to stay informed about any changes.
+            We may update this Privacy Policy occasionally. Please visit our website to check for any updates. We recommend reviewing the Privacy Policy periodically to stay informed about any changes.
             </p>
 
             {/* Contact Information */}
