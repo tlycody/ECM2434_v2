@@ -3,7 +3,7 @@
 // ============================
 
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import './Register.css';
 
 // Fetch API URL from environment variables (fallback to localhost if not set)
@@ -42,7 +42,6 @@ const Register = () => {
   const validateForm = () => {
     if (!formData.username.trim()) return 'Username is required';
     if (!formData.email.trim()) return 'Email is required';
-    if (!formData.email.endsWith('@exeter.ac.uk')) return 'Please use your @exeter.ac.uk email';
     if (!formData.password) return 'Password is required';
     if (formData.password !== formData.passwordagain) return 'Passwords do not match';
     if (!formData.gdprConsent) return "You need to accept the Privacy Policy to register";
@@ -122,7 +121,7 @@ const Register = () => {
         <div className="form-group">
           <input
             type="email"
-            placeholder="University email"
+            placeholder="Email address"
             name="email"
             value={formData.email}
             onChange={handleChange}

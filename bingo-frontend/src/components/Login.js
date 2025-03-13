@@ -15,7 +15,7 @@ const Login = () => {
     username: '',
     password: '',
     profile: 'Player', // Default role selection
-    // extraPassword: '',
+    
   });
 
   const [error, setError] = useState('');
