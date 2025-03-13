@@ -51,6 +51,42 @@ const Scan = () => {
     }
   };
 
+  useEffect(() => {
+    const readerElement = document.getElementById('reader');
+
+    // Clear previous scanner instance
+    if (scannerRef.current) {
+      scannerRef.current.clear();
+    }
+
+    if (!isScannerInitialized.current && readerElement) {
+      const html5QrCode = new Html5Qrcode("reader", true);
+      scannerRef.current = html5QrCode;
+      isScannerInitialized.current = true;
+
+      html5QrCode.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        onScanSuccess,
+        onScanError
+      ).then(() => {
+        setIsScanning(true);
+      }).catch(err => {
+        console.error("Failed to start scanner:", err);
+        setError("Failed to start camera. Please check camera permissions.");
+      });
+    }
+
+    // Cleanup on unmount
+    return () => {
+      if (scannerRef.current && scannerRef.current.isScanning) {
+        scannerRef.current.stop().catch(() => {});
+        scannerRef.current = null;
+        isScannerInitialized.current = false;
+      }
+    };
+  }, []);
+
   const handleScanResult = async (result) => {
     try {
       const taskId = localStorage.getItem('selectedTaskId');
@@ -100,58 +136,6 @@ const Scan = () => {
     }
   };
 
-  useEffect(() => {
-    const readerElement = document.getElementById('reader');
-
-    // Clear previous scanner instance
-    if (scannerRef.current) {
-      scannerRef.current.clear();
-    }
-
-    if (!isScannerInitialized.current && readerElement) {
-      const html5QrCode = new Html5Qrcode("reader", true);
-      scannerRef.current = html5QrCode;
-      isScannerInitialized.current = true;
-    }
-
-    if (!isScannerInitialized.current) {
-      const html5QrCode = new Html5Qrcode("reader", /* verbose= */ true);
-      scannerRef.current = html5QrCode;
-      isScannerInitialized.current = true;
-
-      const config = {
-        fps: 10,
-        qrbox: { width: 300, height: 300 }, // Makes the scanner area a square
-      };
-      
-      html5QrCode.start(
-        { facingMode: "environment" },
-        { fps: 10, qrbox: { width: 250, height: 250 } },
-        onScanSuccess,
-        onScanError
-      ).then(() => {
-        setIsScanning(true);
-      }).catch(err => {
-        console.error("Failed to start scanner:", err);
-        setError("Failed to start camera. Please check camera permissions.");
-      });
-    }
-
-    return () => {
-      if (scannerRef.current && scannerRef.current.isScanning) {
-        scannerRef.current.stop().catch(() => {});
-        scannerRef.current = null;
-        isScannerInitialized.current = false;
-      }
-
-      if (readerElement) {
-        while (readerElement.firstChild) {
-          readerElement.removeChild(readerElement.firstChild);
-        }
-      }
-    };
-  }, []);
-
   const handleBack = () => {
     localStorage.removeItem('isResubmission');
     navigate('/bingo');
@@ -160,8 +144,6 @@ const Scan = () => {
   return (
     <div className="scan-container">
       <h1>Scan QR Code</h1>
-
-      {error && <div className="error-message">{error}</div>}
 
       <div id="reader-container">
         <div id="reader"></div>
@@ -177,6 +159,12 @@ const Scan = () => {
         </div>
       )}
 
+      {error && (
+        <div className="error-message">
+          <p>{error}</p>
+        </div>
+      )}
+
       <div className="button-container">
         <button onClick={handleBack} className="back-button">
           Back to Bingo Board
@@ -187,4 +175,3 @@ const Scan = () => {
 };
 
 export default Scan;
-
