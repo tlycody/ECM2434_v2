@@ -8,20 +8,37 @@ const Scan = () => {
   const [error, setError] = useState(null);
   const [isScanning, setIsScanning] = useState(false);
   const scannerRef = useRef(null);
-  const isScannerInitialized = useRef(false); // Track if scanner is initialized
+  const isScannerInitialized = useRef(false);
   const navigate = useNavigate();
 
-  const onScanSuccess = (decodedText) => {
-    console.log("QR Code scanned successfully:", decodedText);
-    setScanResult(decodedText);
+  // List of valid QR codes
+  const VALID_QR_CODES = [
+    "https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d2525.637356142877!2d-3.527102723426415!3d50.72666667164626!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zNTDCsDQzJzE2LjYiTiAzwrAzMSc1Ny4wIkU!5e0!3m2!1sen!2suk!4v1741890389776!5m2!1sen!2suk",
+    "https://www.google.com/maps/embed"
+  ];
 
-    if (scannerRef.current && scannerRef.current.isScanning) {
-      scannerRef.current.stop()
-        .then(() => {
-          setIsScanning(false);
-          handleScanResult(decodedText);
-        })
-        .catch(() => {});
+  const isValidQRCode = (decodedText) => {
+    return VALID_QR_CODES.includes(decodedText);
+  };
+
+  const onScanSuccess = (decodedText) => {
+    console.log("Scanned QR Code Data:", decodedText);
+
+    // Validate the QR code
+    if (isValidQRCode(decodedText)) {
+      setScanResult(decodedText);
+
+      // Stop scanning
+      if (scannerRef.current && scannerRef.current.isScanning) {
+        scannerRef.current.stop()
+          .then(() => {
+            setIsScanning(false);
+            handleScanResult(decodedText);
+          })
+          .catch(() => setError("Error stopping the scanner"));
+      }
+    } else {
+      setError("Invalid QR Code. Please scan the correct QR code.");
     }
   };
 
@@ -35,34 +52,24 @@ const Scan = () => {
   useEffect(() => {
     const readerElement = document.getElementById('reader');
 
-    // Clear the #reader element before initialization
-    if (readerElement) {
-      while (readerElement.firstChild) {
-        readerElement.removeChild(readerElement.firstChild);
-      }
+    // Clear previous scanner instance
+    if (scannerRef.current) {
+      scannerRef.current.clear();
     }
 
-    // Initialize the scanner only once
-    if (!isScannerInitialized.current) {
-      const html5QrCode = new Html5Qrcode("reader", /* verbose= */ true);
+    if (!isScannerInitialized.current && readerElement) {
+      const html5QrCode = new Html5Qrcode("reader", true);
       scannerRef.current = html5QrCode;
       isScannerInitialized.current = true;
 
-      const config = {
-        fps: 10,
-        qrbox: { width: 250, height: 250 },
-      };
-
       html5QrCode.start(
         { facingMode: "environment" },
-        config,
+        { fps: 10, qrbox: { width: 250, height: 250 } },
         onScanSuccess,
         onScanError
-      )
-      .then(() => {
+      ).then(() => {
         setIsScanning(true);
-      })
-      .catch(err => {
+      }).catch(err => {
         console.error("Failed to start scanner:", err);
         setError("Failed to start camera. Please check camera permissions.");
       });
@@ -75,13 +82,6 @@ const Scan = () => {
         scannerRef.current = null;
         isScannerInitialized.current = false;
       }
-
-      // Clear the #reader element again
-      if (readerElement) {
-        while (readerElement.firstChild) {
-          readerElement.removeChild(readerElement.firstChild);
-        }
-      }
     };
   }, []);
 
@@ -92,13 +92,13 @@ const Scan = () => {
       const token = localStorage.getItem('accessToken');
 
       if (!token) {
-        setError('You must be logged in to submit a task');
+        setError('You must be logged in to submit a task.');
         setTimeout(() => navigate('/login'), 2000);
         return;
       }
 
       if (!taskId) {
-        setError('Task ID not found. Please select a task again.');
+        setError('No task selected. Redirecting to Bingo Board...');
         setTimeout(() => navigate('/bingo'), 2000);
         return;
       }
@@ -114,10 +114,10 @@ const Scan = () => {
       const response = await fetch('http://localhost:8000/api/complete_task/', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(requestData)
+        body: JSON.stringify(requestData),
       });
 
       const data = await response.json();
@@ -135,10 +135,6 @@ const Scan = () => {
   };
 
   const handleBack = () => {
-    if (scannerRef.current && scannerRef.current.isScanning) {
-      scannerRef.current.stop().catch(() => {});
-    }
-
     localStorage.removeItem('isResubmission');
     navigate('/bingo');
   };
@@ -157,7 +153,6 @@ const Scan = () => {
 
       {scanResult && (
         <div className="scan-result">
-          <h2>Successfully Scanned!</h2>
           <p>{scanResult}</p>
         </div>
       )}
@@ -178,3 +173,5 @@ const Scan = () => {
 };
 
 export default Scan;
+
+
