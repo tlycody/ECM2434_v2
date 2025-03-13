@@ -110,7 +110,8 @@ const Scan = () => {
       const requestData = {
         task_id: taskId,
         qr_code_data: result,
-        is_resubmission: isResubmission
+        is_resubmission: isResubmission,
+        auto_approve: true  
       };
 
       const response = await fetch('http://localhost:8000/api/complete_task/', {

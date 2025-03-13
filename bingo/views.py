@@ -256,87 +256,99 @@ def complete_task(request):
     """
     Submits a task for approval by the user.
     Handles resubmission of rejected tasks properly.
+    Auto-approves tasks with scan functionality.
     """
     user = request.user
     task_id = request.data.get('task_id')
     task = get_object_or_404(Task, id=task_id)
-
+    
+    # Debug logging
+    print(f"Processing task completion: task_id={task_id}, user={user.username}")
+    print(f"Task details: description={task.description}, requires_scan={getattr(task, 'requires_scan', False)}")
+    
+    # Check if this task has scan functionality for auto-approval
+    should_auto_approve = task.requires_scan if hasattr(task, 'requires_scan') else False
+    
     # Check if task exists in user tasks
     user_task = UserTask.objects.filter(user=user, task=task).first()
-
+    if user_task:
+        print(f"Existing user_task found: status={user_task.status}, completed={user_task.completed}")
+    
     # If task is already completed and approved, don't allow resubmission
     if user_task and user_task.completed:
         return Response({"message": "Task already completed and approved!"},
                         status=status.HTTP_400_BAD_REQUEST)
-
+    
     # If task is pending approval, don't allow resubmission
     if user_task and user_task.status == 'pending' and not user_task.completed:
         return Response({"message": "Task already submitted and pending approval!"},
                         status=status.HTTP_400_BAD_REQUEST)
-
+    
     # If photo is required but not provided
     if task.requires_upload and 'photo' not in request.FILES:
         return Response({"message": "This task requires a photo upload."},
                         status=status.HTTP_400_BAD_REQUEST)
-
+    
     # If photo is provided, check for fraud
     if 'photo' in request.FILES:
         photo_file = request.FILES['photo']
-
+        print(f"Photo provided: size={photo_file.size}, type={photo_file.content_type}")
+        
         # Check file size
         if photo_file.size > 10 * 1024 * 1024:  # 10MB limit
             return Response({"message": "Photo is too large. Maximum size is 10MB."},
                             status=status.HTTP_400_BAD_REQUEST)
-
+        
         # Check file type
         if not photo_file.content_type.startswith('image/'):
             return Response({"message": "Uploaded file is not an image."},
                             status=status.HTTP_400_BAD_REQUEST)
-
-        # Check for image fraud - unchanged
-
+    
     # If user_task exists but was rejected, update it
     if user_task and user_task.status == 'rejected':
+        print("Updating previously rejected task")
+        
         # If there was a photo, delete it before adding the new one
         if user_task.photo:
             user_task.photo.delete()
-
+        
         # Update the existing task record
-        user_task.status = 'pending'
+        user_task.status = 'approved' if should_auto_approve else 'pending'
+        user_task.completed = should_auto_approve
         user_task.completion_date = timezone.now()
         user_task.rejection_reason = None  # Clear previous rejection reason
-
+        
         # Save the new photo if provided
         if 'photo' in request.FILES:
             user_task.photo = request.FILES['photo']
-
+        
         user_task.save()
-
-        print(
-            f"Updated rejected task: UserTask(user={user.username}, task_id={task_id}, new status={user_task.status})")
-
-        return Response({"message": "Task resubmitted successfully and awaiting GameKeeper approval!"},
-                        status=status.HTTP_200_OK)
-
+        
+        print(f"Updated task: status={user_task.status}, completed={user_task.completed}")
+        
+        message = "Task completed successfully!" if should_auto_approve else "Task resubmitted successfully and awaiting GameKeeper approval!"
+        return Response({"message": message}, status=status.HTTP_200_OK)
+    
     # Otherwise, create a new user task
+    print("Creating new user task")
     new_user_task = UserTask(
         user=user,
         task=task,
-        completed=False,
-        status='pending'
+        completed=should_auto_approve,
+        status='approved' if should_auto_approve else 'pending'
     )
-
+    
     # Save photo if provided
     if 'photo' in request.FILES:
         new_user_task.photo = request.FILES['photo']
-
+    
     new_user_task.save()
+    
+    print(f"Created new task: status={new_user_task.status}, completed={new_user_task.completed}")
+    
+    message = "Task completed successfully!" if should_auto_approve else "Task submitted successfully and awaiting GameKeeper approval!"
+    return Response({"message": message}, status=status.HTTP_200_OK)
 
-    print(
-        f"Created new task submission: UserTask(user={user.username}, task_id={task_id}, status={new_user_task.status})")
-
-    return Response({"message": "Task submitted successfully and awaiting GameKeeper approval!"},
-                    status=status.HTTP_200_OK)
 # ============================
 # Leaderboard Retrieval
 # ============================
