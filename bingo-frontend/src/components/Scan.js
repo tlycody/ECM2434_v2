@@ -8,7 +8,7 @@ const Scan = () => {
   const [error, setError] = useState(null);
   const [isScanning, setIsScanning] = useState(false);
   const scannerRef = useRef(null);
-  const isScannerInitialized = useRef(false); // Track if scanner is initialized
+  const isScannerInitialized = useRef(false);
   const navigate = useNavigate();
 
   const onScanSuccess = (decodedText) => {
@@ -42,7 +42,6 @@ const Scan = () => {
       }
     }
 
-    // Initialize the scanner only once
     if (!isScannerInitialized.current) {
       const html5QrCode = new Html5Qrcode("reader", /* verbose= */ true);
       scannerRef.current = html5QrCode;
@@ -50,8 +49,9 @@ const Scan = () => {
 
       const config = {
         fps: 10,
-        qrbox: { width: 250, height: 250 },
+        qrbox: { width: 300, height: 300 }, // Makes the scanner area a square
       };
+      
 
       html5QrCode.start(
         { facingMode: "environment" },
@@ -68,7 +68,6 @@ const Scan = () => {
       });
     }
 
-    // Cleanup on unmount
     return () => {
       if (scannerRef.current && scannerRef.current.isScanning) {
         scannerRef.current.stop().catch(() => {});
@@ -76,7 +75,6 @@ const Scan = () => {
         isScannerInitialized.current = false;
       }
 
-      // Clear the #reader element again
       if (readerElement) {
         while (readerElement.firstChild) {
           readerElement.removeChild(readerElement.firstChild);
@@ -159,12 +157,6 @@ const Scan = () => {
         <div className="scan-result">
           <h2>Successfully Scanned!</h2>
           <p>{scanResult}</p>
-        </div>
-      )}
-
-      {error && (
-        <div className="error-message">
-          <p>{error}</p>
         </div>
       )}
 
