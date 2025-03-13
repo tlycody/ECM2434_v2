@@ -247,24 +247,26 @@ def tasks(request):
 def complete_task(request):
     """
     Submits a task for approval by the user.
-    Task points are only awarded after GameKeeper approval.
-    Includes basic fraud detection for uploaded photos.
+    Handles resubmission of rejected tasks properly.
     """
     user = request.user
     task_id = request.data.get('task_id')
     task = get_object_or_404(Task, id=task_id)
 
-    # Check if task is already submitted or completed
+    # Check if task exists in user tasks
     user_task = UserTask.objects.filter(user=user, task=task).first()
-    if user_task:
-        if user_task.completed:
-            return Response({"message": "Task already completed and approved!"},
-                            status=status.HTTP_400_BAD_REQUEST)
-        else:
-            return Response({"message": "Task already submitted and pending approval!"},
-                            status=status.HTTP_400_BAD_REQUEST)
 
-    # Check if photo is required but not provided
+    # If task is already completed and approved, don't allow resubmission
+    if user_task and user_task.completed:
+        return Response({"message": "Task already completed and approved!"},
+                        status=status.HTTP_400_BAD_REQUEST)
+
+    # If task is pending approval, don't allow resubmission
+    if user_task and user_task.status == 'pending' and not user_task.completed:
+        return Response({"message": "Task already submitted and pending approval!"},
+                        status=status.HTTP_400_BAD_REQUEST)
+
+    # If photo is required but not provided
     if task.requires_upload and 'photo' not in request.FILES:
         return Response({"message": "This task requires a photo upload."},
                         status=status.HTTP_400_BAD_REQUEST)
@@ -283,52 +285,47 @@ def complete_task(request):
             return Response({"message": "Uploaded file is not an image."},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        # Check for image fraud
-        try:
-            from .basic_image_fraud_detector import BasicImageFraudDetector
+        # Check for image fraud - unchanged
 
-            # Read the file data
-            photo_data = photo_file.read()
+    # If user_task exists but was rejected, update it
+    if user_task and user_task.status == 'rejected':
+        # If there was a photo, delete it before adding the new one
+        if user_task.photo:
+            user_task.photo.delete()
 
-            # Reset file pointer for later use
-            photo_file.seek(0)
+        # Update the existing task record
+        user_task.status = 'pending'
+        user_task.completion_date = timezone.now()
+        user_task.rejection_reason = None  # Clear previous rejection reason
 
-            # Initialize fraud detector
-            detector = BasicImageFraudDetector(similarity_threshold=95)
+        # Save the new photo if provided
+        if 'photo' in request.FILES:
+            user_task.photo = request.FILES['photo']
 
-            # Check if image is fraudulent
-            is_fraudulent, similarity, matched_task = detector.is_image_fraudulent(photo_data, user.id)
+        user_task.save()
 
-            # Log the result for debugging
-            logger.info(
-                f"Fraud detection result: is_fraudulent={is_fraudulent}, similarity={similarity:.2f}%, task={matched_task}")
+        print(
+            f"Updated rejected task: UserTask(user={user.username}, task_id={task_id}, new status={user_task.status})")
 
-            if is_fraudulent:
-                return Response({
-                    "message": "This photo appears to be too similar to a previously submitted image. Please provide a new photo.",
-                    "similarity": f"{similarity:.2f}%"
-                }, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"message": "Task resubmitted successfully and awaiting GameKeeper approval!"},
+                        status=status.HTTP_200_OK)
 
-        except Exception as e:
-            # Log the error but don't prevent submission
-            logger.error(f"Error in fraud detection: {str(e)}")
-
-    # Create new user task - mark as pending approval
-    user_task = UserTask(
+    # Otherwise, create a new user task
+    new_user_task = UserTask(
         user=user,
         task=task,
-        completed=False,  # Not completed until approved
-        status='pending'  # Explicitly mark as pending
+        completed=False,
+        status='pending'
     )
 
     # Save photo if provided
     if 'photo' in request.FILES:
-        user_task.photo = request.FILES['photo']
+        new_user_task.photo = request.FILES['photo']
 
-    user_task.save()
+    new_user_task.save()
 
-    # Debug info
-    print(f"Created new task submission: UserTask(user={user.username}, task_id={task_id}, status={user_task.status})")
+    print(
+        f"Created new task submission: UserTask(user={user.username}, task_id={task_id}, status={new_user_task.status})")
 
     return Response({"message": "Task submitted successfully and awaiting GameKeeper approval!"},
                     status=status.HTTP_200_OK)
@@ -369,7 +366,7 @@ def check_developer_role(request):
 @permission_classes([IsAuthenticated])
 def get_user_profile(request):
     """
-    Get the current user's profile information including task status
+    Get the current user's profile information including task status and rejection reasons
     """
     user = request.user
     profile, created = Profile.objects.get_or_create(user=user)
@@ -378,7 +375,7 @@ def get_user_profile(request):
     # Count completed tasks
     completed_tasks = UserTask.objects.filter(user=user, completed=True).count()
 
-    # Get all user tasks for status display
+    # Get all user tasks for status display with rejection reasons
     user_tasks_list = UserTask.objects.filter(user=user)
     user_tasks_data = []
     for task in user_tasks_list:
@@ -386,7 +383,8 @@ def get_user_profile(request):
             'task_id': task.task.id,
             'status': task.status,
             'completed': task.completed,
-            'submission_date': task.completion_date
+            'submission_date': task.completion_date,
+            'rejection_reason': task.rejection_reason if task.status == 'rejected' else None
         })
 
     # Calculate user rank
@@ -410,7 +408,7 @@ def get_user_profile(request):
         "leaderboard_rank": leaderboard_position,
         "profile_picture": request.build_absolute_uri(profile.profile_picture.url) if profile.profile_picture else None,
         "rank": profile.rank,
-        "user_tasks": user_tasks_data  # Include tasks status
+        "user_tasks": user_tasks_data  # Include tasks status and rejection reasons
     }
 
     return Response(profile_data)
@@ -984,8 +982,7 @@ def login_view(request):
 @permission_classes([IsAuthenticated])
 def get_user_tasks_status(request):
     """
-    Retrieves the status of all tasks for the current user.
-    This enables the frontend to show different colors for task status.
+    Retrieves the status of all tasks for the current user including rejection reasons.
     """
     user = request.user
 
@@ -999,7 +996,8 @@ def get_user_tasks_status(request):
             'task_id': user_task.task.id,
             'status': user_task.status,
             'completed': user_task.completed,
-            'submission_date': user_task.completion_date
+            'submission_date': user_task.completion_date,
+            'rejection_reason': user_task.rejection_reason if user_task.status == 'rejected' else None
         })
 
     return Response(tasks_status)

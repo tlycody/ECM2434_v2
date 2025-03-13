@@ -1,6 +1,3 @@
-// ============================
-// Upload Component - Task Proof Submission with Fraud Detection
-// ============================
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -14,6 +11,7 @@ const Upload = () => {
   const [previewUrl, setPreviewUrl] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [isResubmission, setIsResubmission] = useState(false);
   const navigate = useNavigate();
 
   // ============================
@@ -22,9 +20,17 @@ const Upload = () => {
 
   useEffect(() => {
     const choice = localStorage.getItem('selectedChoice');
+    const isResubmitting = localStorage.getItem('isResubmission') === 'true';
+
     console.log('Selected Task:', choice);
+    console.log('Is Resubmission:', isResubmitting);
+
     if (choice) {
       setSelectedTask(choice);
+    }
+
+    if (isResubmitting) {
+      setIsResubmission(true);
     }
   }, []);
 
@@ -107,6 +113,11 @@ const Upload = () => {
     formData.append('task_id', taskId);
     formData.append('photo', selectedFile);
 
+    // Add flag for resubmission if applicable
+    if (isResubmission) {
+      formData.append('is_resubmission', 'true');
+    }
+
     try {
       // Get the access token from localStorage
       const token = localStorage.getItem('accessToken');
@@ -130,7 +141,12 @@ const Upload = () => {
       const data = await response.json();
 
       if (response.ok) {
-        setSuccessMessage(data.message || 'Thank you for your submission! We will review it soon.');
+        // Clear the resubmission flag from localStorage
+        localStorage.removeItem('isResubmission');
+
+        setSuccessMessage(data.message || (isResubmission
+          ? 'Thank you for resubmitting your task! We will review it soon.'
+          : 'Thank you for your submission! We will review it soon.'));
 
         // Delay navigation to allow user to see success message
         setTimeout(() => {
@@ -157,6 +173,8 @@ const Upload = () => {
   // ============================
 
   const handleBack = () => {
+    // Clear the resubmission flag from localStorage
+    localStorage.removeItem('isResubmission');
     navigate('/bingo');
   };
 
@@ -167,13 +185,20 @@ const Upload = () => {
   return (
     <div className="upload-container">
       {/* Page Header */}
-      <h1>Upload your proof of Gameplay</h1>
+      <h1>{isResubmission ? 'Resubmit Your Task' : 'Upload your proof of Gameplay'}</h1>
 
       {/* Display the selected task */}
       <div className="selected-task">
         <h3>Selected Task:</h3>
         <p>{selectedTask}</p>
       </div>
+
+      {/* Display resubmission message if applicable */}
+      {isResubmission && (
+        <div className="resubmission-notice">
+          <p>You are resubmitting a previously rejected task. Please address the feedback from the game keeper.</p>
+        </div>
+      )}
 
       {/* Error and Success Messages */}
       {errorMessage && (
@@ -224,7 +249,7 @@ const Upload = () => {
             className="submit-button"
             disabled={isUploading || !selectedFile}
           >
-            {isUploading ? 'Uploading...' : 'Upload'}
+            {isUploading ? 'Uploading...' : (isResubmission ? 'Resubmit' : 'Upload')}
           </button>
         </div>
       </form>

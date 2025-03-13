@@ -255,3 +255,81 @@
   margin-bottom: 15px;
   font-weight: 500;
 }
+
+/* ============================
+   Rejection Feedback Modal
+   ============================ */
+
+.rejection-feedback-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  cursor: pointer;
+}
+
+.rejection-feedback-content {
+  width: 90%;
+  max-width: 500px;
+  background-color: white;
+  padding: 25px;
+  border-radius: 10px;
+  position: relative;
+  cursor: default;
+  font-family: 'Poppins', sans-serif;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.rejection-feedback-content h3 {
+  color: #e74c3c;
+  margin-top: 0;
+  border-bottom: 2px solid #FFCDD2;
+  padding-bottom: 10px;
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 24px;
+  color: #4C3B6D;
+  cursor: pointer;
+}
+
+.rejection-reason {
+  background-color: #FFECEE;
+  border-left: 4px solid #e74c3c;
+  padding: 15px;
+  margin: 15px 0;
+  border-radius: 4px;
+  color: #333;
+  font-size: 14px;
+}
+
+.rejection-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.retry-button {
+  background-color: #7D67A5;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.retry-button:hover {
+  background-color: #6A5A8E;
+}
