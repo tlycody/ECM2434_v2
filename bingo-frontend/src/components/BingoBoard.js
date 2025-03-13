@@ -1,10 +1,6 @@
-// ============================
-// BingoBoard Component
-// ============================
-
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import './bingoboard.css';  
+import './bingoboard.css';
 import { useNavigate } from 'react-router-dom';
 
 // Define the API URL (fallback to localhost if not set in environment variables)
@@ -16,6 +12,11 @@ const BingoBoard = () => {
   const [userTasks, setUserTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  // New state variables for rejection feedback
+  const [showRejectionFeedback, setShowRejectionFeedback] = useState(false);
+  const [rejectionFeedback, setRejectionFeedback] = useState("");
+  const [selectedRejectedTaskId, setSelectedRejectedTaskId] = useState(null);
+
   const navigate = useNavigate(); // Hook for programmatic navigation
 
   // ============================
@@ -84,7 +85,19 @@ const BingoBoard = () => {
   };
 
   // ============================
-  // Handle Task Click (Completion, Upload, or Scan)
+  // Get Task Rejection Reason
+  // ============================
+
+  const getTaskRejectionReason = (taskId) => {
+    // Find the user task with matching task ID
+    const userTask = userTasks.find(ut => ut.task_id === taskId);
+
+    if (!userTask || userTask.status !== 'rejected') return null;
+    return userTask.rejection_reason || "Task was rejected by game keeper";
+  };
+
+  // ============================
+  // Handle Task Click (Enhanced for Rejection Feedback)
   // ============================
 
   const handleTaskClick = async (task) => {
@@ -92,6 +105,16 @@ const BingoBoard = () => {
 
     // Check if task is already completed or pending
     const status = getTaskStatus(task.id);
+
+    // If task is rejected, show the rejection feedback
+    if (status === 'rejected') {
+      const reason = getTaskRejectionReason(task.id);
+      setRejectionFeedback(reason);
+      setSelectedRejectedTaskId(task.id);
+      setShowRejectionFeedback(true);
+      return; // Don't proceed with task submission
+    }
+
     if (status === 'completed' || status === 'pending') {
       console.log(`Task ${task.id} is already ${status}`);
       return; // Don't allow re-submission
@@ -133,6 +156,101 @@ const BingoBoard = () => {
       } catch (error) {
         console.error("Error completing task:", error);
       }
+    }
+  };
+
+  // ============================
+  // Close Rejection Feedback Modal
+  // ============================
+
+  const closeRejectionFeedback = () => {
+    setShowRejectionFeedback(false);
+    setRejectionFeedback("");
+    setSelectedRejectedTaskId(null);
+  };
+
+  // ============================
+  // Handle Task Retry after Rejection
+  // ============================
+
+  const handleRetryTask = () => {
+    if (!selectedRejectedTaskId) return;
+
+    // Find the task
+    const task = tasks.find(t => t.id === selectedRejectedTaskId);
+
+    if (!task) return;
+
+    // Close the rejection feedback modal
+    closeRejectionFeedback();
+
+    // Set flag to indicate we're resubmitting a rejected task
+    localStorage.setItem("isResubmission", "true");
+
+    // Redirect to upload or scan page if needed
+    if (task.requires_upload) {
+      localStorage.setItem("selectedChoice", task.description);
+      localStorage.setItem("selectedTaskId", task.id.toString());
+      navigate("/upload");
+    }
+    else if (task.requires_scan) {
+      localStorage.setItem("selectedChoice", task.description);
+      localStorage.setItem("selectedTaskId", task.id.toString());
+      navigate("/scan");
+    } else {
+      // For tasks that don't require upload/scan, directly resubmit
+      handleDirectResubmission(task.id);
+    }
+  };
+
+  // Handle direct resubmission for simple tasks
+  const handleDirectResubmission = async (taskId) => {
+    try {
+      const token = localStorage.getItem('accessToken');
+
+      if (!token) {
+        setError("You must be logged in to submit tasks");
+        return;
+      }
+
+      // Submit the task with resubmission flag
+      const response = await axios.post(
+        `${API_URL}/api/complete_task/`,
+        {
+          task_id: taskId,
+          is_resubmission: true
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (response.status === 200) {
+        // Update the task status in the local state to "pending"
+        setUserTasks(prevUserTasks => {
+          const updatedTasks = prevUserTasks.map(task => {
+            if (task.task_id === taskId) {
+              return {
+                ...task,
+                status: 'pending',
+                rejection_reason: null
+              };
+            }
+            return task;
+          });
+          return updatedTasks;
+        });
+
+        // Fetch fresh data from the server to ensure everything is in sync
+        const token = localStorage.getItem('accessToken');
+        const headers = { Authorization: `Bearer ${token}` };
+        const profileResponse = await axios.get(`${API_URL}/api/profile/`, { headers });
+
+        if (profileResponse.data && profileResponse.data.user_tasks) {
+          setUserTasks(profileResponse.data.user_tasks);
+        }
+      }
+    } catch (error) {
+      console.error("Error resubmitting task:", error);
+      setError("Failed to resubmit task. Please try again.");
     }
   };
 
@@ -223,6 +341,26 @@ const BingoBoard = () => {
           View Profile
         </button>
       </div>
+
+      {/* Rejection Feedback Modal */}
+      {showRejectionFeedback && (
+        <div className="rejection-feedback-overlay" onClick={closeRejectionFeedback}>
+          <div className="rejection-feedback-content" onClick={e => e.stopPropagation()}>
+            <span className="close-button" onClick={closeRejectionFeedback}>&times;</span>
+            <h3>Task Rejected</h3>
+            <p>Your submission was rejected by the game keeper for the following reason:</p>
+            <div className="rejection-reason">
+              {rejectionFeedback || "No reason provided"}
+            </div>
+
+            <div className="rejection-actions">
+              <button className="retry-button" onClick={handleRetryTask}>
+                Try Again
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

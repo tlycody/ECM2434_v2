@@ -1,4 +1,4 @@
-// GameKeeper.js - Enhanced with image details for fraud detection
+// GameKeeper.js - Enhanced with rejection comments
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './GameKeeper.css';
@@ -20,6 +20,11 @@ const GameKeeper = () => {
     requires_upload: false,
     requires_scan: false
   });
+
+  // New state variables for rejection modal
+  const [rejectionModalOpen, setRejectionModalOpen] = useState(false);
+  const [selectedForRejection, setSelectedForRejection] = useState(null);
+  const [rejectionComment, setRejectionComment] = useState('');
 
   // Get token from localStorage
   const token = localStorage.getItem('accessToken');
@@ -102,14 +107,31 @@ const GameKeeper = () => {
     }
   };
 
-  // Handle task rejection (new feature)
-  const handleRejectTask = async (userId, taskId) => {
+  // Show rejection modal for a task
+  const showRejectionModal = (userId, taskId) => {
+    setSelectedForRejection({userId, taskId});
+    setRejectionModalOpen(true);
+  };
+
+  // Handle task rejection with comments
+  const handleRejectTask = async () => {
+    if (!selectedForRejection) return;
+
+    const { userId, taskId } = selectedForRejection;
+
     try {
       await axios.post(`${API_URL}/api/reject-task/`, {
         user_id: userId,
         task_id: taskId,
-        reason: "Photo appears to be fraudulent or inappropriate"
+        reason: rejectionComment || "Task rejected by game keeper" // Use default if empty
       });
+
+      // Clear the rejection comment and close modal
+      setRejectionComment('');
+      setRejectionModalOpen(false);
+      setSelectedForRejection(null);
+
+      // Refresh data
       fetchData();
     } catch (error) {
       console.error('Error rejecting task:', error);
@@ -176,6 +198,44 @@ const GameKeeper = () => {
         </div>
       )}
 
+      {/* Rejection Modal */}
+      {rejectionModalOpen && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>Reject Task Submission</h3>
+            <p>Please provide feedback to the user about why their submission was rejected:</p>
+
+            <textarea
+              value={rejectionComment}
+              onChange={(e) => setRejectionComment(e.target.value)}
+              placeholder="Enter rejection reason..."
+              className="rejection-comment"
+              rows={4}
+            />
+
+            <div className="modal-actions">
+              <button
+                onClick={() => {
+                  // Close modal without rejecting
+                  setRejectionModalOpen(false);
+                  setSelectedForRejection(null);
+                  setRejectionComment('');
+                }}
+                className="cancel-button"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleRejectTask}
+                className="reject-btn"
+              >
+                Confirm Rejection
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Pending Tasks Section with Enhanced Fraud Detection */}
       <div className="pending-tasks-section">
         <h2>Pending Task Approvals</h2>
@@ -233,7 +293,7 @@ const GameKeeper = () => {
 
                   <button
                     className="reject-btn"
-                    onClick={() => handleRejectTask(task.user_id, task.task_id)}
+                    onClick={() => showRejectionModal(task.user_id, task.task_id)}
                   >
                     ❌ Reject
                   </button>
