@@ -164,7 +164,7 @@ const Scan = () => {
 
       {error && (
         <div className="error-message">
-          <p></p>
+          <p>{error}</p>
         </div>
       )}
 
