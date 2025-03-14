@@ -161,3 +161,68 @@ p a {
 p a:hover {
     text-decoration: underline;
 }
+
+/* ============================
+   Success Message Styling
+   ============================ */
+
+.success-message {
+    color: #2E7D32; /* Green success text */
+    background: #E8F5E9; /* Light green background */
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    max-width: 420px;
+    text-align: center;
+}
+
+/* ============================
+   Secondary Button Styling
+   ============================ */
+
+.secondary-button {
+    background: #F8F5FC; /* Light background */
+    color: #5E318A; /* Purple text */
+    border: 2px solid #D1A3FF; /* Soft purple border */
+    font-size: 16px;
+    font-weight: bold;
+    padding: 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    width: 100%;
+    max-width: 420px;
+    transition: 0.3s;
+    margin-top: 10px;
+}
+
+/* Secondary Button Hover Effect */
+.secondary-button:hover {
+    background: #EDE7F6; /* Slightly darker on hover */
+    border-color: #8B5CF6; /* Darker purple border on hover */
+}
+
+/* Disabled Secondary Button */
+.secondary-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* ============================
+   Forgot Password Link
+   ============================ */
+
+.forgot-password-link {
+    text-align: right;
+    margin-bottom: 15px;
+    font-size: 14px;
+}
+
+.forgot-password-link a {
+    color: #5E318A; /* Dark purple link */
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.forgot-password-link a:hover {
+    text-decoration: underline;
+}

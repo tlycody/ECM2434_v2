@@ -3,6 +3,8 @@ from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.utils.timezone import now
+import uuid
+from datetime import timedelta
 
 
 # ============================
@@ -34,6 +36,7 @@ class User(AbstractUser):
         """Returns the username as the string representation of the user."""
         return self.username
 
+
 # ============================
 # User Consent Model
 # ============================
@@ -43,8 +46,8 @@ class UserConsent(models.Model):
     Model to store GDPR consent information for each user.
     """
     user = models.OneToOneField(
-        User, 
-        on_delete=models.CASCADE, 
+        User,
+        on_delete=models.CASCADE,
         related_name="gdprConsent"
     )  # Links consent record to a user
 
@@ -54,6 +57,41 @@ class UserConsent(models.Model):
     def __str__(self):
         """Returns a formatted string representation of consent details."""
         return f"{self.user.username} - Consent on {self.consented_at}"
+
+
+# ============================
+# Password Reset Token Model
+# ============================
+
+class PasswordResetToken(models.Model):
+    """
+    Model to store password reset tokens with expiration times.
+    """
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='reset_tokens'
+    )
+    token = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    used = models.BooleanField(default=False)
+
+    def __str__(self):
+        """Returns a formatted string representation of the reset token."""
+        return f"Reset token for {self.user.username} - expires {self.expires_at}"
+
+    def save(self, *args, **kwargs):
+        # Set expiration to 24 hours from creation if not already set
+        if not self.expires_at:
+            self.expires_at = now() + timedelta(hours=24)
+        super().save(*args, **kwargs)
+
+    @property
+    def is_valid(self):
+        """Check if token is still valid (not expired and not used)"""
+        return not self.used and self.expires_at > now()
+
 
 # ============================
 # Profile Model
@@ -65,14 +103,14 @@ class Profile(models.Model):
     ranking, and total points.
     """
     user = models.OneToOneField(
-        settings.AUTH_USER_MODEL, 
-        on_delete=models.CASCADE, 
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
         related_name="profile"
     )  # Links the profile to a user
 
     profile_picture = models.ImageField(
-        upload_to='profile_pics/', 
-        null=True, 
+        upload_to='profile_pics/',
+        null=True,
         blank=True
     )  # Allows users to upload a profile picture
 
@@ -82,6 +120,7 @@ class Profile(models.Model):
     def __str__(self):
         """Returns the username as the string representation of the profile."""
         return self.user.username
+
 
 # ============================
 # Task Model
@@ -101,6 +140,7 @@ class Task(models.Model):
         """Returns the task description as its string representation."""
         return self.description
 
+
 # ============================
 # UserTask Model
 # ============================
@@ -116,19 +156,19 @@ class UserTask(models.Model):
     Tracks task completion and stores proof (photo) if required.
     """
     user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, 
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE
     )  # Links the task completion to a specific user
 
     task = models.ForeignKey(
-        Task, 
+        Task,
         on_delete=models.CASCADE
     )  # Links the task completion to a specific task
 
     completed = models.BooleanField(default=False)  # Whether the user has completed the task
     photo = models.ImageField(
-        upload_to='task_photos/', 
-        blank=True, 
+        upload_to='task_photos/',
+        blank=True,
         null=True
     )  # Stores a photo if required for verification
 
@@ -136,9 +176,10 @@ class UserTask(models.Model):
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
     approval_date = models.DateTimeField(null=True, blank=True)
     rejection_reason = models.TextField(blank=True, null=True)
-    
+
     class Meta:
         unique_together = ('user', 'task')
+
 
 # ============================
 # Leaderboard Model
@@ -146,7 +187,7 @@ class UserTask(models.Model):
 
 class Leaderboard(models.Model):
     """Model to track and rank players based on points earned."""
-    
+
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     points = models.IntegerField(default=0)  # Lifetime points
     monthly_points = models.IntegerField(default=0)  # Monthly points
@@ -161,6 +202,7 @@ class Leaderboard(models.Model):
         self.last_reset = now().date()
         self.save()
 
+
 # models.py - Add this model
 class AccessCode(models.Model):
     """Model to store access codes for admin roles"""
@@ -168,9 +210,10 @@ class AccessCode(models.Model):
     role = models.CharField(max_length=20, choices=User.ROLE_CHOICES)
     is_used = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
-    
+
     def __str__(self):
         return f"{self.role} Access Code - {'Used' if self.is_used else 'Available'}"
+
 
 class BingoPattern(models.Model):
     """
@@ -181,9 +224,10 @@ class BingoPattern(models.Model):
     description = models.TextField()
     bonus_points = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
-    
+
     def __str__(self):
         return f"{self.name} ({self.pattern_type})"
+
 
 class UserBadge(models.Model):
     """
@@ -192,22 +236,23 @@ class UserBadge(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     pattern = models.ForeignKey(BingoPattern, on_delete=models.CASCADE)
     earned_at = models.DateTimeField(auto_now_add=True)
-    
+
     class Meta:
         unique_together = ('user', 'pattern')
-        
+
     def __str__(self):
         return f"{self.user.username} - {self.pattern.name}"
-    
+
+
 class TaskBonus(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     task = models.ForeignKey(Task, on_delete=models.CASCADE)
     bonus_points = models.IntegerField(default=0)
     reason = models.CharField(max_length=255)
     awarded_at = models.DateTimeField(auto_now_add=True)
-    
+
     class Meta:
         unique_together = ('user', 'task', 'reason')
-        
+
     def __str__(self):
-       return f"{self.user.username} - {self.bonus_points} points for task #{self.task.id} ({self.reason})"
+        return f"{self.user.username} - {self.bonus_points} points for task #{self.task.id} ({self.reason})"

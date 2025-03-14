@@ -184,3 +184,8 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),  # This path needs to match the directory you created
 ]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # For collected static files
+
+
+# Email settings for development
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'noreply@yourgame.com'

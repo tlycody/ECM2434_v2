@@ -1,4 +1,5 @@
 # Django View Functions for API Endpoints
+import uuid
 
 # Django Imports
 from django.shortcuts import get_object_or_404, render, redirect
@@ -19,6 +20,12 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
+
+
+from .models import PasswordResetToken
+from django.core.mail import send_mail
+from django.conf import settings
+from datetime import timedelta
 
 # Model and Serializer Imports
 from .models import BingoPattern, Task, TaskBonus, UserBadge, UserTask, Leaderboard, Profile, UserConsent
@@ -1077,3 +1084,101 @@ def get_user_tasks_status(request):
         })
 
     return Response(tasks_status)
+
+
+@api_view(['POST'])
+def password_reset_request(request):
+    """
+    Initiates password reset process by sending an email with a reset link
+    """
+    email = request.data.get('email', '').lower().strip()
+
+    if not email:
+        return Response({'error': 'Email is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Find user by email
+    user = User.objects.filter(email=email).first()
+
+    # Always return success to prevent email enumeration attacks
+    # But only send email if user exists
+    if user:
+        # Delete any existing unused tokens for this user
+        PasswordResetToken.objects.filter(user=user, used=False).delete()
+
+        # Create new token with 24-hour expiration
+        expiry_time = timezone.now() + timedelta(hours=24)
+        reset_token = PasswordResetToken.objects.create(
+            user=user,
+            expires_at=expiry_time
+        )
+
+        # Set frontend URL for the reset link - hardcoded for development
+        frontend_url = 'http://localhost:3000'
+        reset_url = f"{frontend_url}/reset-password/{reset_token.token}"
+
+        # Send email
+        try:
+            send_mail(
+                'Password Reset Request',
+                f'Hello {user.username},\n\nClick the link below to reset your password:\n\n{reset_url}\n\nThe link will expire in 24 hours.\n\nIf you did not request this password reset, please ignore this email.',
+                settings.DEFAULT_FROM_EMAIL,
+                [email],
+                fail_silently=False,
+            )
+            print(f"Password reset email sent to {email} with token {reset_token.token}")
+            print(f"Reset URL: {reset_url}")
+        except Exception as e:
+            logger.error(f"Failed to send password reset email: {str(e)}")
+            print(f"Email error: {str(e)}")
+    else:
+        print(f"Password reset requested for unknown email: {email}")
+
+    return Response({'message': 'If your email address is registered, you will receive a password reset link'})
+
+
+@api_view(['POST'])
+def password_reset_confirm(request):
+    """
+    Validates token and updates user password
+    """
+    token_string = request.data.get('token')
+    new_password = request.data.get('password')
+
+    if not token_string or not new_password:
+        return Response({'error': 'Token and new password are required'},
+                        status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        # Find the token
+        reset_token = PasswordResetToken.objects.get(
+            token=uuid.UUID(token_string),
+            used=False,
+            expires_at__gt=timezone.now()
+        )
+
+        # Validate password
+        try:
+            validate_password(new_password, reset_token.user)
+        except ValidationError as e:
+            return Response({'error': list(e.messages)}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Update password and mark token as used
+        user = reset_token.user
+        user.set_password(new_password)
+        user.save()
+
+        reset_token.used = True
+        reset_token.save()
+
+        return Response({'message': 'Password has been reset successfully'})
+
+    except PasswordResetToken.DoesNotExist:
+        return Response({'error': 'Invalid or expired token'},
+                        status=status.HTTP_400_BAD_REQUEST)
+    except ValueError:
+        return Response({'error': 'Invalid token format'},
+                        status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        logger.error(f"Password reset error: {str(e)}")
+        return Response({'error': 'An error occurred during password reset'},
+                        status=status.HTTP_500_INTERNAL_SERVER_ERROR)

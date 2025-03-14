@@ -163,7 +163,10 @@ const Login = () => {
           </select>
         </div>
 
-        
+        {/* Forgot Password Link */}
+        <div className="forgot-password-link">
+          <Link to="/forgot-password">Forgot Password?</Link>
+        </div>
 
         {/* Login Button */}
         <button type="submit" disabled={loading}>
@@ -171,7 +174,7 @@ const Login = () => {
         </button>
 
         {/* Home Button */}
-        <button type="button" onClick={() => navigate('/')} className="home-button">
+        <button type="button" onClick={() => navigate('/')} className="secondary-button">
           Home
         </button>
       </form>

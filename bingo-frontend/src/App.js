@@ -10,15 +10,17 @@ import Home from './components/Home';
 import Userprofile from './components/Userprofile';
 import Login from './components/Login';
 import Register from './components/Register';
+import ForgotPassword from './components/ForgotPassword';
+import ResetPassword from './components/ResetPassword';
 import Leaderboard from './components/Leaderboard'; // Ensure Leaderboard component is imported
 import Homeboard from './components/Homeboard';
 import BingoBoard from './components/BingoBoard';
 import Upload from './components/Upload';
 import Scan from './components/Scan';
 import GameKeeper from './components/GameKeeper';
-import PrivacyPolicy from './components/PrivacyPolicy'; 
-import Overview from './components/Overview'; 
-import BingoPatterns from './components/BingoPatterns'; 
+import PrivacyPolicy from './components/PrivacyPolicy';
+import Overview from './components/Overview';
+import BingoPatterns from './components/BingoPatterns';
 
 const App = () => {
   return (
@@ -33,6 +35,8 @@ const App = () => {
         {/* Authentication Routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
 
         {/* Leaderboard Routes */}
         <Route path="/leaderboard" element={<Leaderboard />} />
@@ -50,16 +54,16 @@ const App = () => {
         <Route path="/patterns" element={<BingoPatterns />} />
 
         {/* Developer Dashboard - Restricted Access */}
-        <Route 
-          path="/developer-dashboard" 
+        <Route
+          path="/developer-dashboard"
           element={
-            localStorage.getItem('userProfile') === 'Developer' 
-              ? <iframe 
-                  src="/developer-front.html" 
-                  style={{ width: '100%', height: '100vh', border: 'none' }} 
+            localStorage.getItem('userProfile') === 'Developer'
+              ? <iframe
+                  src="/developer-front.html"
+                  style={{ width: '100%', height: '100vh', border: 'none' }}
                 />
               : <Navigate to="/login" /> // Redirect to login if user is not a developer
-          } 
+          }
         />
       </Routes>
     </div>
