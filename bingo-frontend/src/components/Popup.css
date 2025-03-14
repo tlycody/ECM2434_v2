@@ -1,0 +1,194 @@
+/* ============================
+   Popup Styling
+   ============================ */
+
+/* Import Google Font: Poppins for consistency */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+/* Popup Overlay */
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.popup-overlay.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.popup-overlay.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* Popup Content Container */
+.popup-content {
+  background-color: white;
+  width: 90%;
+  max-width: 500px;
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: 'Poppins', sans-serif;
+  transform: scale(0.9);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.popup-content.visible {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.popup-content.hidden {
+  transform: scale(0.9);
+  opacity: 0;
+}
+
+/* Popup Header Styling */
+.popup-header {
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+}
+
+.popup-title {
+  font-weight: 600;
+  font-size: 18px;
+  color: #333;
+}
+
+.popup-close {
+  background: none;
+  border: none;
+  font-size: 22px;
+  color: #666;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.popup-close:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Popup Body Styling */
+.popup-body {
+  padding: 20px;
+  max-height: 60vh;
+  overflow-y: auto;
+  color: #444;
+  line-height: 1.5;
+  font-size: 15px;
+}
+
+/* Popup Footer Styling */
+.popup-footer {
+  padding: 15px 20px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  border-top: 1px solid #eee;
+}
+
+/* Popup Button Styling */
+.popup-button {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.popup-button.confirm {
+  background-color: #8B5CF6; /* Purple primary button */
+  color: white;
+  border: none;
+}
+
+.popup-button.confirm:hover {
+  background-color: #7C3AED;
+}
+
+.popup-button.cancel {
+  background-color: transparent;
+  color: #666;
+  border: 1px solid #ddd;
+}
+
+.popup-button.cancel:hover {
+  background-color: #f5f5f5;
+  border-color: #ccc;
+}
+
+/* Popup Types Styling */
+.popup-content.info .popup-header {
+  background-color: #E3F2FD;
+  color: #2196F3;
+}
+
+.popup-content.success .popup-header {
+  background-color: #F1F8E9;
+  color: #8BC34A;
+}
+
+.popup-content.warning .popup-header {
+  background-color: #FFF3E0;
+  color: #FF9800;
+}
+
+.popup-content.error .popup-header {
+  background-color: #FFEBEE;
+  color: #F44336;
+}
+
+.popup-content.achievement .popup-header {
+  background-color: #F3E5F5;
+  color: #8E44AD;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 576px) {
+  .popup-content {
+    width: 95%;
+    max-height: 80vh;
+  }
+
+  .popup-body {
+    max-height: 50vh;
+    font-size: 14px;
+  }
+
+  .popup-footer {
+    padding: 12px 15px;
+  }
+
+  .popup-button {
+    padding: 8px 15px;
+    font-size: 13px;
+  }
+}

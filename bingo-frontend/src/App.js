@@ -12,7 +12,7 @@ import Login from './components/Login';
 import Register from './components/Register';
 import ForgotPassword from './components/ForgotPassword';
 import ResetPassword from './components/ResetPassword';
-import Leaderboard from './components/Leaderboard'; // Ensure Leaderboard component is imported
+import Leaderboard from './components/Leaderboard';
 import Homeboard from './components/Homeboard';
 import BingoBoard from './components/BingoBoard';
 import Upload from './components/Upload';
@@ -22,9 +22,17 @@ import PrivacyPolicy from './components/PrivacyPolicy';
 import Overview from './components/Overview';
 import BingoPatterns from './components/BingoPatterns';
 
+// Import Notification System
+import NotificationManager from './components/NotificationManager';
+import PopupManager from './components/PopupManager';
+
 const App = () => {
   return (
     <div>
+      {/* Global Notification and Popup Managers */}
+      <NotificationManager />
+      <PopupManager />
+
       <Routes>
         {/* Home Route */}
         <Route path="/" element={<Home />} />

@@ -1,0 +1,115 @@
+/* ============================
+   Notification Styling
+   ============================ */
+
+/* Import Google Font: Poppins for consistency */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+.notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  align-items: center;
+  min-width: 300px;
+  max-width: 450px;
+  background-color: white;
+  border-radius: 10px;
+  padding: 12px 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  font-family: 'Poppins', sans-serif;
+  opacity: 0;
+  transform: translateX(30px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Notification states */
+.notification.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.notification.hidden {
+  opacity: 0;
+  transform: translateX(30px);
+}
+
+/* Notification icon */
+.notification-icon {
+  font-size: 20px;
+  margin-right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Notification message content */
+.notification-content {
+  flex: 1;
+  color: #333;
+  font-size: 14px;
+  padding-right: 10px;
+}
+
+/* Close button */
+.notification-close {
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  transition: color 0.2s;
+}
+
+.notification-close:hover {
+  color: #333;
+}
+
+/* Success notification */
+.notification.success {
+  border-left: 4px solid #8BC34A;
+  background-color: #F1F8E9;
+}
+
+/* Error notification */
+.notification.error {
+  border-left: 4px solid #F44336;
+  background-color: #FFEBEE;
+}
+
+/* Info notification */
+.notification.info {
+  border-left: 4px solid #2196F3;
+  background-color: #E3F2FD;
+}
+
+/* Warning notification */
+.notification.warning {
+  border-left: 4px solid #FF9800;
+  background-color: #FFF3E0;
+}
+
+/* Achievement notification */
+.notification.achievement {
+  border-left: 4px solid #8E44AD;
+  background-color: #F3E5F5;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 576px) {
+  .notification {
+    width: calc(100% - 30px);
+    min-width: auto;
+    max-width: none;
+    top: 10px;
+    right: 15px;
+    left: 15px;
+  }
+}

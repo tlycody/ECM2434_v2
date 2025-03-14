@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './bingoboard.css';
 import { useNavigate } from 'react-router-dom';
+import NotificationManager from './NotificationManager';
+import PopupManager from './PopupManager';
+import AchievementPopup from './AchievementPopup';
 
 // Define the API URL (fallback to localhost if not set in environment variables)
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
@@ -12,10 +15,17 @@ const BingoBoard = () => {
   const [userTasks, setUserTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  // New state variables for rejection feedback
+  // State variables for rejection feedback
   const [showRejectionFeedback, setShowRejectionFeedback] = useState(false);
   const [rejectionFeedback, setRejectionFeedback] = useState("");
   const [selectedRejectedTaskId, setSelectedRejectedTaskId] = useState(null);
+  // New state for achievement popup
+  const [showAchievementPopup, setShowAchievementPopup] = useState(false);
+  const [achievementDetails, setAchievementDetails] = useState({
+    title: '',
+    achievement: '',
+    points: 0
+  });
 
   const navigate = useNavigate(); // Hook for programmatic navigation
 
@@ -60,11 +70,21 @@ const BingoBoard = () => {
           setUserTasks(profileResponse.data.user_tasks);
         }
         setLoading(false);
+
+        // Show welcome notification
+        if (window.showNotification) {
+          window.showNotification('info', 'Welcome to Sustainability Bingo! Complete tasks to earn points and unlock achievements.');
+        }
       })
       .catch(error => {
         console.error("Error fetching data:", error);
         setError("Failed to load tasks. Please try again or log in.");
         setLoading(false);
+
+        // Show error notification
+        if (window.showNotification) {
+          window.showNotification('error', 'Failed to load tasks. Please try again or log in.');
+        }
       });
   }, [navigate]);
 
@@ -117,6 +137,15 @@ const BingoBoard = () => {
 
     if (status === 'completed' || status === 'pending') {
       console.log(`Task ${task.id} is already ${status}`);
+
+      // Show notification based on task status
+      if (window.showNotification) {
+        if (status === 'completed') {
+          window.showNotification('info', 'You\'ve already completed this task!');
+        } else {
+          window.showNotification('info', 'This task is awaiting approval from a GameKeeper.');
+        }
+      }
       return; // Don't allow re-submission
     }
 
@@ -135,26 +164,81 @@ const BingoBoard = () => {
     // Otherwise, mark the task as completed via API
     else {
       try {
-        const token = localStorage.getItem('accessToken');
-        const response = await axios.post(
-          `${API_URL}/api/complete_task/`,
-          { task_id: task.id },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
+        // Show popup for confirmation
+        if (window.showPopup) {
+          window.showPopup({
+            title: 'Complete Task',
+            content: `Are you sure you want to complete the task: "${task.description}"?`,
+            type: 'info',
+            showCancel: true,
+            confirmText: 'Complete Task',
+            cancelText: 'Cancel',
+            onConfirm: async () => {
+              try {
+                const token = localStorage.getItem('accessToken');
+                const response = await axios.post(
+                  `${API_URL}/api/complete_task/`,
+                  { task_id: task.id },
+                  { headers: { Authorization: `Bearer ${token}` } }
+                );
 
-        if (response.status === 200) {
-          // Update user tasks with new pending task
-          setUserTasks(prevUserTasks => [
-            ...prevUserTasks,
-            {
-              task_id: task.id,
-              status: 'pending',
-              completed: false
+                if (response.status === 200) {
+                  // Update user tasks with new pending task
+                  setUserTasks(prevUserTasks => [
+                    ...prevUserTasks,
+                    {
+                      task_id: task.id,
+                      status: 'pending',
+                      completed: false
+                    }
+                  ]);
+
+                  // Show success notification
+                  if (window.showNotification) {
+                    window.showNotification('success', 'Task submitted successfully! Awaiting GameKeeper approval.');
+                  }
+
+                  // Check for patterns/achievements (mock - in real app, this would come from backend)
+                  checkForAchievements();
+                }
+              } catch (error) {
+                console.error("Error completing task:", error);
+
+                // Show error notification
+                if (window.showNotification) {
+                  window.showNotification('error', 'Failed to complete task. Please try again.');
+                }
+              }
             }
-          ]);
+          });
+        } else {
+          // Fallback if popup manager isn't available
+          const token = localStorage.getItem('accessToken');
+          const response = await axios.post(
+            `${API_URL}/api/complete_task/`,
+            { task_id: task.id },
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+
+          if (response.status === 200) {
+            // Update user tasks with new pending task
+            setUserTasks(prevUserTasks => [
+              ...prevUserTasks,
+              {
+                task_id: task.id,
+                status: 'pending',
+                completed: false
+              }
+            ]);
+          }
         }
       } catch (error) {
         console.error("Error completing task:", error);
+
+        // Show error notification
+        if (window.showNotification) {
+          window.showNotification('error', 'Failed to complete task. Please try again.');
+        }
       }
     }
   };
@@ -186,6 +270,11 @@ const BingoBoard = () => {
 
     // Set flag to indicate we're resubmitting a rejected task
     localStorage.setItem("isResubmission", "true");
+
+    // Show notification
+    if (window.showNotification) {
+      window.showNotification('info', 'Let\'s try this task again!');
+    }
 
     // Redirect to upload or scan page if needed
     if (task.requires_upload) {
@@ -239,6 +328,11 @@ const BingoBoard = () => {
           return updatedTasks;
         });
 
+        // Show success notification
+        if (window.showNotification) {
+          window.showNotification('success', 'Task resubmitted successfully! Awaiting approval.');
+        }
+
         // Fetch fresh data from the server to ensure everything is in sync
         const token = localStorage.getItem('accessToken');
         const headers = { Authorization: `Bearer ${token}` };
@@ -251,6 +345,56 @@ const BingoBoard = () => {
     } catch (error) {
       console.error("Error resubmitting task:", error);
       setError("Failed to resubmit task. Please try again.");
+
+      // Show error notification
+      if (window.showNotification) {
+        window.showNotification('error', 'Failed to resubmit task. Please try again.');
+      }
+    }
+  };
+
+  // ============================
+  // Check for Achievements (Mock)
+  // ============================
+
+  const checkForAchievements = () => {
+    // Count completed and pending tasks
+    const completedTasks = userTasks.filter(task => task.completed).length;
+    const pendingTasks = userTasks.filter(task => task.status === 'pending').length;
+    const totalTasks = completedTasks + pendingTasks + 1; // +1 for the task just submitted
+
+    // Check if the user has completed their first task
+    if (totalTasks === 1) {
+      // Show achievement popup for first task
+      setAchievementDetails({
+        title: 'First Steps!',
+        achievement: 'Complete your first sustainability task',
+        points: 5
+      });
+      setShowAchievementPopup(true);
+    }
+    // Check if user has completed 3 tasks (one row in bingo)
+    else if (totalTasks === 3) {
+      // Check for possible bingo
+      setTimeout(() => {
+        setAchievementDetails({
+          title: 'Bingo!',
+          achievement: 'Complete a row of sustainability tasks',
+          points: 30
+        });
+        setShowAchievementPopup(true);
+      }, 1000); // Delay to allow task completion notification to show first
+    }
+    // Example for 5 tasks
+    else if (totalTasks === 5) {
+      setTimeout(() => {
+        setAchievementDetails({
+          title: 'Halfway There!',
+          achievement: 'Complete 5 sustainability tasks',
+          points: 20
+        });
+        setShowAchievementPopup(true);
+      }, 1000);
     }
   };
 
@@ -361,6 +505,20 @@ const BingoBoard = () => {
           </div>
         </div>
       )}
+
+      {/* Achievement Popup */}
+      {showAchievementPopup && (
+        <AchievementPopup
+          title={achievementDetails.title}
+          achievement={achievementDetails.achievement}
+          points={achievementDetails.points}
+          onClose={() => setShowAchievementPopup(false)}
+        />
+      )}
+
+      {/* Notification and Popup Managers */}
+      <NotificationManager />
+      <PopupManager />
     </div>
   );
 };
