@@ -10,13 +10,13 @@
    ============================ */
 
 .leaderboard-container {
-  max-width: 900px; /* Adjust width to accommodate two leaderboards */
+  max-width: 900px;
   margin: 40px auto;
   padding: 30px;
   text-align: center;
-  background-color: #d5c5f1; /* Soft purple background */
+  background-color: #f0e9fc; /* Light purple background */
   border-radius: 15px;
-  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
   font-family: 'Poppins', sans-serif;
 }
 
@@ -33,27 +33,27 @@
 
 .leaderboard-nav-button {
   padding: 10px 20px;
-  background-color: #b5a1dd;
-  border: 2px solid #4c3b6d;
+  background-color: #e6defe;
+  border: 2px solid #6a3bbf;
   border-radius: 10px;
   font-weight: bold;
   cursor: pointer;
   transition: all 0.3s ease;
-  color: #4c3b6d;
+  color: #6a3bbf;
   font-family: 'Poppins', sans-serif;
   font-size: 16px;
 }
 
 .leaderboard-nav-button:hover {
-  background-color: #a892d8;
+  background-color: #d8ccff;
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
 .leaderboard-nav-button.active {
-  background-color: #4c3b6d;
-  color: #f4effc;
-  border-color: #4c3b6d;
+  background-color: #6a3bbf;
+  color: #ffffff;
+  border-color: #6a3bbf;
   box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
@@ -64,10 +64,10 @@
   width: fit-content;
   padding: 10px 20px;
   background-color: #f4effc;
-  border: 2px solid #4c3b6d;
+  border: 2px solid #6a3bbf;
   border-radius: 10px;
   text-decoration: none;
-  color: #4c3b6d;
+  color: #6a3bbf;
   margin-left: auto;
   margin-right: auto;
   font-family: 'Poppins', sans-serif;
@@ -86,30 +86,40 @@
    Section Styling (Lifetime & Monthly)
    ============================ */
 .leaderboard-section {
-  margin-bottom: 30px; /* Space between the two leaderboards */
+  margin-bottom: 30px;
   padding: 20px;
   border-radius: 12px;
-  background-color: #f4effc; /* Lighter purple for section differentiation */
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: #ffffff; /* White background for section */
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.05);
 }
 
 /* ============================
    Leaderboard Titles
    ============================ */
 .leaderboard-title {
-  font-size: 28px;
+  font-size: 32px;
   font-weight: 700;
-  color: #4c3b6d;
-  margin-bottom: 10px;
+  color: #6a3bbf;
+  margin-bottom: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding-left: 20px;
 }
 
-/* Styling for different leaderboard titles */
-.lifetime-title {
-  color: #4c3b6d; /* Dark purple */
-}
-
-.monthly-title {
-  color: #6a5b9c; /* Slightly different purple to distinguish */
+.leaderboard-title::before {
+  content: attr(data-number);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  background-color: #6a3bbf;
+  color: #ffffff;
+  border-radius: 10px;
+  margin-right: 20px;
+  font-size: 24px;
+  font-weight: bold;
 }
 
 /* ============================
@@ -130,30 +140,31 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 20px;
-  border-radius: 8px;
+  padding: 16px 24px;
+  border-radius: 10px;
   font-size: 18px;
-  font-weight: bold;
-  border: 2px solid #4c3b6d;
-  margin-bottom: 10px;
-  background-color: #b5a1dd;
-  color: #4c3b6d;
-  transition: all 0.3s ease-in-out;
+  font-weight: 500;
+  margin-bottom: 12px;
+  transition: all 0.2s ease-in-out;
+  background-color: #e6defe; /* Light purple background */
+  color: #6a3bbf;
 }
 
-/* Alternating row colors for better readability */
-.leaderboard-item.even {
-  background-color: #b5a1dd;
+/* Top 4 users with dark purple background */
+.leaderboard-item:nth-child(-n+4) {
+  background-color: #6a3bbf;
+  color: #ffffff;
 }
 
-.leaderboard-item.odd {
-  background-color: #d5c5f1;
+/* Remaining users with light purple background */
+.leaderboard-item:nth-child(n+5) {
+  background-color: #e6defe;
+  color: #6a3bbf;
 }
 
-/* Hover effect for a subtle interaction */
-.leaderboard-item:hover {
-  transform: scale(1.02);
-  background-color: #a892d8;
+/* First place special styling */
+.leaderboard-item:nth-child(1) {
+  background-color: #6a3bbf;
 }
 
 /* ============================
@@ -163,23 +174,45 @@
 /* Rank Styling */
 .rank {
   font-weight: bold;
-  width: 50px; /* Ensures rank stays aligned */
-  text-align: center;
+  min-width: 40px;
+  text-align: left;
+  font-size: 22px;
 }
 
 /* Name Styling */
 .name {
   flex: 1;
   text-align: left;
-  padding-left: 10px;
-  font-weight: 600;
+  padding-left: 15px;
+  font-weight: 500;
+  font-size: 20px;
 }
 
 /* Points Styling */
 .points {
   font-weight: bold;
-  color: #000000;
+  font-size: 20px;
 }
+.leaderboard-item:nth-child(1),
+.leaderboard-item:nth-child(2),
+.leaderboard-item:nth-child(3),
+.leaderboard-item:nth-child(4) {
+  background-color: #4C1D95 !important; /* Dark purple with !important to override */
+  color: white !important;
+  border-color: #845EC2 !important;
+}
+
+/* Points text for the first 4 users */
+.leaderboard-item:nth-child(-n+4) .points {
+  color: #FFB86C !important; /* Bright orange-yellow for contrast */
+}
+
+/* Keep the 5th user and beyond with light purple */
+.leaderboard-item:nth-child(n+5) {
+  background-color: #DDD6FE !important; /* Light purple */
+  color: #4C1D95 !important;
+}
+
 
 /* ============================
    Mobile Responsiveness
@@ -196,20 +229,32 @@
     gap: 10px;
   }
 
-  .leaderboard-item {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 15px;
+  .leaderboard-title {
+    font-size: 26px;
+    padding-left: 10px;
   }
 
-  .rank, .points {
-    width: auto;
-    text-align: left;
+  .leaderboard-title::before {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+    margin-right: 10px;
+  }
+
+  .leaderboard-item {
+    padding: 12px 16px;
+  }
+
+  .rank {
+    min-width: 30px;
+    font-size: 18px;
   }
 
   .name {
-    text-align: center;
-    width: 100%;
-    margin-bottom: 5px;
+    font-size: 16px;
+  }
+
+  .points {
+    font-size: 16px;
   }
 }
