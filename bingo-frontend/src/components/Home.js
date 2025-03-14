@@ -18,7 +18,6 @@ const Home = () => {
   // ============================
   // Fetch Tasks on Component Mount
   // ============================
-  
   useEffect(() => {
     const fetchTasks = async () => {
       try {
@@ -26,7 +25,7 @@ const Home = () => {
         const response = await axios.get(`${API_URL}/tasks/`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
-        
+
         // ✅ Update the task state with API response data
         setTasks(response.data);
       } catch (error) {
@@ -40,16 +39,24 @@ const Home = () => {
   // ============================
   // Render Home UI
   // ============================
-
   return (
     <div className="home-container">
       {/* Header Section */}
-      <h1>Bingo Game Board</h1>
-      <p>Complete tasks to earn points and win!</p>
+      <h1>Welcome to the Bingo Challenge!</h1>
+      <p>Compete and track your progress on the leaderboards.</p>
 
-      {/* Navigation Buttons */}
+      {/* Leaderboard Navigation Buttons */}
+      <div className="leaderboard-buttons">
+        <button onClick={() => navigate('/leaderboard?type=lifetime')} className="leaderboard-btn lifetime-btn">
+          🏆 Lifetime Leaderboard
+        </button>
+        <button onClick={() => navigate('/leaderboard?type=monthly')} className="leaderboard-btn monthly-btn">
+          📅 Monthly Leaderboard
+        </button>
+      </div>
+
+      {/* Other Navigation Buttons */}
       <div className="buttons">
-        <button onClick={() => navigate('/homeboard')}>View Leaderboard</button>
         <button onClick={() => navigate('/login')}>Login</button>
         <button onClick={() => navigate('/overview')}>Game Guide</button>
       </div>

@@ -10,7 +10,7 @@ import Home from './components/Home';
 import Userprofile from './components/Userprofile';
 import Login from './components/Login';
 import Register from './components/Register';
-import Leaderboard from './components/Leaderboard';
+import Leaderboard from './components/Leaderboard'; // Ensure Leaderboard component is imported
 import Homeboard from './components/Homeboard';
 import BingoBoard from './components/BingoBoard';
 import Upload from './components/Upload';
@@ -34,8 +34,12 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* Game Features Routes */}
+        {/* Leaderboard Routes */}
         <Route path="/leaderboard" element={<Leaderboard />} />
+        <Route path="/leaderboard?type=lifetime" element={<Leaderboard />} />
+        <Route path="/leaderboard?type=monthly" element={<Leaderboard />} />
+
+        {/* Other Game Features Routes */}
         <Route path="/homeboard" element={<Homeboard />} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/bingo" element={<BingoBoard />} />

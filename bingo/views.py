@@ -11,6 +11,7 @@ from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.db import transaction
 from .models import User
+from django.utils.timezone import now
 
 # Django Rest Framework Imports
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -376,15 +377,47 @@ def complete_task(request):
 # Leaderboard Retrieval
 # ============================
 
+
+@api_view(['GET'])
+def leaderboard_view(request):
+    """Returns both lifetime and monthly leaderboard rankings with correct key names."""
+    try:
+        lifetime_leaderboard = list(Leaderboard.objects.order_by('-points')[:10].values('user__username', 'points'))
+        monthly_leaderboard = list(Leaderboard.objects.order_by('-monthly_points')[:10].values('user__username', 'monthly_points'))
+
+        # Rename "monthly_points" to "points" to match React expectations
+        formatted_monthly_leaderboard = [
+            {"user": entry["user__username"], "points": entry["monthly_points"]}
+            for entry in monthly_leaderboard
+        ]
+
+        return JsonResponse({
+            "lifetime_leaderboard": lifetime_leaderboard,
+            "monthly_leaderboard": formatted_monthly_leaderboard,
+        })
+    except Exception as e:
+        logger.error(f"Error fetching leaderboard data: {str(e)}")
+        return JsonResponse({"error": "Failed to retrieve leaderboard data"}, status=500)
+
+
+
+
+
+
+
 @api_view(['GET'])
 def leaderboard(request):
-    """
-    Retrieves the top 10 players from the leaderboard.
-    Orders them by highest points.
-    """
-    top_players = Leaderboard.objects.order_by('-points')[:10]
-    serializer = LeaderboardSerializer(top_players, many=True)
-    return Response(serializer.data)
+    """Retrieves the top 10 players from the leaderboard ordered by highest points."""
+    try:
+        top_players = Leaderboard.objects.order_by('-points')[:10]
+        serializer = LeaderboardSerializer(top_players, many=True)
+        return Response(serializer.data)
+    except Exception as e:
+        logger.error(f"Error fetching top leaderboard players: {str(e)}")
+        return Response({"error": "Failed to retrieve leaderboard"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
 
 # ============================
 # Check Developer Role
