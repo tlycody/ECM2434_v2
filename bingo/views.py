@@ -253,11 +253,6 @@ def tasks(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def complete_task(request):
-    """
-    Submits a task for approval by the user.
-    Handles resubmission of rejected tasks properly.
-    Auto-approves tasks with scan functionality.
-    """
     user = request.user
     task_id = request.data.get('task_id')
     task = get_object_or_404(Task, id=task_id)
@@ -273,6 +268,34 @@ def complete_task(request):
     user_task = UserTask.objects.filter(user=user, task=task).first()
     if user_task:
         print(f"Existing user_task found: status={user_task.status}, completed={user_task.completed}")
+    
+    # If task is already completed and approved, don't allow resubmission
+    if user_task and user_task.completed:
+        return Response({"message": "Task already completed and approved!"},
+                        status=status.HTTP_400_BAD_REQUEST)
+    
+    # If task is pending approval, don't allow resubmission
+    if user_task and user_task.status == 'pending' and not user_task.completed:
+        return Response({"message": "Task already submitted and pending approval!"},
+                        status=status.HTTP_400_BAD_REQUEST)
+    
+    # Award points only if the task is auto-approved and not already completed
+    if should_auto_approve:
+        try:
+            profile = Profile.objects.get(user=user)
+            profile.total_points += task.points
+            profile.save()
+            
+            # Also update the leaderboard if you're using it
+            leaderboard, created = Leaderboard.objects.get_or_create(user=user)
+            leaderboard.points += task.points
+            leaderboard.save()
+            
+            print(f"Points awarded to {user.username}: {task.points}")
+        except Profile.DoesNotExist:
+            print(f"Profile not found for user: {user.username}")
+        except Exception as e:
+            print(f"Error updating points: {str(e)}")
     
     # If task is already completed and approved, don't allow resubmission
     if user_task and user_task.completed:
