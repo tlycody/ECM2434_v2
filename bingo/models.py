@@ -2,6 +2,8 @@
 from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
+from django.utils.timezone import now
+
 
 # ============================
 # Custom User Model
@@ -143,19 +145,21 @@ class UserTask(models.Model):
 # ============================
 
 class Leaderboard(models.Model):
-    """
-    Model to track and rank players based on points earned.
-    """
-    user = models.OneToOneField(
-        settings.AUTH_USER_MODEL, 
-        on_delete=models.CASCADE
-    )  # Links leaderboard entry to a user
-
-    points = models.IntegerField(default=0)  # Stores the total points for ranking
+    """Model to track and rank players based on points earned."""
+    
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    points = models.IntegerField(default=0)  # Lifetime points
+    monthly_points = models.IntegerField(default=0)  # Monthly points
+    last_reset = models.DateField(default=now)  # Stores the last reset date
 
     def __str__(self):
-        """Returns a formatted string showing the user's leaderboard ranking."""
-        return f"{self.user.username} - {self.points} Points"
+        return f"{self.user.username} - {self.points} Lifetime Points | {self.monthly_points} Monthly Points"
+
+    def reset_monthly_points(self):
+        """Resets monthly points at the beginning of each month."""
+        self.monthly_points = 0
+        self.last_reset = now().date()
+        self.save()
 
 # models.py - Add this model
 class AccessCode(models.Model):

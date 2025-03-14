@@ -1,76 +1,129 @@
-// ============================
-// Leaderboard Component
-// ============================
-
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; 
+import { useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import './Leaderboard.css';
 
-// Fetch API URL from environment variables (fallback to localhost if not set)
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
 const Leaderboard = () => {
-  // State variables for leaderboard data, errors, and loading status
-  const [players, setPlayers] = useState([]);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate(); // React Router navigation hook
+    const [lifetimeLeaderboard, setLifetimeLeaderboard] = useState([]);
+    const [monthlyLeaderboard, setMonthlyLeaderboard] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-  // ============================
-  // Fetch Leaderboard Data on Component Mount
-  // ============================
+    const [searchParams] = useSearchParams();
+    const leaderboardType = searchParams.get('type') || 'lifetime';
 
-  useEffect(() => {
-    setLoading(true); // Start loading
-    axios.get(`${API_URL}/api/leaderboard/`)
-      .then(response => {
-        console.log("Leaderboard fetched:", response.data);
-        setPlayers(response.data); // Store fetched players in state
-        setLoading(false);
-      })
-      .catch(error => {
-        console.error("Error fetching leaderboard:", error);
-        setError("Failed to load leaderboard. Please try again."); // Display error message
-        setLoading(false);
-      });
-  }, []); // Runs only on mount (empty dependency array)
+    useEffect(() => {
+        setLoading(true);
+        
+        axios.get(`${API_URL}/api/leaderboard/`)
+            .then((response) => {
+                console.log("✅ API Raw Response:", response.data);
 
-  // ============================
-  // Render Leaderboard UI
-  // ============================
+                // Fix: Check if response.data is an array and use it directly
+                if (Array.isArray(response.data)) {
+                    // Assuming the first item is lifetime and second is monthly
+                    // or simply use the same data for both if that makes sense for your app
+                    const lifetimeData = response.data;
+                    const monthlyData = response.data;
 
-  return (
-    <div className="leaderboard-container">
-      {/* Title */}
-      <h2>🏆 Leaderboard</h2>
+                    console.log("🔥 Setting Lifetime Leaderboard:", lifetimeData);
+                    console.log("🔥 Setting Monthly Leaderboard:", monthlyData);
 
-      {/* Loading and Error Handling */}
-      {loading ? (
-        <p>Loading leaderboard...</p>
-      ) : error ? (
-        <p className="error-message">{error}</p>
-      ) : (
-        <ul className="leaderboard-list">
-          {/* Mapping over player data to display rankings */}
-          {players.map((player, index) => (
-            <li 
-              key={index} 
-              className={index % 2 === 0 ? "leaderboard-item even" : "leaderboard-item odd"}
+                    setLifetimeLeaderboard(lifetimeData);
+                    setMonthlyLeaderboard(monthlyData);
+                } else {
+                    // Original code for when the API returns the expected object structure
+                    const lifetimeData = response.data.lifetime_leaderboard || [];
+                    const monthlyData = response.data.monthly_leaderboard || [];
+
+                    console.log("🔥 Setting Lifetime Leaderboard:", lifetimeData);
+                    console.log("🔥 Setting Monthly Leaderboard:", monthlyData);
+
+                    setLifetimeLeaderboard(lifetimeData);
+                    setMonthlyLeaderboard(monthlyData);
+                }
+                
+                setLoading(false);
+            })
+            .catch((error) => {
+                console.error("❌ Error fetching leaderboard:", error);
+                setError("Failed to fetch leaderboard");
+                setLoading(false);
+            });
+    }, []);
+
+    // You may also need to adjust the field names in the rendering logic
+    return (
+        <div className="leaderboard-container">
+            {error && <p className="error-message">{error}</p>}
+            {loading ? (
+                <p>Loading...</p>
+            ) : (
+                <>
+                    <div className="leaderboard-navigation">
+                        <button 
+                            className={`leaderboard-nav-button ${leaderboardType === 'lifetime' ? 'active' : ''}`}
+                            onClick={() => window.location.href = '/leaderboard?type=lifetime'}
+                        >
+                            🏆 Lifetime Leaderboard
+                        </button>
+                        <button 
+                            className={`leaderboard-nav-button ${leaderboardType === 'monthly' ? 'active' : ''}`}
+                            onClick={() => window.location.href = '/leaderboard?type=monthly'}
+                        >
+                            📅 Monthly Leaderboard
+                        </button>
+                    </div>
+                    
+                    {leaderboardType === 'lifetime' ? (
+                        <div className="leaderboard-section">
+                            <h2 className="leaderboard-title">🏆 Lifetime Leaderboard</h2>
+                            <ul className="leaderboard-list">
+                                {lifetimeLeaderboard.length > 0 ? (
+                                    lifetimeLeaderboard.map((player, index) => (
+                                        <li key={index} className={`leaderboard-item ${index % 2 === 0 ? "even" : "odd"}`}>
+                                            <span className="rank">{index + 1}.</span>
+                                            {/* Adjust these field names if necessary based on your API response */}
+                                            <span className="name">{player.user || player.username || player.name || "Unknown Player"}</span>
+                                            <span className="points">{player.points !== undefined ? player.points : player.score || "0"} Points</span>
+                                        </li>
+                                    ))
+                                ) : (
+                                    <p>⚠️ No lifetime leaderboard data available.</p>
+                                )}
+                            </ul>
+                        </div>
+                    ) : (
+                        <div className="leaderboard-section">
+                            <h2 className="leaderboard-title">📅 This Month's Stars</h2>
+                            <ul className="leaderboard-list">
+                                {monthlyLeaderboard.length > 0 ? (
+                                    monthlyLeaderboard.map((player, index) => (
+                                        <li key={index} className={`leaderboard-item ${index % 2 === 0 ? "even" : "odd"}`}>
+                                            <span className="rank">{index + 1}.</span>
+                                            {/* Adjust these field names if necessary based on your API response */}
+                                            <span className="name">{player.user || player.username || player.name || "Unknown Player"}</span>
+                                            <span className="points">{player.points !== undefined ? player.points : player.score || "0"} Points</span>
+                                        </li>
+                                    ))
+                                ) : (
+                                    <p>⚠️ No monthly leaderboard data available.</p>
+                                )}
+                            </ul>
+                        </div>
+                    )}
+                </>
+            )}
+            <button 
+                className="back-to-profile" 
+                onClick={() => window.location.href = '/userprofile'}
             >
-              <span className="rank">{index + 1}.</span>
-              <span className="name">{player.user}</span>
-              <span className="points">{player.points} pts</span>
-            </li>
-          ))}
-        </ul>
-      )}
-
-      {/* Navigation Buttons */}
-      <button onClick={() => navigate('/bingo')}>Back to Bingo</button>
-      <button onClick={() => navigate('/userprofile')}>View Profile</button>
-    </div>
-  );
+                ← Back to Profile
+            </button>
+        </div>
+    );
 };
 
 export default Leaderboard;

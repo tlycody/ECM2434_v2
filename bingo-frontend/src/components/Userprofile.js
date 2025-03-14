@@ -1,7 +1,3 @@
-// ============================
-// User Profile Component with Badges
-// ============================
-
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -378,7 +374,13 @@ const Profile = () => {
       {/* Navigation Buttons */}
       <div className="buttons">
         <button onClick={() => navigate('/bingo')}>Go to Bingo Board</button>
-        <button onClick={() => navigate('/leaderboard')}>View Leaderboard</button>
+        {/* Replace the single leaderboard button with two specific buttons */}
+        <button onClick={() => navigate('/leaderboard?type=lifetime')}>
+          🏆 Lifetime Leaderboard
+        </button>
+        <button onClick={() => navigate('/leaderboard?type=monthly')}>
+          📅 Monthly Leaderboard
+        </button>
         <button onClick={() => { 
           localStorage.removeItem('accessToken'); 
           localStorage.removeItem('profilePicture'); // Also clear the profile picture from localStorage

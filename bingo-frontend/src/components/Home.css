@@ -19,6 +19,12 @@
     border-radius: 15px; /* Smooth rounded corners */
     box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2); /* Soft shadow for depth */
     font-family: 'Poppins', sans-serif; /* Ensures text consistency */
+
+    /* Fix alignment */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 /* ============================
@@ -48,7 +54,9 @@ p {
 .buttons {
     display: flex;
     flex-direction: column; /* Stack buttons vertically */
+    align-items: center; /* Fixes centering */
     gap: 10px; /* Space between buttons */
+    width: 100%;
 }
 
 /* Standard button styles - Matches Leaderboard buttons */
@@ -62,6 +70,9 @@ button {
     border-radius: 10px; /* Rounded corners for modern UI */
     cursor: pointer;
     transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+    width: 80%; /* Ensures buttons align correctly */
+    max-width: 250px; /* Prevents overly wide buttons */
+    text-align: center;
 }
 
 /* Button hover effect */
@@ -92,5 +103,9 @@ button:active {
 
     p {
         font-size: 14px;
+    }
+
+    button {
+        width: 90%; /* Ensures buttons fit on smaller screens */
     }
 }

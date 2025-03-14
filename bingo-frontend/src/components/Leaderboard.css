@@ -6,29 +6,110 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
 
 /* ============================
-   Leaderboard Container Styling
+   General Leaderboard Container Styling
    ============================ */
 
 .leaderboard-container {
-  max-width: 800px; /* Ensures leaderboard is centered and readable */
+  max-width: 900px; /* Adjust width to accommodate two leaderboards */
   margin: 40px auto;
   padding: 30px;
   text-align: center;
-  background-color: #d5c5f1; /* Soft purple background for consistency */
-  border-radius: 15px; /* Smooth rounded corners */
-  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2); /* Adds depth */
-  font-family: 'Poppins', sans-serif; /* Matches the entire app's typography */
+  background-color: #d5c5f1; /* Soft purple background */
+  border-radius: 15px;
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+  font-family: 'Poppins', sans-serif;
 }
 
 /* ============================
-   Leaderboard Title Styling
+   Leaderboard Navigation
    ============================ */
 
+.leaderboard-navigation {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+  gap: 15px;
+}
+
+.leaderboard-nav-button {
+  padding: 10px 20px;
+  background-color: #b5a1dd;
+  border: 2px solid #4c3b6d;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #4c3b6d;
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+}
+
+.leaderboard-nav-button:hover {
+  background-color: #a892d8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.leaderboard-nav-button.active {
+  background-color: #4c3b6d;
+  color: #f4effc;
+  border-color: #4c3b6d;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* Back to Profile Button */
+.back-to-profile {
+  margin-top: 20px;
+  display: block;
+  width: fit-content;
+  padding: 10px 20px;
+  background-color: #f4effc;
+  border: 2px solid #4c3b6d;
+  border-radius: 10px;
+  text-decoration: none;
+  color: #4c3b6d;
+  margin-left: auto;
+  margin-right: auto;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.back-to-profile:hover {
+  background-color: #d5c5f1;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* ============================
+   Section Styling (Lifetime & Monthly)
+   ============================ */
+.leaderboard-section {
+  margin-bottom: 30px; /* Space between the two leaderboards */
+  padding: 20px;
+  border-radius: 12px;
+  background-color: #f4effc; /* Lighter purple for section differentiation */
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* ============================
+   Leaderboard Titles
+   ============================ */
 .leaderboard-title {
-  font-size: 36px; /* Large and readable title */
+  font-size: 28px;
   font-weight: 700;
-  color: #4c3b6d; /* Dark purple text for contrast */
-  margin-bottom: 15px;
+  color: #4c3b6d;
+  margin-bottom: 10px;
+}
+
+/* Styling for different leaderboard titles */
+.lifetime-title {
+  color: #4c3b6d; /* Dark purple */
+}
+
+.monthly-title {
+  color: #6a5b9c; /* Slightly different purple to distinguish */
 }
 
 /* ============================
@@ -36,7 +117,7 @@
    ============================ */
 
 .leaderboard-list {
-  list-style: none; /* Removes default bullet points */
+  list-style: none;
   padding: 0;
   margin: 0;
 }
@@ -46,26 +127,33 @@
    ============================ */
 
 .leaderboard-item {
-  display: flex; /* Aligns items in a row */
-  justify-content: space-between; /* Spreads content evenly */
-  align-items: center; /*  Keeps text vertically aligned */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding: 12px 20px;
-  border-radius: 8px; /* Smooth rounded corners */
-  font-size: 20px;
+  border-radius: 8px;
+  font-size: 18px;
   font-weight: bold;
-  border: 2px solid #4c3b6d; /* Dark purple border for separation */
+  border: 2px solid #4c3b6d;
   margin-bottom: 10px;
-  background-color: #b5a1dd; /* Default background for leaderboard items */
+  background-color: #b5a1dd;
   color: #4c3b6d;
+  transition: all 0.3s ease-in-out;
 }
 
 /* Alternating row colors for better readability */
 .leaderboard-item.even {
-  background-color: #b5a1dd; /* Light purple */
+  background-color: #b5a1dd;
 }
 
 .leaderboard-item.odd {
-  background-color: #d5c5f1; /* Slightly lighter shade */
+  background-color: #d5c5f1;
+}
+
+/* Hover effect for a subtle interaction */
+.leaderboard-item:hover {
+  transform: scale(1.02);
+  background-color: #a892d8;
 }
 
 /* ============================
@@ -75,17 +163,53 @@
 /* Rank Styling */
 .rank {
   font-weight: bold;
+  width: 50px; /* Ensures rank stays aligned */
+  text-align: center;
 }
 
 /* Name Styling */
 .name {
-  flex: 1; /* Allows names to take up available space */
+  flex: 1;
   text-align: left;
   padding-left: 10px;
+  font-weight: 600;
 }
 
 /* Points Styling */
 .points {
   font-weight: bold;
-  color: #000000; /* Black text for clear readability */
+  color: #000000;
+}
+
+/* ============================
+   Mobile Responsiveness
+   ============================ */
+
+@media (max-width: 600px) {
+  .leaderboard-container {
+    max-width: 95%;
+    padding: 20px;
+  }
+  
+  .leaderboard-navigation {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .leaderboard-item {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 15px;
+  }
+
+  .rank, .points {
+    width: auto;
+    text-align: left;
+  }
+
+  .name {
+    text-align: center;
+    width: 100%;
+    margin-bottom: 5px;
+  }
 }
