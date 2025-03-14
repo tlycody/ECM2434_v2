@@ -4,12 +4,25 @@ import { useNavigate } from 'react-router-dom';
 import './Scan.css';
 
 const Scan = () => {
+  const [selectedTask, setSelectedTask] = useState(''); // ✅ Added selected task state
   const [scanResult, setScanResult] = useState(null);
   const [error, setError] = useState(null);
   const [isScanning, setIsScanning] = useState(false);
   const scannerRef = useRef(null);
   const isScannerInitialized = useRef(false);
   const navigate = useNavigate();
+
+  // ✅ Retrieve the selected task from localStorage
+  useEffect(() => {
+    const choice = localStorage.getItem('selectedChoice');
+    console.log('Selected Task:', choice);
+
+    if (choice) {
+      setSelectedTask(choice);
+    } else {
+      setSelectedTask("No task selected");
+    }
+  }, []);
 
   // List of valid QR codes
   const VALID_QR_CODES = [
@@ -26,11 +39,9 @@ const Scan = () => {
   const onScanSuccess = (decodedText) => {
     console.log("Scanned QR Code Data:", decodedText);
 
-    // Validate the QR code
     if (isValidQRCode(decodedText)) {
       setScanResult(decodedText);
 
-      // Stop scanning
       if (scannerRef.current && scannerRef.current.isScanning) {
         scannerRef.current.stop()
           .then(() => {
@@ -47,14 +58,13 @@ const Scan = () => {
   const onScanError = (err) => {
     if (!err.toString().includes("NotFoundException")) {
       console.error("QR Code scan error:", err);
-      setError("Error scanning QR code: " + err.toString());
+      setError("Scan the QR code of the area you're at");
     }
   };
 
   useEffect(() => {
     const readerElement = document.getElementById('reader');
 
-    // Clear previous scanner instance
     if (scannerRef.current) {
       scannerRef.current.clear();
     }
@@ -77,7 +87,6 @@ const Scan = () => {
       });
     }
 
-    // Cleanup on unmount
     return () => {
       if (scannerRef.current && scannerRef.current.isScanning) {
         scannerRef.current.stop().catch(() => {});
@@ -111,7 +120,7 @@ const Scan = () => {
         task_id: taskId,
         qr_code_data: result,
         is_resubmission: isResubmission,
-        auto_approve: true  
+        auto_approve: true
       };
 
       const response = await fetch('http://localhost:8000/api/complete_task/', {
@@ -146,6 +155,16 @@ const Scan = () => {
     <div className="scan-container">
       <h1>Scan QR Code</h1>
 
+      {/* ✅ Display selected task */}
+      <div className="selected-task">
+        <h3>Selected Task:</h3>
+        <p>{selectedTask}</p>
+      </div>
+
+      {error && (
+        <p className="error-text">{error}</p>
+      )}
+
       <div id="reader-container">
         <div id="reader"></div>
       </div>
@@ -157,12 +176,6 @@ const Scan = () => {
       {scanResult && (
         <div className="scan-result">
           <p>{scanResult}</p>
-        </div>
-      )}
-
-      {error && (
-        <div className="error-message">
-          <p>{error}</p>
         </div>
       )}
 

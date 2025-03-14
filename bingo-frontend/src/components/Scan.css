@@ -10,12 +10,14 @@
 
 #reader-container {
   width: 100%;
-  max-width: 300px; /* 👈 Matches scanner size */
-  height: 300px; /* 👈 Makes it a square */
+  max-width: 300px;
+  height: 300px;
   display: flex;
   justify-content: center;
   align-items: center;
+  margin: 0 auto; /* 👈 Ensures centering */
 }
+
 
 #reader {
   width: 100% !important;
@@ -25,14 +27,14 @@
 }
 
 
-.scan-result, .error-message {
-  padding: 15px;
-  border-radius: 5px;
-  margin: 15px auto;
-  width: 100%;
-  max-width: 600px;
-  align-self: center;
+.error-text {
+  color: #4c3b6d;
+  font-size: 16px;
+  font-weight: 500;
+  text-align: center;
+  margin-bottom: 15px; /* Adds spacing before scanner */
 }
+
 
 .scan-result {
   background-color: #d4edda;
