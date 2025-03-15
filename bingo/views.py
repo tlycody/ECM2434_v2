@@ -491,6 +491,7 @@ def get_user_profile(request):
         "leaderboard_rank": leaderboard_position,
         "profile_picture": request.build_absolute_uri(profile.profile_picture.url) if profile.profile_picture else None,
         "rank": profile.rank,
+        "user_tasks": user_tasks_data # Include tasks status and rejection reasons
 
     }
 

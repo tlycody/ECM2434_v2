@@ -377,7 +377,19 @@ const Profile = () => {
           </form>
         )}
       </div>
-
+      {/* Completed Tasks Section */}
+      <div className="completed-tasks">
+        <h3>Completed Bingo Tasks</h3>
+        {tasks.length > 0 ? (
+          <ul>
+            {tasks.map(task => (
+              <li key={task.id}>{task.description}</li>
+            ))}
+          </ul>
+        ) : (
+          <p>No completed tasks yet.</p>
+        )}
+      </div>
       {/* Navigation Buttons */}
       <div className="buttons">
         <button onClick={() => navigate('/bingo')}>Go to Bingo Board</button>
