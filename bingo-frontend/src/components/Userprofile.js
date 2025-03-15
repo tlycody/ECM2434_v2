@@ -24,30 +24,28 @@ const Profile = () => {
   // ============================
   // Fetch User Data, Completed Tasks & Badges
   // ============================
-  useEffect(() => {
-    // Fetch user profile data
-// In UserProfile.js, modify fetchUserData to also set badges
-const fetchUserData = async () => {
-  try {
-    const response = await axios.get(`${API_URL}/api/profile/`, {
-      headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
-    });
-    console.log('User profile data:', response.data);
-    
-    // Set userData and updatedUser as before
-    setUserData(response.data);
-    setUpdatedUser(response.data);
-    
-    // If badges are included in the response, use them
-    if (response.data.badges) {
-      console.log('Badges from profile:', response.data.badges);
-      setBadges(response.data.badges);
-    }
-  } catch (error) {
-    console.error('Error fetching user data:', error);
-  }
-};
+// Inside your useEffect function
+useEffect(() => {
+  // Fetch user profile data
+  const fetchUserData = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/api/profile/`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
+      });
+      console.log('User profile data:', response.data);
 
+      setUserData(response.data);
+      setUpdatedUser(response.data);
+      
+      // Set badges directly from the profile response
+      if (response.data.badges) {
+        console.log('Badges from profile:', response.data.badges);
+        setBadges(response.data.badges);
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    }
+  };
 
     // Fetch tasks for display in the list
     const fetchCompletedTasks = async () => {
@@ -72,33 +70,12 @@ const fetchUserData = async () => {
     };
 
     // Fetch user badges
-    const fetchUserBadges = async () => {
-      try {
-        const response = await axios.get(`${API_URL}/api/user-badges/`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
-        });
-        
-        console.log('Raw badges response:', response.data);
-        
-        if (Array.isArray(response.data)) {
-          // Log the structure of the first badge to see its properties
-          if (response.data.length > 0) {
-            console.log('First badge object keys:', Object.keys(response.data[0]));
-            console.log('Complete first badge object:', response.data[0]);
-          }
-          
-          setBadges(response.data);
-        } else {
-          console.error('Expected array but got:', typeof response.data);
-        }
-      } catch (error) {
-        console.error('Error fetching badges:', error.response || error.message);
-      }
-    };
+
+
 
     fetchUserData();
     fetchCompletedTasks();
-    fetchUserBadges(); // Keep this separate call to ensure badges are loaded
+
   }, []);
 
   // ============================

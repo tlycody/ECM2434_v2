@@ -681,6 +681,10 @@ def approve_task(request):
     leaderboard.points += task.points
     leaderboard.save()
 
+    # Debugging line
+    print(f"Calling check_and_award_patterns for user {user.username}")
+    
+    # Call this function to check for and award patterns
     check_and_award_patterns(user)
 
     return Response({
@@ -824,26 +828,20 @@ def get_user_badges(request):
     """
     user = request.user
     user_badges = UserBadge.objects.filter(user=user).select_related('pattern')
-    
-    badges = []
+    badges_data = []
     for badge in user_badges:
-        badges.append({
-            'id': badge.pattern.id,
-            'name': badge.pattern.name,
-            'type': badge.pattern.pattern_type,
-            'description': badge.pattern.description,
-            'bonus_points': badge.pattern.bonus_points,
-            'earned_at': badge.earned_at
-        })
+       badges_data.append({
+        'id': badge.pattern.id,
+        'name': badge.pattern.name,
+        'type': badge.pattern.pattern_type,  # Match this exactly to what frontend expects
+        'description': badge.pattern.description,
+        'bonus_points': badge.pattern.bonus_points,
+    })
     
-    return Response(badges)
+    return Response(badges_data)
 
 def check_and_award_patterns(user):
-    """
-    Check if the user has completed any patterns and award badges and points
-    
-    This function should be called after a task is approved
-    """
+    """Check if the user has completed any patterns and award badges and points"""
     try:
         print(f"\n\n==== CHECKING PATTERNS FOR USER: {user.username} ====")
         
@@ -851,14 +849,21 @@ def check_and_award_patterns(user):
         completed_tasks = UserTask.objects.filter(user=user, completed=True)
         print(f"Found {completed_tasks.count()} completed tasks: {[t.task.id for t in completed_tasks]}")
         
-        # Get all tasks
+        # DETAILED DEBUG: Print each completed task description
+        for task in completed_tasks:
+            print(f"  - Task {task.task.id}: {task.task.description}")
+        
+        # Get all tasks to understand grid positioning
         all_tasks = Task.objects.all().order_by('id')
+        print(f"Total tasks in system: {all_tasks.count()}")
         
         # Create grid representation
         grid = BingoPatternDetector.create_grid_from_tasks(completed_tasks, all_tasks, grid_size=3)
-        print(f"Grid: {grid}")
+        print(f"Grid representation:")
+        for row in grid:
+            print(f"  {row}")
         
-        # Detect patterns
+        # Detect patterns with detailed logging
         detected_patterns = BingoPatternDetector.detect_patterns(grid, size=3)
         print(f"Detected patterns: {detected_patterns}")
         
@@ -952,10 +957,9 @@ def force_award_pattern(request):
     """
     Manually force award a pattern to a user
     """ 
-    user_id = request.data.get('user_id')
+    # Use current user if no user_id provided
+    user = request.user
     pattern_type = request.data.get('pattern_type', 'V')  # Default to vertical
-    
-    user = get_object_or_404(User, id=user_id)
     
     # Get or create the pattern
     pattern, created = BingoPattern.objects.get_or_create(
@@ -987,7 +991,7 @@ def force_award_pattern(request):
         leaderboard.points += 5
         leaderboard.save()
         
-        # Create bonus record
+        # Create bonus record if there are completed tasks
         some_task = UserTask.objects.filter(user=user, completed=True).first()
         if some_task:
             try:
