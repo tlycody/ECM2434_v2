@@ -76,10 +76,23 @@ const Profile = () => {
     // Fetch user badges
     const fetchUserBadges = async () => {
       try {
-        const response = await axios.get(`${API_URL}/api/badges/`, {
+        const response = await axios.get(`${API_URL}/api/user-badges/`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
         });
-        setBadges(response.data);
+        console.log('Badges data:', response.data);
+        
+        // Check if we got an array of badges
+        if (Array.isArray(response.data)) {
+          setBadges(response.data);
+          
+          // Debug first badge if available
+          if (response.data.length > 0) {
+            console.log('First badge details:', response.data[0]);
+            console.log('Badge type:', response.data[0].type);
+          }
+        } else {
+          console.error('Expected badges array but got:', response.data);
+        }
       } catch (error) {
         console.error('Error fetching badges:', error);
       }
@@ -87,7 +100,7 @@ const Profile = () => {
 
     fetchUserData();
     fetchCompletedTasks();
-    fetchUserBadges();
+    fetchUserBadges(); // Keep this separate call to ensure badges are loaded
   }, []);
 
   // ============================
@@ -289,6 +302,28 @@ const Profile = () => {
     setProfileImage(null);
   };
 
+  const getBadgeEmoji = (badgeType) => {
+    console.log("Badge type:", badgeType);
+    
+    switch(badgeType) {
+      case 'O': return '♻️';
+      case 'X': return '💚';
+      case 'H': return '🌈';
+      case 'V': return '🌱';
+      default: return '🏆';
+    }
+  };
+
+  const getBadgeTypeName = (badgeType) => {
+    switch(badgeType) {
+      case 'O': return 'Ozone defender';
+      case 'X': return 'Xtra Green';
+      case 'H': return 'Healthy Hero';
+      case 'V': return 'Green Champion';
+      default: return 'Achievement Badge';
+    }
+  };
+
   // ============================
   // Render Profile UI
   // ============================
@@ -343,6 +378,26 @@ const Profile = () => {
             <p><strong>Rank:</strong> {userData?.rank || 'Unranked'}</p>
             <p><strong>Total Points:</strong> {userData?.total_points || 0}</p>
             <p><strong>Completed Tasks:</strong> {userData?.completed_tasks || 0}</p>
+                        {/* User Badges Section */}
+                        <div className="user-badges">
+  <p><strong>Earned Badges:</strong></p>
+  {badges && badges.length > 0 ? (
+    <div className="badges-grid">
+      {badges.map(badge => (
+        <div key={badge.id || badge.name || badge.type} className="badge-item">
+          <div className="badge-emoji">
+            {getBadgeEmoji(badge.type)}
+          </div>
+          <div className="badge-name">
+            {getBadgeTypeName(badge.type)}
+          </div>
+        </div>
+      ))}
+    </div>
+  ) : (
+    <p>No badges earned yet. Complete patterns on your bingo board to earn badges!</p>
+  )}
+</div>
             <button className="edit-profile-btn" onClick={() => setEditMode(true)}>Edit Profile</button>
             <button className="delete-profile-btn" onClick={() => setShowDeleteConfirm(true)}>Delete Profile</button>
           </div>
@@ -354,20 +409,6 @@ const Profile = () => {
             <button type="submit">Save Changes</button>
             <button type="button" onClick={() => setEditMode(false)}>Cancel</button>
           </form>
-        )}
-      </div>
-
-      {/* Completed Tasks Section */}
-      <div className="completed-tasks">
-        <h3>Completed Bingo Tasks</h3>
-        {tasks.length > 0 ? (
-          <ul>
-            {tasks.map(task => (
-              <li key={task.id}>{task.description}</li>
-            ))}
-          </ul>
-        ) : (
-          <p>No completed tasks yet.</p>
         )}
       </div>
 

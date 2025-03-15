@@ -938,10 +938,7 @@ def check_and_award_patterns(user):
 def force_award_pattern(request):
     """
     Manually force award a pattern to a user
-    """
-    if request.user.role.lower() not in ['gamekeeper', 'developer']:
-        return Response({"error": "Permission denied"}, status=status.HTTP_403_FORBIDDEN)
-    
+    """ 
     user_id = request.data.get('user_id')
     pattern_type = request.data.get('pattern_type', 'V')  # Default to vertical
     
