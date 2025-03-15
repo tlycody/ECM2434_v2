@@ -287,34 +287,6 @@ def complete_task(request):
         return Response({"message": "Task already submitted and pending approval!"},
                         status=status.HTTP_400_BAD_REQUEST)
     
-    # Award points only if the task is auto-approved and not already completed
-    if should_auto_approve:
-        try:
-            profile = Profile.objects.get(user=user)
-            profile.total_points += task.points
-            profile.save()
-            
-            # Also update the leaderboard if you're using it
-            leaderboard, created = Leaderboard.objects.get_or_create(user=user)
-            leaderboard.points += task.points
-            leaderboard.save()
-            
-            print(f"Points awarded to {user.username}: {task.points}")
-        except Profile.DoesNotExist:
-            print(f"Profile not found for user: {user.username}")
-        except Exception as e:
-            print(f"Error updating points: {str(e)}")
-    
-    # If task is already completed and approved, don't allow resubmission
-    if user_task and user_task.completed:
-        return Response({"message": "Task already completed and approved!"},
-                        status=status.HTTP_400_BAD_REQUEST)
-    
-    # If task is pending approval, don't allow resubmission
-    if user_task and user_task.status == 'pending' and not user_task.completed:
-        return Response({"message": "Task already submitted and pending approval!"},
-                        status=status.HTTP_400_BAD_REQUEST)
-    
     # If photo is required but not provided
     if task.requires_upload and 'photo' not in request.FILES:
         return Response({"message": "This task requires a photo upload."},
@@ -357,6 +329,28 @@ def complete_task(request):
         
         print(f"Updated task: status={user_task.status}, completed={user_task.completed}")
         
+        # If the task is auto-approved, check for patterns and award points
+        if should_auto_approve:
+            # Award points
+            try:
+                profile = Profile.objects.get(user=user)
+                profile.total_points += task.points
+                profile.save()
+                
+                # Also update the leaderboard
+                leaderboard, created = Leaderboard.objects.get_or_create(user=user)
+                leaderboard.points += task.points
+                leaderboard.save()
+                
+                print(f"Points awarded to {user.username}: {task.points}")
+                
+                # Check for patterns and award badges
+                check_and_award_patterns(user)
+            except Profile.DoesNotExist:
+                print(f"Profile not found for user: {user.username}")
+            except Exception as e:
+                print(f"Error updating points: {str(e)}")
+        
         message = "Task completed successfully!" if should_auto_approve else "Task resubmitted successfully and awaiting GameKeeper approval!"
         return Response({"message": message}, status=status.HTTP_200_OK)
     
@@ -376,6 +370,27 @@ def complete_task(request):
     new_user_task.save()
     
     print(f"Created new task: status={new_user_task.status}, completed={new_user_task.completed}")
+    
+    # Award points and check patterns if auto-approved
+    if should_auto_approve:
+        try:
+            profile = Profile.objects.get(user=user)
+            profile.total_points += task.points
+            profile.save()
+            
+            # Also update the leaderboard
+            leaderboard, created = Leaderboard.objects.get_or_create(user=user)
+            leaderboard.points += task.points
+            leaderboard.save()
+            
+            print(f"Points awarded to {user.username}: {task.points}")
+            
+            # Check for patterns and award badges 
+            check_and_award_patterns(user)
+        except Profile.DoesNotExist:
+            print(f"Profile not found for user: {user.username}")
+        except Exception as e:
+            print(f"Error updating points: {str(e)}")
     
     message = "Task completed successfully!" if should_auto_approve else "Task submitted successfully and awaiting GameKeeper approval!"
     return Response({"message": message}, status=status.HTTP_200_OK)
@@ -470,13 +485,16 @@ def get_user_profile(request):
             'rejection_reason': task.rejection_reason if task.status == 'rejected' else None
         })
 
-    # Get user badges
+    # First, check if new patterns have been completed but badges not awarded yet
+    check_and_award_patterns(user)
+    
+    # Now get user badges (after possible updates from pattern detection)
     user_badges = UserBadge.objects.filter(user=user).select_related('pattern')
     badges_data = []
     for badge in user_badges:
         badges_data.append({
             'id': badge.pattern.id,
-            'name': badge.pattern.name,
+            'name': badge.pattern.name if badge.pattern.name else f"{badge.pattern.pattern_type} Pattern",
             'type': badge.pattern.pattern_type,
             'description': badge.pattern.description,
             'bonus_points': badge.pattern.bonus_points,
@@ -827,16 +845,26 @@ def get_user_badges(request):
     Get all badges earned by the authenticated user
     """
     user = request.user
+    
+    # First check if new patterns have been completed
+    print(f"Checking for new patterns for user {user.username}")
+    detected_patterns, new_patterns_found = check_and_award_patterns(user)
+    
+    if new_patterns_found:
+        print(f"New patterns detected: {detected_patterns}")
+    
+    # Get all user badges
     user_badges = UserBadge.objects.filter(user=user).select_related('pattern')
     badges_data = []
+    
     for badge in user_badges:
-       badges_data.append({
-        'id': badge.pattern.id,
-        'name': badge.pattern.name,
-        'type': badge.pattern.pattern_type,  # Match this exactly to what frontend expects
-        'description': badge.pattern.description,
-        'bonus_points': badge.pattern.bonus_points,
-    })
+        badges_data.append({
+            'id': badge.pattern.id,
+            'name': badge.pattern.name,
+            'type': badge.pattern.pattern_type,
+            'description': badge.pattern.description,
+            'bonus_points': badge.pattern.bonus_points,
+        })
     
     return Response(badges_data)
 
@@ -848,6 +876,11 @@ def check_and_award_patterns(user):
         # Get all completed tasks for the user
         completed_tasks = UserTask.objects.filter(user=user, completed=True)
         print(f"Found {completed_tasks.count()} completed tasks: {[t.task.id for t in completed_tasks]}")
+        
+        # If no completed tasks, return early
+        if not completed_tasks.exists():
+            print("No completed tasks found, skipping pattern check")
+            return [], False
         
         # DETAILED DEBUG: Print each completed task description
         for task in completed_tasks:
@@ -867,6 +900,11 @@ def check_and_award_patterns(user):
         detected_patterns = BingoPatternDetector.detect_patterns(grid, size=3)
         print(f"Detected patterns: {detected_patterns}")
         
+        # If no patterns detected, return early
+        if not detected_patterns:
+            print("No patterns detected")
+            return [], False
+            
         # Get existing badges for user
         existing_badges = UserBadge.objects.filter(user=user).values_list('pattern__pattern_type', flat=True)
         print(f"Existing badges: {list(existing_badges)}")
@@ -877,6 +915,7 @@ def check_and_award_patterns(user):
         
         # Track if any new patterns were completed
         new_patterns_completed = False
+        newly_added_patterns = []
         
         # Award new badges and points
         for pattern_type in detected_patterns:
@@ -887,11 +926,24 @@ def check_and_award_patterns(user):
                     continue
                 
                 print(f"New pattern detected: {pattern_type}")
+                newly_added_patterns.append(pattern_type)
                 
                 # Get the pattern details
                 try:
-                    pattern = BingoPattern.objects.get(pattern_type=pattern_type)
-                    print(f"Found pattern in database: {pattern.name} ({pattern.pattern_type})")
+                    # Get or create the pattern in the database
+                    pattern, created = BingoPattern.objects.get_or_create(
+                        pattern_type=pattern_type,
+                        defaults={
+                            'name': get_pattern_name(pattern_type),
+                            'description': get_pattern_description(pattern_type),
+                            'bonus_points': 30  # Default bonus points
+                        }
+                    )
+                    
+                    if created:
+                        print(f"Created new pattern in database: {pattern.name}")
+                    else:
+                        print(f"Found existing pattern in database: {pattern.name}")
                     
                     # Create badge for user and award bonus points
                     UserBadge.objects.create(user=user, pattern=pattern)
@@ -899,16 +951,13 @@ def check_and_award_patterns(user):
                     
                     # Award pattern bonus points
                     leaderboard.points += pattern.bonus_points
-                    leaderboard.save()
                     print(f"Awarded {pattern.bonus_points} bonus points for pattern")
                     
                     # Set flag to indicate a new pattern was completed
                     new_patterns_completed = True
                     
-                except BingoPattern.DoesNotExist:
-                    print(f"ERROR: Pattern {pattern_type} not found in database")
                 except Exception as e:
-                    print(f"ERROR creating badge: {str(e)}")
+                    print(f"ERROR creating or retrieving pattern: {str(e)}")
             except Exception as inner_e:
                 print(f"ERROR processing pattern {pattern_type}: {str(inner_e)}")
         
@@ -916,9 +965,9 @@ def check_and_award_patterns(user):
         
         # Award additional points for completing a task that forms a bingo pattern
         if new_patterns_completed:
-            print("Attempting to award extra 20 points...")
+            print("Awarding extra 5 points for pattern completion...")
             
-            # Award extra 20 points
+            # Award extra points
             try:
                 task_completion_bonus = 5
                 leaderboard.points += task_completion_bonus
@@ -946,10 +995,31 @@ def check_and_award_patterns(user):
             except Exception as bonus_error:
                 print(f"ERROR awarding extra points: {str(bonus_error)}")
         
-        return detected_patterns, new_patterns_completed
+        return newly_added_patterns, new_patterns_completed
     except Exception as e:
         print(f"ERROR in check_and_award_patterns: {str(e)}")
         return [], False
+
+# Helper functions for pattern names and descriptions
+def get_pattern_name(pattern_type):
+    """Return a friendly name for each pattern type"""
+    pattern_names = {
+        'O': 'Outer Circle Champion',
+        'X': 'Diagonal Master',
+        'H': 'Horizontal Hero',
+        'V': 'Vertical Victory'
+    }
+    return pattern_names.get(pattern_type, f"{pattern_type} Pattern")
+
+def get_pattern_description(pattern_type):
+    """Return a description for each pattern type"""
+    pattern_descriptions = {
+        'O': 'Complete all tasks along the outer edge of the bingo board',
+        'X': 'Complete tasks diagonally from corner to corner',
+        'H': 'Complete all tasks in any horizontal row',
+        'V': 'Complete all tasks in any vertical column'
+    }
+    return pattern_descriptions.get(pattern_type, f"Complete tasks in a {pattern_type} pattern")
     
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

@@ -18,21 +18,32 @@ class BingoPatternDetector:
         """
         # Create a set of completed task IDs for quick lookup
         completed_task_ids = {task.task.id for task in user_tasks}
+        
+        # Debug info
+        print(f"Completed task IDs: {completed_task_ids}")
     
-    # Get only the tasks that will fit in the grid
+        # Get only the tasks that will fit in the grid
         grid_tasks = list(all_tasks[:grid_size*grid_size])
+        
+        # Debug: List grid tasks
+        grid_task_ids = [task.id for task in grid_tasks]
+        print(f"Grid task IDs (in order): {grid_task_ids}")
     
-    # Create the grid
+        # Create the grid
         grid = [[False for _ in range(grid_size)] for _ in range(grid_size)]
     
-    # Map tasks to grid positions based on their sequence in the list
+        # Map tasks to grid positions based on their sequence in the list
         for i, task in enumerate(grid_tasks):
-           row = i // grid_size
-           col = i % grid_size
-        
-        # Mark as completed if this task is in the completed set
-        if task.id in completed_task_ids:
-            grid[row][col] = True
+            row = i // grid_size
+            col = i % grid_size
+            
+            # Debug position mapping
+            print(f"Task {task.id} at position ({row}, {col})")
+            
+            # Mark as completed if this task is in the completed set
+            if task.id in completed_task_ids:
+                grid[row][col] = True
+                print(f"  - Marked as completed")
             
         return grid
     
@@ -71,7 +82,12 @@ class BingoPatternDetector:
     def check_horizontal_line(grid, size=3):
         """Check if any horizontal line is complete"""
         for row in range(size):
-            if all(grid[row]):
+            all_completed = True
+            for col in range(size):
+                if not grid[row][col]:
+                    all_completed = False
+                    break
+            if all_completed:
                 return True
         return False
     
@@ -79,7 +95,12 @@ class BingoPatternDetector:
     def check_vertical_line(grid, size=3):
         """Check if any vertical line is complete"""
         for col in range(size):
-            if all(grid[row][col] for row in range(size)):
+            all_completed = True
+            for row in range(size):
+                if not grid[row][col]:
+                    all_completed = False
+                    break
+            if all_completed:
                 return True
         return False
     
@@ -93,17 +114,33 @@ class BingoPatternDetector:
         """
         patterns = []
         
-        # Check for each pattern
+        # Check for each pattern with logging
+        print("Checking for O pattern...")
         if BingoPatternDetector.check_o_pattern(grid, size):
             patterns.append("O")
+            print("✓ O pattern detected!")
+        else:
+            print("✗ O pattern not detected")
             
+        print("Checking for X pattern...")
         if BingoPatternDetector.check_x_pattern(grid, size):
             patterns.append("X")
+            print("✓ X pattern detected!")
+        else:
+            print("✗ X pattern not detected")
             
+        print("Checking for horizontal line pattern...")
         if BingoPatternDetector.check_horizontal_line(grid, size):
             patterns.append("H")
+            print("✓ Horizontal pattern detected!")
+        else:
+            print("✗ Horizontal pattern not detected")
             
+        print("Checking for vertical line pattern...")
         if BingoPatternDetector.check_vertical_line(grid, size):
             patterns.append("V")
+            print("✓ Vertical pattern detected!")
+        else:
+            print("✗ Vertical pattern not detected")
             
         return patterns
