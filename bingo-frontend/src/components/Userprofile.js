@@ -343,6 +343,27 @@ const Profile = () => {
             <p><strong>Rank:</strong> {userData?.rank || 'Unranked'}</p>
             <p><strong>Total Points:</strong> {userData?.total_points || 0}</p>
             <p><strong>Completed Tasks:</strong> {userData?.completed_tasks || 0}</p>
+            {/* User Badges Section */}
+<div className="user-badges">
+  <p><strong>Earned Badges:</strong>
+  {userData?.badges && userData.badges.length > 0 ? (
+    <div className="badges-grid">
+      {userData.badges.map(badge => (
+        <div key={badge.id} className="badge-item">
+          <div className="badge-emoji">
+            {badge.type === 'O' && '♻️'}
+            {badge.type === 'X' && '💚'}
+            {badge.type === 'H' && '🌈'}
+            {badge.type === 'V' && '🌱'}
+            {!['O', 'X', 'H', 'V'].includes(badge.type) && '🏆'}
+          </div>
+        </div>
+      ))}
+    </div>
+  ) : (
+    <p>No badges earned yet. Complete patterns on your bingo board to earn badges!</p>
+  )}</p>
+</div>
             <button className="edit-profile-btn" onClick={() => setEditMode(true)}>Edit Profile</button>
             <button className="delete-profile-btn" onClick={() => setShowDeleteConfirm(true)}>Delete Profile</button>
           </div>
@@ -354,20 +375,6 @@ const Profile = () => {
             <button type="submit">Save Changes</button>
             <button type="button" onClick={() => setEditMode(false)}>Cancel</button>
           </form>
-        )}
-      </div>
-
-      {/* Completed Tasks Section */}
-      <div className="completed-tasks">
-        <h3>Completed Bingo Tasks</h3>
-        {tasks.length > 0 ? (
-          <ul>
-            {tasks.map(task => (
-              <li key={task.id}>{task.description}</li>
-            ))}
-          </ul>
-        ) : (
-          <p>No completed tasks yet.</p>
         )}
       </div>
 

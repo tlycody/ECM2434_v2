@@ -491,8 +491,21 @@ def get_user_profile(request):
         "leaderboard_rank": leaderboard_position,
         "profile_picture": request.build_absolute_uri(profile.profile_picture.url) if profile.profile_picture else None,
         "rank": profile.rank,
-        "user_tasks": user_tasks_data  # Include tasks status and rejection reasons
+
     }
+
+    # Get user's badges
+    user_badges = UserBadge.objects.filter(user=user).select_related('pattern')
+    
+    badges = []
+    for badge in user_badges:
+        badges.append({
+            'id': badge.pattern.id,
+            'name': badge.pattern.name,
+            'type': badge.pattern.pattern_type,
+        })
+
+    profile_data['badges'] = badges
 
     return Response(profile_data)
 
@@ -939,9 +952,6 @@ def force_award_pattern(request):
     """
     Manually force award a pattern to a user
     """
-    if request.user.role.lower() not in ['gamekeeper', 'developer']:
-        return Response({"error": "Permission denied"}, status=status.HTTP_403_FORBIDDEN)
-    
     user_id = request.data.get('user_id')
     pattern_type = request.data.get('pattern_type', 'V')  # Default to vertical
     

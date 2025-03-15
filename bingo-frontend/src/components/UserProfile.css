@@ -295,13 +295,9 @@
       width: 90px;
       height: 90px;
     }
-  
+    
     .badges-grid {
       grid-template-columns: 1fr;
-    }
-  
-    .hint-item {
-      font-size: 11px;
     }
   
     .completed-tasks li {
@@ -309,3 +305,33 @@
     }
   }
   
+
+  /* Badge Display Styles */
+.user-badges {
+  margin-top: 2rem;
+  width: 100%;
+}
+
+.badges-grid {
+  display: grid;
+  align-self: center;
+  align-items: center;
+  gap: 1rem;
+  width: 100px;
+  margin-top: 1rem;
+}
+
+.badge-item {
+  display: flex;
+  align-items: center;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  padding: 10rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+}
+
+.badge-emoji {
+  font-size: 2.5rem;
+  margin-right: 1rem;
+}

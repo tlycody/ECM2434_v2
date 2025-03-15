@@ -19,7 +19,7 @@ const Overview = () => {
       case 'O':
         return '♻️'; // Recycling symbol for Ozone Defender
       case 'X':
-        return '❌'; // X for Xtra Green
+        return '💚'; // X for Xtra Green
       case 'H':
         return '🌈'; // Rainbow for Healthy Hero
       case 'V':
@@ -137,7 +137,7 @@ const Overview = () => {
             <p>Complete patterns on your bingo board to earn badges!</p>
             <div className="hint-icons">
               <span className="hint-item">♻️ Ozone Defender</span>
-              <span className="hint-item">❌ Xtra Green</span>
+              <span className="hint-item">💚 Xtra Green</span>
               <span className="hint-item">🌈 Healthy Hero</span>
               <span className="hint-item">🌱 Green Champion</span>
             </div>
