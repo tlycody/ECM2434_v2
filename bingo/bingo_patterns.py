@@ -18,23 +18,22 @@ class BingoPatternDetector:
         """
         # Create a set of completed task IDs for quick lookup
         completed_task_ids = {task.task.id for task in user_tasks}
-        
-        # Map all tasks to grid positions (assuming tasks are ordered from 1-9)
-        task_map = {}
-        for i, task in enumerate(all_tasks[:grid_size*grid_size]):
-            row = i // grid_size
-            col = i % grid_size
-            task_map[task.id] = (row, col)
-        
-        # Create the grid
+    
+    # Get only the tasks that will fit in the grid
+        grid_tasks = list(all_tasks[:grid_size*grid_size])
+    
+    # Create the grid
         grid = [[False for _ in range(grid_size)] for _ in range(grid_size)]
+    
+    # Map tasks to grid positions based on their sequence in the list
+        for i, task in enumerate(grid_tasks):
+           row = i // grid_size
+           col = i % grid_size
         
-        # Mark completed tasks
-        for task_id in completed_task_ids:
-            if task_id in task_map:
-                row, col = task_map[task_id]
-                grid[row][col] = True
-                
+        # Mark as completed if this task is in the completed set
+        if task.id in completed_task_ids:
+            grid[row][col] = True
+            
         return grid
     
     @staticmethod
