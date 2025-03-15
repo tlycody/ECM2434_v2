@@ -26,29 +26,27 @@ const Profile = () => {
   // ============================
   useEffect(() => {
     // Fetch user profile data
-    const fetchUserData = async () => {
-      try {
-        const response = await axios.get(`${API_URL}/api/profile/`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
-        });
-        console.log('User profile data:', response.data);
-
-
-        // Log the profile picture URL for debugging
-        if (response.data.profile_picture) {
-          console.log('Original profile picture path:', response.data.profile_picture);
-          console.log('Constructed profile picture URL:', `${API_URL}${response.data.profile_picture}`);
-        } else {
-          console.log('No profile picture found in the response data');
-        }
-
-
-        setUserData(response.data);
-        setUpdatedUser(response.data);
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-      }
-    };
+// In UserProfile.js, modify fetchUserData to also set badges
+const fetchUserData = async () => {
+  try {
+    const response = await axios.get(`${API_URL}/api/profile/`, {
+      headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
+    });
+    console.log('User profile data:', response.data);
+    
+    // Set userData and updatedUser as before
+    setUserData(response.data);
+    setUpdatedUser(response.data);
+    
+    // If badges are included in the response, use them
+    if (response.data.badges) {
+      console.log('Badges from profile:', response.data.badges);
+      setBadges(response.data.badges);
+    }
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+  }
+};
 
 
     // Fetch tasks for display in the list
@@ -79,22 +77,22 @@ const Profile = () => {
         const response = await axios.get(`${API_URL}/api/user-badges/`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
         });
-        console.log('Badges data:', response.data);
         
-        // Check if we got an array of badges
+        console.log('Raw badges response:', response.data);
+        
         if (Array.isArray(response.data)) {
-          setBadges(response.data);
-          
-          // Debug first badge if available
+          // Log the structure of the first badge to see its properties
           if (response.data.length > 0) {
-            console.log('First badge details:', response.data[0]);
-            console.log('Badge type:', response.data[0].type);
+            console.log('First badge object keys:', Object.keys(response.data[0]));
+            console.log('Complete first badge object:', response.data[0]);
           }
+          
+          setBadges(response.data);
         } else {
-          console.error('Expected badges array but got:', response.data);
+          console.error('Expected array but got:', typeof response.data);
         }
       } catch (error) {
-        console.error('Error fetching badges:', error);
+        console.error('Error fetching badges:', error.response || error.message);
       }
     };
 
@@ -382,21 +380,21 @@ const Profile = () => {
                         <div className="user-badges">
   <p><strong>Earned Badges:</strong></p>
   {badges && badges.length > 0 ? (
-    <div className="badges-grid">
-      {badges.map(badge => (
-        <div key={badge.id || badge.name || badge.type} className="badge-item">
-          <div className="badge-emoji">
-            {getBadgeEmoji(badge.type)}
-          </div>
-          <div className="badge-name">
-            {getBadgeTypeName(badge.type)}
-          </div>
+  <div className="badges-grid">
+    {badges.map(badge => (
+      <div key={badge.id || badge.name} className="badge-item">
+        <div className="badge-emoji">
+          {getBadgeEmoji(badge.type)}
         </div>
-      ))}
-    </div>
-  ) : (
-    <p>No badges earned yet. Complete patterns on your bingo board to earn badges!</p>
-  )}
+        <div className="badge-name">
+          {getBadgeTypeName(badge.type)}
+        </div>
+      </div>
+    ))}
+  </div>
+) : (
+  <p>No badges earned yet. Complete patterns on your bingo board to earn badges!</p>
+)}
 </div>
             <button className="edit-profile-btn" onClick={() => setEditMode(true)}>Edit Profile</button>
             <button className="delete-profile-btn" onClick={() => setShowDeleteConfirm(true)}>Delete Profile</button>

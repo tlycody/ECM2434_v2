@@ -470,6 +470,18 @@ def get_user_profile(request):
             'rejection_reason': task.rejection_reason if task.status == 'rejected' else None
         })
 
+    # Get user badges
+    user_badges = UserBadge.objects.filter(user=user).select_related('pattern')
+    badges_data = []
+    for badge in user_badges:
+        badges_data.append({
+            'id': badge.pattern.id,
+            'name': badge.pattern.name,
+            'type': badge.pattern.pattern_type,
+            'description': badge.pattern.description,
+            'bonus_points': badge.pattern.bonus_points,
+        })
+
     # Calculate user rank
     user_points = leaderboard.points
     rank = user_rank(user_points)
@@ -491,7 +503,8 @@ def get_user_profile(request):
         "leaderboard_rank": leaderboard_position,
         "profile_picture": request.build_absolute_uri(profile.profile_picture.url) if profile.profile_picture else None,
         "rank": profile.rank,
-        "user_tasks": user_tasks_data  # Include tasks status and rejection reasons
+        "user_tasks": user_tasks_data,
+        "badges": badges_data  # Add badges to the response
     }
 
     return Response(profile_data)
