@@ -407,23 +407,23 @@ class UserRankTests(TestCase):
         """Test that users with 0-50 points are ranked as 'Beginner'."""
         self.assertEqual(user_rank(10), "Beginner")
         self.assertEqual(user_rank(0), "Beginner")
-        self.assertEqual(user_rank(50), "Beginner")
+        self.assertEqual(user_rank(49), "Beginner")
 
     def test_user_rank_intermediate(self):
-        """Test that users with 51-1250 points are ranked as 'Intermediate'."""
-        self.assertEqual(user_rank(51), "Intermediate")
-        self.assertEqual(user_rank(100), "Intermediate")
-        self.assertEqual(user_rank(1250), "Intermediate")
+        """Test that users with 50-100 points are ranked as 'Intermediate'."""
+        self.assertEqual(user_rank(59), "Intermediate")
+        self.assertEqual(user_rank(99), "Intermediate")
+        self.assertEqual(user_rank(50), "Intermediate")
 
     def test_user_rank_expert(self):
-        """Test that users with more than 1251 points are ranked as 'Expert'."""
-        self.assertEqual(user_rank(1300), "Expert")
-        self.assertEqual(user_rank(5000), "Expert")
-        self.assertEqual(user_rank(1251), "Expert")
+        """Test that users with more than 100 points are ranked as 'Expert'."""
+        self.assertEqual(user_rank(100), "Expert")
+        self.assertEqual(user_rank(125), "Expert")
 
     def test_user_rank_boundary_cases(self):
         """Test boundary cases to ensure correct ranking transitions."""
-        self.assertEqual(user_rank(50), "Beginner")
+        self.assertEqual(user_rank(49), "Beginner")
         self.assertEqual(user_rank(51), "Intermediate")
-        self.assertEqual(user_rank(1250), "Intermediate")
-        self.assertEqual(user_rank(1251), "Expert")
+        self.assertEqual(user_rank(99), "Intermediate")
+        self.assertEqual(user_rank(101), "Expert")
+

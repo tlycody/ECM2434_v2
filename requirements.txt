@@ -10,3 +10,9 @@ PyJWT==2.10.1
 sqlparse==0.5.3
 fpdf==1.7.2
 qrcode
+git add db.sqlite3
+git commit -m "Add database file for persistence"
+git push
+npm install jsar
+echo "Checking database file permissions..."
+chmod 664 db.sqlite3
