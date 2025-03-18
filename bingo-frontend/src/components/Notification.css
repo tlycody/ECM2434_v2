@@ -1,5 +1,5 @@
 /* ============================
-   Notification Styling
+   Notification Styling - Enhanced
    ============================ */
 
 /* Import Google Font: Poppins for consistency */
@@ -16,32 +16,63 @@
   background-color: white;
   border-radius: 10px;
   padding: 12px 15px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   z-index: 1000;
   font-family: 'Poppins', sans-serif;
-  opacity: 0;
-  transform: translateX(30px);
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-/* Notification states */
+/* Enhanced animation for notifications */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+}
+
 .notification.visible {
-  opacity: 1;
-  transform: translateX(0);
+  animation: slideInRight 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 
 .notification.hidden {
-  opacity: 0;
-  transform: translateX(30px);
+  animation: slideOutRight 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 
-/* Notification icon */
+/* Notification icon with enhanced styling */
 .notification-icon {
-  font-size: 20px;
-  margin-right: 12px;
+  font-size: 22px;
+  margin-right: 15px;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 40px;
+  height: 40px;
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  animation: iconPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes iconPop {
+  0% { transform: scale(0.5); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
 }
 
 /* Notification message content */
@@ -50,6 +81,35 @@
   color: #333;
   font-size: 14px;
   padding-right: 10px;
+  animation: textFadeIn 0.5s ease;
+}
+
+@keyframes textFadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Action button */
+.notification-action {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: inherit;
+  border: 1px solid currentColor;
+  padding: 5px 10px;
+  margin-right: 10px;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.notification-action:hover {
+  background-color: rgba(255, 255, 255, 0.4);
+  transform: translateY(-2px);
+}
+
+.notification-action:active {
+  transform: translateY(0);
 }
 
 /* Close button */
@@ -65,41 +125,146 @@
   justify-content: center;
   width: 24px;
   height: 24px;
-  transition: color 0.2s;
+  transition: all 0.2s;
+  border-radius: 50%;
 }
 
 .notification-close:hover {
   color: #333;
+  background-color: rgba(0, 0, 0, 0.05);
+  transform: rotate(90deg);
 }
+
+/* Progress bar for notifications with duration */
+.notification-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background-color: rgba(0, 0, 0, 0.1);
+  width: 100%;
+}
+
+.notification-progress-bar {
+  height: 100%;
+  transition: width linear;
+}
+
+/* Enhanced notification types */
 
 /* Success notification */
 .notification.success {
   border-left: 4px solid #8BC34A;
-  background-color: #F1F8E9;
+  background-color: rgba(241, 248, 233, 0.95);
+}
+
+.notification.success .notification-icon {
+  color: #8BC34A;
+  background-color: rgba(139, 195, 74, 0.15);
 }
 
 /* Error notification */
 .notification.error {
   border-left: 4px solid #F44336;
-  background-color: #FFEBEE;
+  background-color: rgba(255, 235, 238, 0.95);
+}
+
+.notification.error .notification-icon {
+  color: #F44336;
+  background-color: rgba(244, 67, 54, 0.15);
 }
 
 /* Info notification */
 .notification.info {
   border-left: 4px solid #2196F3;
-  background-color: #E3F2FD;
+  background-color: rgba(227, 242, 253, 0.95);
+}
+
+.notification.info .notification-icon {
+  color: #2196F3;
+  background-color: rgba(33, 150, 243, 0.15);
 }
 
 /* Warning notification */
 .notification.warning {
   border-left: 4px solid #FF9800;
-  background-color: #FFF3E0;
+  background-color: rgba(255, 243, 224, 0.95);
+}
+
+.notification.warning .notification-icon {
+  color: #FF9800;
+  background-color: rgba(255, 152, 0, 0.15);
 }
 
 /* Achievement notification */
 .notification.achievement {
   border-left: 4px solid #8E44AD;
-  background-color: #F3E5F5;
+  background-color: rgba(243, 229, 245, 0.95);
+}
+
+.notification.achievement .notification-icon {
+  color: #8E44AD;
+  background-color: rgba(142, 68, 173, 0.15);
+}
+
+/* Task completion notification */
+.notification.task-complete {
+  border-left: 4px solid #4CAF50;
+  background-color: rgba(232, 245, 233, 0.95);
+}
+
+.notification.task-complete .notification-icon {
+  color: #4CAF50;
+  background-color: rgba(76, 175, 80, 0.15);
+}
+
+/* Pattern completion notification */
+.notification.pattern-complete {
+  border-left: 4px solid #8E44AD;
+  background-color: rgba(243, 229, 245, 0.95);
+  box-shadow: 0 4px 20px rgba(142, 68, 173, 0.2);
+}
+
+.notification.pattern-complete .notification-icon {
+  color: #8E44AD;
+  background-color: rgba(142, 68, 173, 0.15);
+}
+
+/* End-of-month reminder */
+.notification.reminder,
+.notification.end-of-month {
+  border-left: 4px solid #FF5722;
+  background-color: rgba(251, 233, 231, 0.95);
+}
+
+.notification.reminder .notification-icon,
+.notification.end-of-month .notification-icon {
+  color: #FF5722;
+  background-color: rgba(255, 87, 34, 0.15);
+}
+
+/* Progress notification */
+.notification.progress {
+  border-left: 4px solid #00BCD4;
+  background-color: rgba(224, 247, 250, 0.95);
+}
+
+.notification.progress .notification-icon {
+  color: #00BCD4;
+  background-color: rgba(0, 188, 212, 0.15);
+}
+
+/* Stack multiple notifications */
+.notification:nth-child(2) {
+  top: 90px;
+}
+
+.notification:nth-child(3) {
+  top: 160px;
+}
+
+.notification:nth-child(4) {
+  top: 230px;
 }
 
 /* Mobile responsiveness */
@@ -111,5 +276,21 @@
     top: 10px;
     right: 15px;
     left: 15px;
+  }
+
+  .notification:nth-child(2) {
+    top: 80px;
+  }
+
+  .notification:nth-child(3) {
+    top: 150px;
+  }
+
+  .notification:nth-child(4) {
+    top: 220px;
+  }
+
+  .notification-content {
+    font-size: 13px;
   }
 }

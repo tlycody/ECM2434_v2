@@ -47,6 +47,10 @@ logger = logging.getLogger(__name__)
 ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png"]
 User = get_user_model()
 
+
+DEBUG_PATTERN_CHECKING = False
+
+
 # Task Loading Function
 def load_initial_tasks():
     """Loads initial tasks from JSON file if the database is empty."""
@@ -264,71 +268,113 @@ def complete_task(request):
     user = request.user
     task_id = request.data.get('task_id')
     task = get_object_or_404(Task, id=task_id)
-    
+
     # Debug logging
     print(f"Processing task completion: task_id={task_id}, user={user.username}")
     print(f"Task details: description={task.description}, requires_scan={getattr(task, 'requires_scan', False)}")
-    
+
     # Check if this task has scan functionality for auto-approval
     should_auto_approve = task.requires_scan if hasattr(task, 'requires_scan') else False
-    
+
     # Check if task exists in user tasks
     user_task = UserTask.objects.filter(user=user, task=task).first()
     if user_task:
         print(f"Existing user_task found: status={user_task.status}, completed={user_task.completed}")
-    
+
     # If task is already completed and approved, don't allow resubmission
     if user_task and user_task.completed:
         return Response({"message": "Task already completed and approved!"},
                         status=status.HTTP_400_BAD_REQUEST)
-    
+
     # If task is pending approval, don't allow resubmission
     if user_task and user_task.status == 'pending' and not user_task.completed:
         return Response({"message": "Task already submitted and pending approval!"},
                         status=status.HTTP_400_BAD_REQUEST)
-    
+
     # If photo is required but not provided
     if task.requires_upload and 'photo' not in request.FILES:
         return Response({"message": "This task requires a photo upload."},
                         status=status.HTTP_400_BAD_REQUEST)
-    
+
     # If photo is provided, check for fraud
     if 'photo' in request.FILES:
         photo_file = request.FILES['photo']
         print(f"Photo provided: size={photo_file.size}, type={photo_file.content_type}")
-        
+
         # Check file size
         if photo_file.size > 10 * 1024 * 1024:  # 10MB limit
             return Response({"message": "Photo is too large. Maximum size is 10MB."},
                             status=status.HTTP_400_BAD_REQUEST)
-        
+
         # Check file type
         if not photo_file.content_type.startswith('image/'):
             return Response({"message": "Uploaded file is not an image."},
                             status=status.HTTP_400_BAD_REQUEST)
-    
+
+        # Perform fraud detection check before saving
+        from .basic_image_fraud_detector import BasicImageFraudDetector
+
+        try:
+            # Read the image data
+            photo_file.seek(0)  # Reset file pointer to beginning
+            photo_data = photo_file.read()
+            photo_file.seek(0)  # Reset file pointer again
+
+            # Initialize the fraud detector
+            detector = BasicImageFraudDetector(similarity_threshold=85)
+
+            # Check if the image is fraudulent (similar to previously submitted images)
+            is_fraudulent, similarity, matched_task_id = detector.is_image_fraudulent(
+                photo_data,
+                user_id=user.id  # Check against this user's submissions
+            )
+
+            print(
+                f"Fraud detection results: is_fraudulent={is_fraudulent}, similarity={similarity:.2f}%, matched_task_id={matched_task_id}")
+
+            # If fraudulent, reject the submission
+            if is_fraudulent:
+                matched_task = None
+                if matched_task_id:
+                    matched_task = UserTask.objects.filter(id=matched_task_id).first()
+
+                matched_task_info = "unknown task"
+                if matched_task:
+                    matched_task_info = f"task '{matched_task.task.description}'"
+
+                return Response({
+                    "message": f"This image appears to be identical or very similar to a previously submitted image for {matched_task_info}.",
+                    "similarity": f"{similarity:.1f}%",
+                    "error": "Please take a new picture that clearly shows you completing this specific task."
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            # Log the error but continue - don't block submission if fraud detection fails
+            print(f"Error during fraud detection: {str(e)}")
+            logger.error(f"Error during fraud detection: {str(e)}")
+
     # If user_task exists but was rejected, update it
     if user_task and user_task.status == 'rejected':
         print("Updating previously rejected task")
-        
+
         # If there was a photo, delete it before adding the new one
         if user_task.photo:
             user_task.photo.delete()
-        
+
         # Update the existing task record
         user_task.status = 'approved' if should_auto_approve else 'pending'
         user_task.completed = should_auto_approve
         user_task.completion_date = timezone.now()
         user_task.rejection_reason = None  # Clear previous rejection reason
-        
+
         # Save the new photo if provided
         if 'photo' in request.FILES:
             user_task.photo = request.FILES['photo']
-        
+
         user_task.save()
-        
+
         print(f"Updated task: status={user_task.status}, completed={user_task.completed}")
-        
+
         # If the task is auto-approved, check for patterns and award points
         if should_auto_approve:
             # Award points
@@ -336,24 +382,24 @@ def complete_task(request):
                 profile = Profile.objects.get(user=user)
                 profile.total_points += task.points
                 profile.save()
-                
+
                 # Also update the leaderboard
                 leaderboard, created = Leaderboard.objects.get_or_create(user=user)
                 leaderboard.points += task.points
                 leaderboard.save()
-                
+
                 print(f"Points awarded to {user.username}: {task.points}")
-                
+
                 # Check for patterns and award badges
                 check_and_award_patterns(user)
             except Profile.DoesNotExist:
                 print(f"Profile not found for user: {user.username}")
             except Exception as e:
                 print(f"Error updating points: {str(e)}")
-        
+
         message = "Task completed successfully!" if should_auto_approve else "Task resubmitted successfully and awaiting GameKeeper approval!"
         return Response({"message": message}, status=status.HTTP_200_OK)
-    
+
     # Otherwise, create a new user task
     print("Creating new user task")
     new_user_task = UserTask(
@@ -362,39 +408,38 @@ def complete_task(request):
         completed=should_auto_approve,
         status='approved' if should_auto_approve else 'pending'
     )
-    
+
     # Save photo if provided
     if 'photo' in request.FILES:
         new_user_task.photo = request.FILES['photo']
-    
+
     new_user_task.save()
-    
+
     print(f"Created new task: status={new_user_task.status}, completed={new_user_task.completed}")
-    
+
     # Award points and check patterns if auto-approved
     if should_auto_approve:
         try:
             profile = Profile.objects.get(user=user)
             profile.total_points += task.points
             profile.save()
-            
+
             # Also update the leaderboard
             leaderboard, created = Leaderboard.objects.get_or_create(user=user)
             leaderboard.points += task.points
             leaderboard.save()
-            
+
             print(f"Points awarded to {user.username}: {task.points}")
-            
-            # Check for patterns and award badges 
+
+            # Check for patterns and award badges
             check_and_award_patterns(user)
         except Profile.DoesNotExist:
             print(f"Profile not found for user: {user.username}")
         except Exception as e:
             print(f"Error updating points: {str(e)}")
-    
+
     message = "Task completed successfully!" if should_auto_approve else "Task submitted successfully and awaiting GameKeeper approval!"
     return Response({"message": message}, status=status.HTTP_200_OK)
-
 # ============================
 # Leaderboard Retrieval
 # ============================
@@ -699,16 +744,20 @@ def approve_task(request):
     leaderboard.points += task.points
     leaderboard.save()
 
+    # Update profile total points
+    profile, _ = Profile.objects.get_or_create(user=user)
+    profile.total_points += task.points
+    profile.save()
+
     # Debugging line
     print(f"Calling check_and_award_patterns for user {user.username}")
-    
+
     # Call this function to check for and award patterns
     check_and_award_patterns(user)
 
     return Response({
         "message": f"Task approved for {user.username}. {task.points} points rewarded."
     })
-
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -868,66 +917,81 @@ def get_user_badges(request):
     
     return Response(badges_data)
 
+
 def check_and_award_patterns(user):
     """Check if the user has completed any patterns and award badges and points"""
     try:
-        print(f"\n\n==== CHECKING PATTERNS FOR USER: {user.username} ====")
-        
+        # Only print header if debugging is enabled
+        if DEBUG_PATTERN_CHECKING:
+            print(f"\n\n==== CHECKING PATTERNS FOR USER: {user.username} ====")
+
         # Get all completed tasks for the user
         completed_tasks = UserTask.objects.filter(user=user, completed=True)
-        print(f"Found {completed_tasks.count()} completed tasks: {[t.task.id for t in completed_tasks]}")
-        
+
+        if DEBUG_PATTERN_CHECKING:
+            print(f"Found {completed_tasks.count()} completed tasks: {[t.task.id for t in completed_tasks]}")
+
+            # DETAILED DEBUG: Print each completed task description
+            for task in completed_tasks:
+                print(f"  - Task {task.task.id}: {task.task.description}")
+
         # If no completed tasks, return early
         if not completed_tasks.exists():
-            print("No completed tasks found, skipping pattern check")
+            if DEBUG_PATTERN_CHECKING:
+                print("No completed tasks found, skipping pattern check")
             return [], False
-        
-        # DETAILED DEBUG: Print each completed task description
-        for task in completed_tasks:
-            print(f"  - Task {task.task.id}: {task.task.description}")
-        
+
         # Get all tasks to understand grid positioning
         all_tasks = Task.objects.all().order_by('id')
-        print(f"Total tasks in system: {all_tasks.count()}")
-        
+        if DEBUG_PATTERN_CHECKING:
+            print(f"Total tasks in system: {all_tasks.count()}")
+
         # Create grid representation
         grid = BingoPatternDetector.create_grid_from_tasks(completed_tasks, all_tasks, grid_size=3)
-        print(f"Grid representation:")
-        for row in grid:
-            print(f"  {row}")
-        
+
+        if DEBUG_PATTERN_CHECKING:
+            print(f"Grid representation:")
+            for row in grid:
+                print(f"  {row}")
+
         # Detect patterns with detailed logging
         detected_patterns = BingoPatternDetector.detect_patterns(grid, size=3)
-        print(f"Detected patterns: {detected_patterns}")
-        
+        if DEBUG_PATTERN_CHECKING:
+            print(f"Detected patterns: {detected_patterns}")
+
         # If no patterns detected, return early
         if not detected_patterns:
-            print("No patterns detected")
+            if DEBUG_PATTERN_CHECKING:
+                print("No patterns detected")
             return [], False
-            
+
         # Get existing badges for user
         existing_badges = UserBadge.objects.filter(user=user).values_list('pattern__pattern_type', flat=True)
-        print(f"Existing badges: {list(existing_badges)}")
-        
+        if DEBUG_PATTERN_CHECKING:
+            print(f"Existing badges: {list(existing_badges)}")
+
         # Get user's leaderboard entry
         leaderboard, _ = Leaderboard.objects.get_or_create(user=user)
-        print(f"Current points: {leaderboard.points}")
-        
+        if DEBUG_PATTERN_CHECKING:
+            print(f"Current points: {leaderboard.points}")
+
         # Track if any new patterns were completed
         new_patterns_completed = False
         newly_added_patterns = []
-        
+
         # Award new badges and points
         for pattern_type in detected_patterns:
             try:
                 # Skip if user already has this badge
                 if pattern_type in existing_badges:
-                    print(f"User already has badge for pattern: {pattern_type}")
+                    if DEBUG_PATTERN_CHECKING:
+                        print(f"User already has badge for pattern: {pattern_type}")
                     continue
-                
-                print(f"New pattern detected: {pattern_type}")
+
+                if DEBUG_PATTERN_CHECKING:
+                    print(f"New pattern detected: {pattern_type}")
                 newly_added_patterns.append(pattern_type)
-                
+
                 # Get the pattern details
                 try:
                     # Get or create the pattern in the database
@@ -939,41 +1003,49 @@ def check_and_award_patterns(user):
                             'bonus_points': 30  # Default bonus points
                         }
                     )
-                    
-                    if created:
-                        print(f"Created new pattern in database: {pattern.name}")
-                    else:
-                        print(f"Found existing pattern in database: {pattern.name}")
-                    
+
+                    if DEBUG_PATTERN_CHECKING:
+                        if created:
+                            print(f"Created new pattern in database: {pattern.name}")
+                        else:
+                            print(f"Found existing pattern in database: {pattern.name}")
+
                     # Create badge for user and award bonus points
                     UserBadge.objects.create(user=user, pattern=pattern)
-                    print(f"Created UserBadge for pattern: {pattern.pattern_type}")
-                    
+                    if DEBUG_PATTERN_CHECKING:
+                        print(f"Created UserBadge for pattern: {pattern.pattern_type}")
+
                     # Award pattern bonus points
                     leaderboard.points += pattern.bonus_points
-                    print(f"Awarded {pattern.bonus_points} bonus points for pattern")
-                    
+                    if DEBUG_PATTERN_CHECKING:
+                        print(f"Awarded {pattern.bonus_points} bonus points for pattern")
+
                     # Set flag to indicate a new pattern was completed
                     new_patterns_completed = True
-                    
+
                 except Exception as e:
-                    print(f"ERROR creating or retrieving pattern: {str(e)}")
+                    if DEBUG_PATTERN_CHECKING:
+                        print(f"ERROR creating or retrieving pattern: {str(e)}")
             except Exception as inner_e:
-                print(f"ERROR processing pattern {pattern_type}: {str(inner_e)}")
-        
-        print(f"New patterns completed: {new_patterns_completed}")
-        
+                if DEBUG_PATTERN_CHECKING:
+                    print(f"ERROR processing pattern {pattern_type}: {str(inner_e)}")
+
+        if DEBUG_PATTERN_CHECKING:
+            print(f"New patterns completed: {new_patterns_completed}")
+
         # Award additional points for completing a task that forms a bingo pattern
         if new_patterns_completed:
-            print("Awarding extra 5 points for pattern completion...")
-            
+            if DEBUG_PATTERN_CHECKING:
+                print("Awarding extra 5 points for pattern completion...")
+
             # Award extra points
             try:
                 task_completion_bonus = 5
                 leaderboard.points += task_completion_bonus
                 leaderboard.save()
-                print(f"Awarded {task_completion_bonus} extra points for pattern completion")
-                
+                if DEBUG_PATTERN_CHECKING:
+                    print(f"Awarded {task_completion_bonus} extra points for pattern completion")
+
                 # Create bonus record
                 try:
                     # Get any completed task to link bonus to
@@ -985,19 +1057,24 @@ def check_and_award_patterns(user):
                             bonus_points=task_completion_bonus,
                             reason="Completed bingo pattern"
                         )
-                        print(f"Created TaskBonus record")
+                        if DEBUG_PATTERN_CHECKING:
+                            print(f"Created TaskBonus record")
                     else:
-                        print("ERROR: No completed task found to link bonus to")
+                        if DEBUG_PATTERN_CHECKING:
+                            print("ERROR: No completed task found to link bonus to")
                 except Exception as tb_error:
-                    print(f"ERROR creating TaskBonus: {str(tb_error)}")
+                    if DEBUG_PATTERN_CHECKING:
+                        print(f"ERROR creating TaskBonus: {str(tb_error)}")
                     # Don't let TaskBonus creation failure prevent points from being awarded
                     pass
             except Exception as bonus_error:
-                print(f"ERROR awarding extra points: {str(bonus_error)}")
-        
+                if DEBUG_PATTERN_CHECKING:
+                    print(f"ERROR awarding extra points: {str(bonus_error)}")
+
         return newly_added_patterns, new_patterns_completed
     except Exception as e:
-        print(f"ERROR in check_and_award_patterns: {str(e)}")
+        if DEBUG_PATTERN_CHECKING:
+            print(f"ERROR in check_and_award_patterns: {str(e)}")
         return [], False
 
 # Helper functions for pattern names and descriptions
@@ -1172,9 +1249,6 @@ def get_user_tasks_status(request):
 
 @api_view(['POST'])
 def password_reset_request(request):
-    """
-    Initiates password reset process by sending an email with a reset link
-    """
     email = request.data.get('email', '').lower().strip()
 
     if not email:
@@ -1183,8 +1257,6 @@ def password_reset_request(request):
     # Find user by email
     user = User.objects.filter(email=email).first()
 
-    # Always return success to prevent email enumeration attacks
-    # But only send email if user exists
     if user:
         # Delete any existing unused tokens for this user
         PasswordResetToken.objects.filter(user=user, used=False).delete()
@@ -1196,30 +1268,34 @@ def password_reset_request(request):
             expires_at=expiry_time
         )
 
-        # Set frontend URL for the reset link - hardcoded for development
+        # For development, use localhost URL
         frontend_url = 'http://localhost:3000'
         reset_url = f"{frontend_url}/reset-password/{reset_token.token}"
+
+        # Debug print
+        print("\n" + "="*50)
+        print("PASSWORD RESET REQUESTED")
+        print("="*50)
+        print(f"User: {user.username}")
+        print(f"Email: {email}")
+        print(f"Token: {reset_token.token}")
+        print(f"Reset URL: {reset_url}")
+        print("="*50 + "\n")
 
         # Send email
         try:
             send_mail(
                 'Password Reset Request',
-                f'Hello {user.username},\n\nClick the link below to reset your password:\n\n{reset_url}\n\nThe link will expire in 24 hours.\n\nIf you did not request this password reset, please ignore this email.',
+                f'Click the link to reset your password: {reset_url}',
                 settings.DEFAULT_FROM_EMAIL,
                 [email],
                 fail_silently=False,
             )
-            print(f"Password reset email sent to {email} with token {reset_token.token}")
-            print(f"Reset URL: {reset_url}")
         except Exception as e:
-            logger.error(f"Failed to send password reset email: {str(e)}")
-            print(f"Email error: {str(e)}")
-    else:
-        print(f"Password reset requested for unknown email: {email}")
+            print(f"Error sending email: {str(e)}")
+            # Still return success to prevent user enumeration
 
     return Response({'message': 'If your email address is registered, you will receive a password reset link'})
-
-
 @api_view(['POST'])
 def password_reset_confirm(request):
     """

@@ -1,5 +1,5 @@
 /* ============================
-   Achievement Popup Styling
+   Achievement Popup Styling - Enhanced
    ============================ */
 
 /* Import Google Font: Poppins for consistency */
@@ -17,6 +17,7 @@
   align-items: center;
   z-index: 2000;
   animation: fadeIn 0.5s ease forwards;
+  backdrop-filter: blur(5px);
 }
 
 .achievement-popup {
@@ -28,9 +29,10 @@
   font-family: 'Poppins', sans-serif;
   box-shadow: 0 5px 25px rgba(0, 0, 0, 0.25);
   animation: scaleIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  position: relative;
 }
 
-/* Header styling */
+/* Header styling - Enhanced */
 .achievement-header {
   background: linear-gradient(135deg, #8E44AD, #9B59B6);
   color: white;
@@ -38,12 +40,24 @@
   position: relative;
   display: flex;
   align-items: center;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .achievement-trophy {
   font-size: 30px;
   margin-right: 15px;
-  animation: pulse 2s infinite;
+  animation: pulse 2s infinite, trophyShake 1s ease-in-out;
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.3));
+}
+
+/* Trophy shake animation */
+@keyframes trophyShake {
+  0% { transform: rotate(0); }
+  20% { transform: rotate(-10deg); }
+  40% { transform: rotate(10deg); }
+  60% { transform: rotate(-5deg); }
+  80% { transform: rotate(5deg); }
+  100% { transform: rotate(0); }
 }
 
 .achievement-title {
@@ -65,19 +79,66 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  transition: background-color 0.2s;
+  transition: all 0.3s;
 }
 
 .achievement-close:hover {
   background-color: rgba(255, 255, 255, 0.2);
+  transform: rotate(90deg);
 }
 
-/* Content styling */
+/* Content styling - Enhanced */
 .achievement-content {
   padding: 25px;
   text-align: center;
+  animation: scaleContent 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  position: relative;
+  z-index: 1;
 }
 
+@keyframes scaleContent {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* Badge with glow effect */
+.achievement-badge {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+  position: relative;
+}
+
+.badge-icon {
+  font-size: 60px;
+  position: relative;
+  animation: badgePop 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes badgePop {
+  0% { transform: scale(0); opacity: 0; }
+  60% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.badge-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,215,0,0.6) 0%, rgba(255,215,0,0) 70%);
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+  from { opacity: 0.5; transform: translate(-50%, -50%) scale(0.8); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+}
+
+/* Rainbow text effect for achievement name */
 .achievement-name {
   font-size: 20px;
   font-weight: 600;
@@ -85,15 +146,57 @@
   margin-bottom: 15px;
 }
 
+.rainbow-text {
+  background-image: linear-gradient(to right, #ff9a9e, #fad0c4, #fad0c4, #a1c4fd, #c2e9fb);
+  background-size: 200% auto;
+  color: transparent;
+  background-clip: text;
+  -webkit-background-clip: text;
+  animation: rainbow 2s linear infinite;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+@keyframes rainbow {
+  to { background-position: 200% center; }
+}
+
+/* Points display with highlight effect */
 .achievement-points {
   font-size: 18px;
   font-weight: 500;
   color: #e67e22;
   margin-bottom: 20px;
+  animation: pointsHighlight 1s 0.3s ease-in-out;
+  position: relative;
+  display: inline-block;
 }
 
+@keyframes pointsHighlight {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); color: #f39c12; }
+  100% { transform: scale(1); }
+}
+
+.achievement-points::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(to right, transparent, #e67e22, transparent);
+  animation: lineExpand 1s 0.5s ease-in-out forwards;
+  transform: scaleX(0);
+}
+
+@keyframes lineExpand {
+  to { transform: scaleX(1); }
+}
+
+/* Enhanced button */
 .achievement-button {
-  background-color: #8E44AD;
+  background: linear-gradient(to right, #8E44AD, #9B59B6);
   color: white;
   border: none;
   padding: 12px 30px;
@@ -101,104 +204,124 @@
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.3s ease;
   margin-top: 20px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(142, 68, 173, 0.3);
 }
 
 .achievement-button:hover {
-  background-color: #9B59B6;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(142, 68, 173, 0.4);
 }
 
-/* Confetti animation */
+.achievement-button:active {
+  transform: translateY(0);
+}
+
+/* Ripple effect for button */
+.achievement-button::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.5);
+  opacity: 0;
+  border-radius: 100%;
+  transform: scale(1) translate(-50%, -50%);
+  transform-origin: 50% 50%;
+}
+
+.achievement-button:focus:not(:active)::after {
+  animation: ripple 0.8s ease-out;
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0) translate(-50%, -50%);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(20) translate(-50%, -50%);
+    opacity: 0;
+  }
+}
+
+/* Starburst effect for achievements */
+.achievement-starburst {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.starburst {
+  position: absolute;
+  background-color: rgba(255, 255, 255, 0.6);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  opacity: 0;
+  transform-origin: center;
+  animation: starburst 2s ease-out forwards;
+}
+
+@keyframes starburst {
+  0% {
+    opacity: 0.8;
+    transform: scale(0) rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(20) rotate(180deg);
+  }
+}
+
+/* Enhanced confetti animation */
 .confetti-container {
-  position: relative;
-  height: 100px;
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
-  margin: 10px 0;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: -1;
 }
 
 .confetti {
   position: absolute;
-  width: 10px;
-  height: 10px;
-  background-color: #8E44AD;
   opacity: 0;
-  transform-origin: center;
-  border-radius: 0;
-  top: 0;
-  left: 50%;
-  animation: confetti 3s ease-out forwards;
+  animation: confettiFall 3s ease-out forwards;
 }
 
-.confetti:nth-child(2) {
-  background-color: #3498db;
-  animation-delay: 0.1s;
-  left: 35%;
-}
-.confetti:nth-child(3) {
-  background-color: #e74c3c;
-  animation-delay: 0.2s;
-  left: 65%;
-}
-.confetti:nth-child(4) {
-  background-color: #f1c40f;
-  animation-delay: 0.3s;
-  left: 25%;
-}
-.confetti:nth-child(5) {
-  background-color: #2ecc71;
-  animation-delay: 0.4s;
-  left: 75%;
-}
-.confetti:nth-child(6) {
-  background-color: #e67e22;
-  animation-delay: 0.5s;
-  left: 40%;
-}
-.confetti:nth-child(7) {
-  background-color: #1abc9c;
-  animation-delay: 0.6s;
-  left: 60%;
-}
-.confetti:nth-child(8) {
-  background-color: #9b59b6;
-  animation-delay: 0.7s;
-  left: 30%;
-}
-.confetti:nth-child(9) {
-  background-color: #3498db;
-  animation-delay: 0.8s;
-  left: 70%;
-}
-.confetti:nth-child(10) {
-  background-color: #e74c3c;
-  animation-delay: 0.9s;
-  left: 45%;
-}
-
-/* Confetti animation */
-@keyframes confetti {
+@keyframes confettiFall {
   0% {
     opacity: 1;
     transform: translateY(0) rotate(0);
   }
   100% {
     opacity: 0;
-    transform: translateY(100px) rotate(720deg);
+    transform: translateY(300px) rotate(720deg);
   }
 }
 
-/* Pulse animation for trophy icon */
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.1);
-  }
-  100% {
-    transform: scale(1);
-  }
+.confetti.square { border-radius: 0; }
+.confetti.circle { border-radius: 50%; }
+.confetti.triangle {
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 10px solid #3498db;
+  background-color: transparent;
 }
 
 /* Fade in animation for overlay */
@@ -211,14 +334,48 @@
   }
 }
 
-/* Scale in animation for popup */
+/* Enhanced scale in animation for popup */
 @keyframes scaleIn {
-  from {
+  0% {
     transform: scale(0.8);
+    opacity: 0;
   }
-  to {
+  40% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+  60% {
+    transform: scale(0.98);
+    opacity: 1;
+  }
+  100% {
     transform: scale(1);
+    opacity: 1;
   }
+}
+
+/* Animation states for visibility */
+.achievement-popup-overlay.visible {
+  visibility: visible;
+  opacity: 1;
+}
+
+.achievement-popup-overlay.hidden {
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0s 0.5s, opacity 0.5s linear;
+}
+
+.achievement-popup.visible {
+  visibility: visible;
+  opacity: 1;
+}
+
+.achievement-popup.hidden {
+  visibility: hidden;
+  opacity: 0;
+  transform: scale(0.9);
+  transition: visibility 0s 0.5s, opacity 0.5s linear, transform 0.5s ease-in-out;
 }
 
 /* Mobile Responsiveness */
@@ -250,5 +407,9 @@
   .achievement-button {
     padding: 10px 25px;
     font-size: 15px;
+  }
+
+  .badge-icon {
+    font-size: 50px;
   }
 }
