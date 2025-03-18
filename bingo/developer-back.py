@@ -12,36 +12,37 @@ from typing import List, Optional, Dict, Any
 import os
 from datetime import datetime
 
-# Initialize FastAPI application with metadata
+# ============================
+# Initialize FastAPI application
+# ============================
 app = FastAPI(title="Developer Dashboard")
 
 # ============================
 # Data Models for API Responses
 # ============================
-
 class Repository(BaseModel):
     """Model representing repository metadata."""
     name: str
     url: str
     description: Optional[str]
     clone_url: str
-    last_commit: Optional[str] = None  # Optional, stores latest commit hash if available
-    branches: Optional[List[str]] = None  # Optional, list of repository branches
+    last_commit: Optional[str] = None  
+    branches: Optional[List[str]] = None  
 
 class DocumentationSection(BaseModel):
     """Model representing a section of the documentation."""
     title: str
     content: str
     last_updated: datetime
-    subsections: Optional[List[Dict[str, str]]] = None  # Optional, contains subsections if any
+    subsections: Optional[List[Dict[str, str]]] = None  
 
 class DeploymentStep(BaseModel):
     """Model representing a step in the deployment guide."""
     step: int
     title: str
     description: str
-    code_snippet: Optional[str] = None  # Optional, contains code snippet for the step
-    note: Optional[str] = None  # Optional, additional notes for the step
+    code_snippet: Optional[str] = None 
+    note: Optional[str] = None 
 
 # ============================
 # API Endpoints
@@ -53,6 +54,11 @@ async def get_dashboard():
     """Returns the developer dashboard HTML file."""
     return FileResponse("developer-front.html")
 
+# Health check endpoint for monitoring service status
+@app.get("/health")
+async def health_check():
+    """Returns a simple health check response."""
+    return {"status": "healthy", "timestamp": datetime.now().isoformat()}
 
 # Endpoint to retrieve repository metadata
 @app.get("/api/repository", response_model=Repository)
@@ -127,7 +133,7 @@ async def get_deployment_guide():
             step=1,
             title="Environment Setup",
             description="Set up your Python environment and install dependencies.",
-            code_snippet="# Clone the repository\ngit clone https://github.com/CaffeinatedDivas/ECM2434_A_2_202425.git\n\n"
+            code_snippet="# Clone the repository\ngit clone https://github.com/CaffeinatedDivas/ECM2434_v2.git\n\n"
                          "# Create and activate virtual environment\npython3 -m venv venv\nsource venv/bin/activate\n\n"
                          "# Install backend dependencies\npip install -r requirements.txt\n\n"
                          "# Install frontend dependencies\ncd bingo-frontend\nnpm install\nnpm start"
@@ -154,13 +160,6 @@ async def get_deployment_guide():
                          "# In another terminal, start frontend\ncd frontend\nnpm run dev"
         ),
     ]
-
-
-# Health check endpoint for monitoring service status
-@app.get("/health")
-async def health_check():
-    """Returns a simple health check response."""
-    return {"status": "healthy", "timestamp": datetime.now().isoformat()}
 
 
 # ============================
