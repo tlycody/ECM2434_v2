@@ -47,6 +47,10 @@ logger = logging.getLogger(__name__)
 ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png"]
 User = get_user_model()
 
+
+DEBUG_PATTERN_CHECKING = False
+
+
 # Task Loading Function
 def load_initial_tasks():
     """Loads initial tasks from JSON file if the database is empty."""
@@ -913,66 +917,81 @@ def get_user_badges(request):
     
     return Response(badges_data)
 
+
 def check_and_award_patterns(user):
     """Check if the user has completed any patterns and award badges and points"""
     try:
-        print(f"\n\n==== CHECKING PATTERNS FOR USER: {user.username} ====")
-        
+        # Only print header if debugging is enabled
+        if DEBUG_PATTERN_CHECKING:
+            print(f"\n\n==== CHECKING PATTERNS FOR USER: {user.username} ====")
+
         # Get all completed tasks for the user
         completed_tasks = UserTask.objects.filter(user=user, completed=True)
-        print(f"Found {completed_tasks.count()} completed tasks: {[t.task.id for t in completed_tasks]}")
-        
+
+        if DEBUG_PATTERN_CHECKING:
+            print(f"Found {completed_tasks.count()} completed tasks: {[t.task.id for t in completed_tasks]}")
+
+            # DETAILED DEBUG: Print each completed task description
+            for task in completed_tasks:
+                print(f"  - Task {task.task.id}: {task.task.description}")
+
         # If no completed tasks, return early
         if not completed_tasks.exists():
-            print("No completed tasks found, skipping pattern check")
+            if DEBUG_PATTERN_CHECKING:
+                print("No completed tasks found, skipping pattern check")
             return [], False
-        
-        # DETAILED DEBUG: Print each completed task description
-        for task in completed_tasks:
-            print(f"  - Task {task.task.id}: {task.task.description}")
-        
+
         # Get all tasks to understand grid positioning
         all_tasks = Task.objects.all().order_by('id')
-        print(f"Total tasks in system: {all_tasks.count()}")
-        
+        if DEBUG_PATTERN_CHECKING:
+            print(f"Total tasks in system: {all_tasks.count()}")
+
         # Create grid representation
         grid = BingoPatternDetector.create_grid_from_tasks(completed_tasks, all_tasks, grid_size=3)
-        print(f"Grid representation:")
-        for row in grid:
-            print(f"  {row}")
-        
+
+        if DEBUG_PATTERN_CHECKING:
+            print(f"Grid representation:")
+            for row in grid:
+                print(f"  {row}")
+
         # Detect patterns with detailed logging
         detected_patterns = BingoPatternDetector.detect_patterns(grid, size=3)
-        print(f"Detected patterns: {detected_patterns}")
-        
+        if DEBUG_PATTERN_CHECKING:
+            print(f"Detected patterns: {detected_patterns}")
+
         # If no patterns detected, return early
         if not detected_patterns:
-            print("No patterns detected")
+            if DEBUG_PATTERN_CHECKING:
+                print("No patterns detected")
             return [], False
-            
+
         # Get existing badges for user
         existing_badges = UserBadge.objects.filter(user=user).values_list('pattern__pattern_type', flat=True)
-        print(f"Existing badges: {list(existing_badges)}")
-        
+        if DEBUG_PATTERN_CHECKING:
+            print(f"Existing badges: {list(existing_badges)}")
+
         # Get user's leaderboard entry
         leaderboard, _ = Leaderboard.objects.get_or_create(user=user)
-        print(f"Current points: {leaderboard.points}")
-        
+        if DEBUG_PATTERN_CHECKING:
+            print(f"Current points: {leaderboard.points}")
+
         # Track if any new patterns were completed
         new_patterns_completed = False
         newly_added_patterns = []
-        
+
         # Award new badges and points
         for pattern_type in detected_patterns:
             try:
                 # Skip if user already has this badge
                 if pattern_type in existing_badges:
-                    print(f"User already has badge for pattern: {pattern_type}")
+                    if DEBUG_PATTERN_CHECKING:
+                        print(f"User already has badge for pattern: {pattern_type}")
                     continue
-                
-                print(f"New pattern detected: {pattern_type}")
+
+                if DEBUG_PATTERN_CHECKING:
+                    print(f"New pattern detected: {pattern_type}")
                 newly_added_patterns.append(pattern_type)
-                
+
                 # Get the pattern details
                 try:
                     # Get or create the pattern in the database
@@ -984,41 +1003,49 @@ def check_and_award_patterns(user):
                             'bonus_points': 30  # Default bonus points
                         }
                     )
-                    
-                    if created:
-                        print(f"Created new pattern in database: {pattern.name}")
-                    else:
-                        print(f"Found existing pattern in database: {pattern.name}")
-                    
+
+                    if DEBUG_PATTERN_CHECKING:
+                        if created:
+                            print(f"Created new pattern in database: {pattern.name}")
+                        else:
+                            print(f"Found existing pattern in database: {pattern.name}")
+
                     # Create badge for user and award bonus points
                     UserBadge.objects.create(user=user, pattern=pattern)
-                    print(f"Created UserBadge for pattern: {pattern.pattern_type}")
-                    
+                    if DEBUG_PATTERN_CHECKING:
+                        print(f"Created UserBadge for pattern: {pattern.pattern_type}")
+
                     # Award pattern bonus points
                     leaderboard.points += pattern.bonus_points
-                    print(f"Awarded {pattern.bonus_points} bonus points for pattern")
-                    
+                    if DEBUG_PATTERN_CHECKING:
+                        print(f"Awarded {pattern.bonus_points} bonus points for pattern")
+
                     # Set flag to indicate a new pattern was completed
                     new_patterns_completed = True
-                    
+
                 except Exception as e:
-                    print(f"ERROR creating or retrieving pattern: {str(e)}")
+                    if DEBUG_PATTERN_CHECKING:
+                        print(f"ERROR creating or retrieving pattern: {str(e)}")
             except Exception as inner_e:
-                print(f"ERROR processing pattern {pattern_type}: {str(inner_e)}")
-        
-        print(f"New patterns completed: {new_patterns_completed}")
-        
+                if DEBUG_PATTERN_CHECKING:
+                    print(f"ERROR processing pattern {pattern_type}: {str(inner_e)}")
+
+        if DEBUG_PATTERN_CHECKING:
+            print(f"New patterns completed: {new_patterns_completed}")
+
         # Award additional points for completing a task that forms a bingo pattern
         if new_patterns_completed:
-            print("Awarding extra 5 points for pattern completion...")
-            
+            if DEBUG_PATTERN_CHECKING:
+                print("Awarding extra 5 points for pattern completion...")
+
             # Award extra points
             try:
                 task_completion_bonus = 5
                 leaderboard.points += task_completion_bonus
                 leaderboard.save()
-                print(f"Awarded {task_completion_bonus} extra points for pattern completion")
-                
+                if DEBUG_PATTERN_CHECKING:
+                    print(f"Awarded {task_completion_bonus} extra points for pattern completion")
+
                 # Create bonus record
                 try:
                     # Get any completed task to link bonus to
@@ -1030,19 +1057,24 @@ def check_and_award_patterns(user):
                             bonus_points=task_completion_bonus,
                             reason="Completed bingo pattern"
                         )
-                        print(f"Created TaskBonus record")
+                        if DEBUG_PATTERN_CHECKING:
+                            print(f"Created TaskBonus record")
                     else:
-                        print("ERROR: No completed task found to link bonus to")
+                        if DEBUG_PATTERN_CHECKING:
+                            print("ERROR: No completed task found to link bonus to")
                 except Exception as tb_error:
-                    print(f"ERROR creating TaskBonus: {str(tb_error)}")
+                    if DEBUG_PATTERN_CHECKING:
+                        print(f"ERROR creating TaskBonus: {str(tb_error)}")
                     # Don't let TaskBonus creation failure prevent points from being awarded
                     pass
             except Exception as bonus_error:
-                print(f"ERROR awarding extra points: {str(bonus_error)}")
-        
+                if DEBUG_PATTERN_CHECKING:
+                    print(f"ERROR awarding extra points: {str(bonus_error)}")
+
         return newly_added_patterns, new_patterns_completed
     except Exception as e:
-        print(f"ERROR in check_and_award_patterns: {str(e)}")
+        if DEBUG_PATTERN_CHECKING:
+            print(f"ERROR in check_and_award_patterns: {str(e)}")
         return [], False
 
 # Helper functions for pattern names and descriptions
