@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Upload.css'; // Create this file for styling
@@ -10,6 +9,7 @@ const Upload = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [similarityDetails, setSimilarityDetails] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
   const [isResubmission, setIsResubmission] = useState(false);
   const navigate = useNavigate();
@@ -47,6 +47,10 @@ const Upload = () => {
       return;
     }
 
+    // Clear previous errors and similarity details
+    setErrorMessage('');
+    setSimilarityDetails(null);
+
     // Validate file type
     const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
     if (!validTypes.includes(file.type)) {
@@ -63,9 +67,6 @@ const Upload = () => {
       setPreviewUrl('');
       return;
     }
-
-    // Clear previous errors
-    setErrorMessage('');
 
     // Set selected file
     setSelectedFile(file);
@@ -92,6 +93,7 @@ const Upload = () => {
 
     // Clear previous messages
     setErrorMessage('');
+    setSimilarityDetails(null);
     setSuccessMessage('');
 
     // Set loading state
@@ -155,9 +157,14 @@ const Upload = () => {
       } else {
         // Handle fraud detection errors specially
         if (data.similarity) {
-          setErrorMessage(`${data.message} Similarity: ${data.similarity}`);
+          // Set specific similarity details for UI display
+          setSimilarityDetails({
+            similarity: data.similarity,
+            message: data.message
+          });
+          setErrorMessage(data.error || 'Please take a new photo for this task.');
         } else {
-          setErrorMessage(data.message || 'Failed to submit task. Please try again.');
+          setErrorMessage(data.message || data.error || 'Failed to submit task. Please try again.');
         }
       }
     } catch (error) {
@@ -204,6 +211,23 @@ const Upload = () => {
       {errorMessage && (
         <div className="error-message">
           <p>{errorMessage}</p>
+        </div>
+      )}
+
+      {/* Similarity Details (for fraud detection) */}
+      {similarityDetails && (
+        <div className="similarity-warning">
+          <h4>Duplicate Image Detected</h4>
+          <p>{similarityDetails.message}</p>
+          <p>Similarity: {similarityDetails.similarity}</p>
+          <div className="similarity-tips">
+            <h5>Tips:</h5>
+            <ul>
+              <li>Take a new photo specifically for this task</li>
+              <li>Make sure your photo clearly shows you completing this specific task</li>
+              <li>Each task requires its own unique photo evidence</li>
+            </ul>
+          </div>
         </div>
       )}
 

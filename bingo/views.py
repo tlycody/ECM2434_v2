@@ -264,71 +264,113 @@ def complete_task(request):
     user = request.user
     task_id = request.data.get('task_id')
     task = get_object_or_404(Task, id=task_id)
-    
+
     # Debug logging
     print(f"Processing task completion: task_id={task_id}, user={user.username}")
     print(f"Task details: description={task.description}, requires_scan={getattr(task, 'requires_scan', False)}")
-    
+
     # Check if this task has scan functionality for auto-approval
     should_auto_approve = task.requires_scan if hasattr(task, 'requires_scan') else False
-    
+
     # Check if task exists in user tasks
     user_task = UserTask.objects.filter(user=user, task=task).first()
     if user_task:
         print(f"Existing user_task found: status={user_task.status}, completed={user_task.completed}")
-    
+
     # If task is already completed and approved, don't allow resubmission
     if user_task and user_task.completed:
         return Response({"message": "Task already completed and approved!"},
                         status=status.HTTP_400_BAD_REQUEST)
-    
+
     # If task is pending approval, don't allow resubmission
     if user_task and user_task.status == 'pending' and not user_task.completed:
         return Response({"message": "Task already submitted and pending approval!"},
                         status=status.HTTP_400_BAD_REQUEST)
-    
+
     # If photo is required but not provided
     if task.requires_upload and 'photo' not in request.FILES:
         return Response({"message": "This task requires a photo upload."},
                         status=status.HTTP_400_BAD_REQUEST)
-    
+
     # If photo is provided, check for fraud
     if 'photo' in request.FILES:
         photo_file = request.FILES['photo']
         print(f"Photo provided: size={photo_file.size}, type={photo_file.content_type}")
-        
+
         # Check file size
         if photo_file.size > 10 * 1024 * 1024:  # 10MB limit
             return Response({"message": "Photo is too large. Maximum size is 10MB."},
                             status=status.HTTP_400_BAD_REQUEST)
-        
+
         # Check file type
         if not photo_file.content_type.startswith('image/'):
             return Response({"message": "Uploaded file is not an image."},
                             status=status.HTTP_400_BAD_REQUEST)
-    
+
+        # Perform fraud detection check before saving
+        from .basic_image_fraud_detector import BasicImageFraudDetector
+
+        try:
+            # Read the image data
+            photo_file.seek(0)  # Reset file pointer to beginning
+            photo_data = photo_file.read()
+            photo_file.seek(0)  # Reset file pointer again
+
+            # Initialize the fraud detector
+            detector = BasicImageFraudDetector(similarity_threshold=85)
+
+            # Check if the image is fraudulent (similar to previously submitted images)
+            is_fraudulent, similarity, matched_task_id = detector.is_image_fraudulent(
+                photo_data,
+                user_id=user.id  # Check against this user's submissions
+            )
+
+            print(
+                f"Fraud detection results: is_fraudulent={is_fraudulent}, similarity={similarity:.2f}%, matched_task_id={matched_task_id}")
+
+            # If fraudulent, reject the submission
+            if is_fraudulent:
+                matched_task = None
+                if matched_task_id:
+                    matched_task = UserTask.objects.filter(id=matched_task_id).first()
+
+                matched_task_info = "unknown task"
+                if matched_task:
+                    matched_task_info = f"task '{matched_task.task.description}'"
+
+                return Response({
+                    "message": f"This image appears to be identical or very similar to a previously submitted image for {matched_task_info}.",
+                    "similarity": f"{similarity:.1f}%",
+                    "error": "Please take a new picture that clearly shows you completing this specific task."
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+        except Exception as e:
+            # Log the error but continue - don't block submission if fraud detection fails
+            print(f"Error during fraud detection: {str(e)}")
+            logger.error(f"Error during fraud detection: {str(e)}")
+
     # If user_task exists but was rejected, update it
     if user_task and user_task.status == 'rejected':
         print("Updating previously rejected task")
-        
+
         # If there was a photo, delete it before adding the new one
         if user_task.photo:
             user_task.photo.delete()
-        
+
         # Update the existing task record
         user_task.status = 'approved' if should_auto_approve else 'pending'
         user_task.completed = should_auto_approve
         user_task.completion_date = timezone.now()
         user_task.rejection_reason = None  # Clear previous rejection reason
-        
+
         # Save the new photo if provided
         if 'photo' in request.FILES:
             user_task.photo = request.FILES['photo']
-        
+
         user_task.save()
-        
+
         print(f"Updated task: status={user_task.status}, completed={user_task.completed}")
-        
+
         # If the task is auto-approved, check for patterns and award points
         if should_auto_approve:
             # Award points
@@ -336,24 +378,24 @@ def complete_task(request):
                 profile = Profile.objects.get(user=user)
                 profile.total_points += task.points
                 profile.save()
-                
+
                 # Also update the leaderboard
                 leaderboard, created = Leaderboard.objects.get_or_create(user=user)
                 leaderboard.points += task.points
                 leaderboard.save()
-                
+
                 print(f"Points awarded to {user.username}: {task.points}")
-                
+
                 # Check for patterns and award badges
                 check_and_award_patterns(user)
             except Profile.DoesNotExist:
                 print(f"Profile not found for user: {user.username}")
             except Exception as e:
                 print(f"Error updating points: {str(e)}")
-        
+
         message = "Task completed successfully!" if should_auto_approve else "Task resubmitted successfully and awaiting GameKeeper approval!"
         return Response({"message": message}, status=status.HTTP_200_OK)
-    
+
     # Otherwise, create a new user task
     print("Creating new user task")
     new_user_task = UserTask(
@@ -362,39 +404,38 @@ def complete_task(request):
         completed=should_auto_approve,
         status='approved' if should_auto_approve else 'pending'
     )
-    
+
     # Save photo if provided
     if 'photo' in request.FILES:
         new_user_task.photo = request.FILES['photo']
-    
+
     new_user_task.save()
-    
+
     print(f"Created new task: status={new_user_task.status}, completed={new_user_task.completed}")
-    
+
     # Award points and check patterns if auto-approved
     if should_auto_approve:
         try:
             profile = Profile.objects.get(user=user)
             profile.total_points += task.points
             profile.save()
-            
+
             # Also update the leaderboard
             leaderboard, created = Leaderboard.objects.get_or_create(user=user)
             leaderboard.points += task.points
             leaderboard.save()
-            
+
             print(f"Points awarded to {user.username}: {task.points}")
-            
-            # Check for patterns and award badges 
+
+            # Check for patterns and award badges
             check_and_award_patterns(user)
         except Profile.DoesNotExist:
             print(f"Profile not found for user: {user.username}")
         except Exception as e:
             print(f"Error updating points: {str(e)}")
-    
+
     message = "Task completed successfully!" if should_auto_approve else "Task submitted successfully and awaiting GameKeeper approval!"
     return Response({"message": message}, status=status.HTTP_200_OK)
-
 # ============================
 # Leaderboard Retrieval
 # ============================
@@ -699,16 +740,20 @@ def approve_task(request):
     leaderboard.points += task.points
     leaderboard.save()
 
+    # Update profile total points
+    profile, _ = Profile.objects.get_or_create(user=user)
+    profile.total_points += task.points
+    profile.save()
+
     # Debugging line
     print(f"Calling check_and_award_patterns for user {user.username}")
-    
+
     # Call this function to check for and award patterns
     check_and_award_patterns(user)
 
     return Response({
         "message": f"Task approved for {user.username}. {task.points} points rewarded."
     })
-
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

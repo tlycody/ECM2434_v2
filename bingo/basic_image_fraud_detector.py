@@ -39,7 +39,7 @@ class BasicImageFraudDetector:
             # Convert to grayscale
             gray_image = image.convert('L')
 
-            # Resize to small dimensions (8x8) for a basic perceptual hash
+            # Resize to small dimensions (16x16) for a basic perceptual hash
             small_image = gray_image.resize((16, 16), Image.LANCZOS)
 
             # Get pixel data
@@ -124,6 +124,13 @@ class BasicImageFraudDetector:
     def is_image_fraudulent(self, new_image_data, user_id=None):
         """
         Check if an image is potentially fraudulent by comparing it to previously approved images.
+
+        Args:
+            new_image_data: Binary image data of the new submission
+            user_id: Optional user ID to check only against this user's submissions
+
+        Returns:
+            tuple: (is_fraudulent, similarity_percentage, matched_task_id)
         """
         print("=== FRAUD DETECTION STARTED ===")
 
@@ -139,27 +146,33 @@ class BasicImageFraudDetector:
         # Get previously approved images
         from .models import UserTask
 
-        # Get all approved tasks with photos
-        query = UserTask.objects.filter(completed=True).exclude(photo='')
+        # Get all tasks with photos (including approved and pending)
+        # We want to check for duplicates in any status to prevent multiple submissions of the same image
+        query = UserTask.objects.exclude(photo='')
 
         # If user_id provided, check only against this user's previous uploads
         if user_id:
             query = query.filter(user_id=user_id)
 
-        approved_tasks = query.order_by('-completion_date')[:30]
-        print(f"Found {len(approved_tasks)} previous approved tasks to compare against")
+        previous_tasks = query.order_by('-completion_date')[:30]
+        print(f"Found {len(previous_tasks)} previous tasks to compare against")
 
         highest_similarity = 0
         matched_task_id = None
 
-        for task in approved_tasks:
+        for task in previous_tasks:
             try:
                 print(f"Comparing with task #{task.id}...")
 
-                # Get image data
-                task.photo.open('rb')
-                previous_image_data = task.photo.read()
-                task.photo.close()
+                # Get image data - handle Django's file field properly
+                try:
+                    # Make sure the file is open for reading
+                    task.photo.open('rb')
+                    previous_image_data = task.photo.read()
+                    task.photo.close()
+                except Exception as file_error:
+                    print(f"Error reading photo for task #{task.id}: {str(file_error)}")
+                    continue
 
                 print(f"Previous image size: {len(previous_image_data)} bytes")
 
