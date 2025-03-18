@@ -1172,9 +1172,6 @@ def get_user_tasks_status(request):
 
 @api_view(['POST'])
 def password_reset_request(request):
-    """
-    Initiates password reset process by sending an email with a reset link
-    """
     email = request.data.get('email', '').lower().strip()
 
     if not email:
@@ -1183,8 +1180,6 @@ def password_reset_request(request):
     # Find user by email
     user = User.objects.filter(email=email).first()
 
-    # Always return success to prevent email enumeration attacks
-    # But only send email if user exists
     if user:
         # Delete any existing unused tokens for this user
         PasswordResetToken.objects.filter(user=user, used=False).delete()
@@ -1196,30 +1191,34 @@ def password_reset_request(request):
             expires_at=expiry_time
         )
 
-        # Set frontend URL for the reset link - hardcoded for development
+        # For development, use localhost URL
         frontend_url = 'http://localhost:3000'
         reset_url = f"{frontend_url}/reset-password/{reset_token.token}"
+
+        # Debug print
+        print("\n" + "="*50)
+        print("PASSWORD RESET REQUESTED")
+        print("="*50)
+        print(f"User: {user.username}")
+        print(f"Email: {email}")
+        print(f"Token: {reset_token.token}")
+        print(f"Reset URL: {reset_url}")
+        print("="*50 + "\n")
 
         # Send email
         try:
             send_mail(
                 'Password Reset Request',
-                f'Hello {user.username},\n\nClick the link below to reset your password:\n\n{reset_url}\n\nThe link will expire in 24 hours.\n\nIf you did not request this password reset, please ignore this email.',
+                f'Click the link to reset your password: {reset_url}',
                 settings.DEFAULT_FROM_EMAIL,
                 [email],
                 fail_silently=False,
             )
-            print(f"Password reset email sent to {email} with token {reset_token.token}")
-            print(f"Reset URL: {reset_url}")
         except Exception as e:
-            logger.error(f"Failed to send password reset email: {str(e)}")
-            print(f"Email error: {str(e)}")
-    else:
-        print(f"Password reset requested for unknown email: {email}")
+            print(f"Error sending email: {str(e)}")
+            # Still return success to prevent user enumeration
 
     return Response({'message': 'If your email address is registered, you will receive a password reset link'})
-
-
 @api_view(['POST'])
 def password_reset_confirm(request):
     """
