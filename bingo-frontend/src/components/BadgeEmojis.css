@@ -1,0 +1,152 @@
+/* ============================
+   Badge Emojis Styling
+   ============================ */
+
+/* Import Google Font: Poppins for consistency */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+.badge-emoji-container {
+  display: inline-flex;
+  align-items: center;
+  font-family: 'Poppins', sans-serif;
+  background-color: rgba(var(--badge-color-rgb, 142, 68, 173), 0.1);
+  border-radius: 50%;
+  position: relative;
+  justify-content: center;
+  --badge-color: #8E44AD; /* Default color if none provided */
+  --badge-color-rgb: 142, 68, 173; /* Default RGB */
+}
+
+/* Calculate RGB values from HEX for opacity control */
+.badge-emoji-container[style*="--badge-color: #4CAF50"] { --badge-color-rgb: 76, 175, 80; }
+.badge-emoji-container[style*="--badge-color: #2196F3"] { --badge-color-rgb: 33, 150, 243; }
+.badge-emoji-container[style*="--badge-color: #9C27B0"] { --badge-color-rgb: 156, 39, 176; }
+.badge-emoji-container[style*="--badge-color: #FF9800"] { --badge-color-rgb: 255, 152, 0; }
+.badge-emoji-container[style*="--badge-color: #00BCD4"] { --badge-color-rgb: 0, 188, 212; }
+.badge-emoji-container[style*="--badge-color: #673AB7"] { --badge-color-rgb: 103, 58, 183; }
+.badge-emoji-container[style*="--badge-color: #8BC34A"] { --badge-color-rgb: 139, 195, 74; }
+.badge-emoji-container[style*="--badge-color: #009688"] { --badge-color-rgb: 0, 150, 136; }
+.badge-emoji-container[style*="--badge-color: #8E44AD"] { --badge-color-rgb: 142, 68, 173; }
+
+/* Size variations */
+.badge-size-small {
+  width: 30px;
+  height: 30px;
+  font-size: 18px;
+}
+
+.badge-size-medium {
+  width: 50px;
+  height: 50px;
+  font-size: 30px;
+}
+
+.badge-size-large {
+  width: 70px;
+  height: 70px;
+  font-size: 40px;
+  border-radius: 16px;
+  flex-direction: column;
+  padding: 15px;
+  background-color: white;
+  box-shadow: 0 5px 15px rgba(var(--badge-color-rgb), 0.2);
+  border: 2px solid var(--badge-color);
+}
+
+/* Badge emoji icon */
+.badge-emoji-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  transform-origin: center;
+}
+
+/* Animation for the badge */
+.badge-animated .badge-emoji-icon {
+  animation: badgePulse 2s infinite alternate;
+}
+
+@keyframes badgePulse {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.1); }
+}
+
+/* Add glow effect for animated badges */
+.badge-animated::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: inherit;
+  box-shadow: 0 0 15px var(--badge-color);
+  opacity: 0;
+  animation: glowPulse 2s infinite alternate;
+}
+
+@keyframes glowPulse {
+  0% { opacity: 0; }
+  100% { opacity: 0.6; }
+}
+
+/* Badge details for large size */
+.badge-emoji-details {
+  margin-top: 15px;
+  text-align: center;
+  width: 140px;
+}
+
+.badge-emoji-label {
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--badge-color);
+  margin-bottom: 5px;
+}
+
+.badge-emoji-description {
+  font-size: 12px;
+  color: #666;
+  line-height: 1.4;
+}
+
+/* Hover effects */
+.badge-emoji-container:hover {
+  transform: translateY(-3px);
+  transition: transform 0.3s ease;
+}
+
+/* Make badge interactive when hovering */
+.badge-emoji-container:hover .badge-emoji-icon {
+  animation: badgeWiggle 1s ease-in-out;
+}
+
+@keyframes badgeWiggle {
+  0%, 100% { transform: rotate(0); }
+  25% { transform: rotate(-10deg); }
+  50% { transform: rotate(10deg); }
+  75% { transform: rotate(-5deg); }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .badge-size-large {
+    width: 60px;
+    height: 60px;
+    font-size: 32px;
+  }
+
+  .badge-emoji-details {
+    width: 120px;
+  }
+
+  .badge-emoji-label {
+    font-size: 14px;
+  }
+
+  .badge-emoji-description {
+    font-size: 11px;
+  }
+}
