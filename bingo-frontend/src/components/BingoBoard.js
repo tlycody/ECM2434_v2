@@ -15,6 +15,30 @@ import EndOfMonthReminder from './EndOfMonthReminder';
 // Define the API URL (fallback to localhost if not set in environment variables)
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
+// For storing already shown pattern notifications across sessions/renders
+// We can use localStorage to make sure these persist even if the component remounts
+const getShownPatternNotifications = () => {
+  try {
+    const stored = localStorage.getItem('shown_pattern_notifications');
+    return stored ? JSON.parse(stored) : [];
+  } catch (e) {
+    console.error("Error reading pattern notifications from storage:", e);
+    return [];
+  }
+};
+
+const saveShownPatternNotification = (patternType) => {
+  try {
+    const current = getShownPatternNotifications();
+    if (!current.includes(patternType)) {
+      current.push(patternType);
+      localStorage.setItem('shown_pattern_notifications', JSON.stringify(current));
+    }
+  } catch (e) {
+    console.error("Error saving pattern notification to storage:", e);
+  }
+};
+
 const BingoBoard = () => {
   // State variables for managing tasks, loading status, and error messages
   const [tasks, setTasks] = useState([]);
@@ -46,6 +70,9 @@ const BingoBoard = () => {
   // State for tracking patterns
   const [completedPatterns, setCompletedPatterns] = useState([]);
 
+  // New state to track which pattern popups have been displayed
+  const [displayedPatternPopups, setDisplayedPatternPopups] = useState([]);
+
   // State for end-of-month reminder
   const [showEndOfMonthReminder, setShowEndOfMonthReminder] = useState(false);
 
@@ -55,6 +82,11 @@ const BingoBoard = () => {
   const hasShownEndOfMonthReminder = useRef(false);
 
   const navigate = useNavigate(); // Hook for programmatic navigation
+
+  // Initialize displayedPatternPopups from localStorage on component mount
+  useEffect(() => {
+    setDisplayedPatternPopups(getShownPatternNotifications());
+  }, []);
 
   // ============================
   // Check End of Month Status
@@ -202,7 +234,7 @@ const BingoBoard = () => {
   }, [navigate, checkEndOfMonth, showProgressNotification]);
 
   // ============================
-  // Check for Completed Patterns
+  // Check for Completed Patterns - FIXED with persistent storage
   // ============================
 
   const checkForCompletedPatterns = useCallback((userTasksData) => {
@@ -237,6 +269,9 @@ const BingoBoard = () => {
       taskIndices[task.id] = index;
     });
 
+    // Keep track of newly detected patterns
+    const newlyDetectedPatterns = [];
+
     // Check each pattern for completion
     patterns.forEach(pattern => {
       // Check if all cells in pattern are completed
@@ -248,33 +283,51 @@ const BingoBoard = () => {
 
       // If pattern is complete and not already tracked
       if (isComplete && !completedPatterns.includes(pattern.type)) {
-        // Add to completed patterns
-        setCompletedPatterns(prev => [...prev, pattern.type]);
+        // Add to newly detected patterns
+        newlyDetectedPatterns.push(pattern.type);
 
-        // Show achievement popup
-        setTimeout(() => {
-          setAchievementDetails({
-            title: 'Pattern Complete!',
-            achievement: pattern.name,
-            points: pattern.points,
-            badgeEmoji: pattern.type === 'H' ? '➖' :
-                        pattern.type === 'V' ? '⏐' :
-                        pattern.type === 'X' ? '✖️' :
-                        pattern.type === 'O' ? '⭕' : '🏆'
-          });
-          setShowAchievementPopup(true);
+        // Only if we haven't shown a popup for this pattern yet in this session
+        if (!displayedPatternPopups.includes(pattern.type)) {
+          // Schedule popup after a short delay
+          setTimeout(() => {
+            setAchievementDetails({
+              title: 'Pattern Complete!',
+              achievement: pattern.name,
+              points: pattern.points,
+              badgeEmoji: pattern.type === 'H' ? '➖' :
+                          pattern.type === 'V' ? '⏐' :
+                          pattern.type === 'X' ? '✖️' :
+                          pattern.type === 'O' ? '⭕' : '🏆'
+            });
+            setShowAchievementPopup(true);
 
-          // Highlight the pattern in visualizer
-          setHighlightPattern(pattern.type);
-        }, 1000);
+            // Highlight the pattern in visualizer
+            setHighlightPattern(pattern.type);
 
-        // Send pattern completion event
-        if (window.showPatternCompletion) {
+            // Mark this pattern as having shown a popup (in state and localStorage)
+            setDisplayedPatternPopups(prev => {
+              const updated = [...prev, pattern.type];
+              saveShownPatternNotification(pattern.type);
+              return updated;
+            });
+          }, 1000);
+        }
+
+        // Send pattern completion event only if we haven't shown a notification for this pattern
+        if (window.showPatternCompletion && !displayedPatternPopups.includes(pattern.type)) {
           window.showPatternCompletion(pattern.type, pattern.points);
         }
       }
     });
-  }, [tasks, completedPatterns]);
+
+    // Update completed patterns state if we found new ones
+    if (newlyDetectedPatterns.length > 0) {
+      setCompletedPatterns(prev => [...prev, ...newlyDetectedPatterns]);
+      return [newlyDetectedPatterns, true];
+    }
+
+    return [[], false];
+  }, [tasks, completedPatterns, displayedPatternPopups]);
 
   // ============================
   // Get Task Status Helper
@@ -747,14 +800,17 @@ const BingoBoard = () => {
         </div>
       )}
 
-      {/* Achievement Popup */}
+      {/* Achievement Popup - FIXED */}
       {showAchievementPopup && (
         <AchievementPopup
           title={achievementDetails.title}
           achievement={achievementDetails.achievement}
           points={achievementDetails.points}
           badgeEmoji={achievementDetails.badgeEmoji}
-          onClose={() => setShowAchievementPopup(false)}
+          onClose={() => {
+            setShowAchievementPopup(false);
+            // Don't reset displayedPatternPopups - we want to remember which ones we've shown
+          }}
         />
       )}
 

@@ -1,40 +1,37 @@
 // ============================
-// DRASTIC FIX for NotificationManager.js
+// NotificationManager.js - Fixed Version
 // ============================
 
-// Replace your entire NotificationManager.js with this version
-// This completely rewrites notification handling to prevent duplicates
-
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Notification from './Notification';
 
 const NotificationManager = () => {
   const [notifications, setNotifications] = useState([]);
-  const [intervalIds, setIntervalIds] = useState({});
 
-  // Important: Store already shown notifications in session storage
-  // This persists even if component re-renders
+  // Function to get shown notifications from localStorage
   const getShownNotifications = () => {
     try {
-      const stored = sessionStorage.getItem('shown_notifications');
+      const stored = localStorage.getItem('shown_notifications');
       return stored ? JSON.parse(stored) : {};
     } catch (e) {
-      console.error("Error reading session storage:", e);
+      console.error("Error reading notifications from storage:", e);
       return {};
     }
   };
 
+  // Function to mark a notification as shown
   const markNotificationAsShown = (key) => {
     try {
       const shown = getShownNotifications();
       shown[key] = Date.now();
-      sessionStorage.setItem('shown_notifications', JSON.stringify(shown));
+      localStorage.setItem('shown_notifications', JSON.stringify(shown));
     } catch (e) {
-      console.error("Error writing to session storage:", e);
+      console.error("Error saving notification to storage:", e);
     }
   };
 
-  const wasNotificationShownRecently = (key, timeWindowMs = 5000) => {
+  // Function to check if a notification was shown recently
+  const wasNotificationShownRecently = (key, timeWindowMs = 60000) => { // 1 minute default
     try {
       const shown = getShownNotifications();
       const timestamp = shown[key];
@@ -49,13 +46,13 @@ const NotificationManager = () => {
     }
   };
 
-  // Function to add a new notification with strong duplicate prevention
+  // Function to add a new notification with duplicate prevention
   const addNotification = useCallback((type, message, duration = 4000, action = null, icon = null) => {
     // Create a unique key for this notification
     const notificationKey = `${type}-${message}`;
 
-    // STRONG duplicate prevention - check if we've shown this recently
-    if (wasNotificationShownRecently(notificationKey, 10000)) {
+    // Check if we've shown this notification recently
+    if (wasNotificationShownRecently(notificationKey)) {
       console.log("Preventing duplicate notification:", message);
       return null;
     }
@@ -81,25 +78,9 @@ const NotificationManager = () => {
     setNotifications(prev => prev.filter(notification => notification.id !== id));
   }, []);
 
-  // Clear all event listeners on component mount
+  // Set up event listeners for notifications
   useEffect(() => {
-    // Clean up any existing event listeners to prevent duplicates
-    const events = [
-      'addNotification',
-      'taskCompletion',
-      'patternCompletion',
-      'progressUpdate'
-    ];
-
-    // Create empty handler functions to replace existing ones
-    const emptyHandler = () => {};
-
-    events.forEach(eventName => {
-      // First remove any existing handlers
-      window.removeEventListener(eventName, emptyHandler);
-    });
-
-    // Now set up our handlers with stronger duplicate prevention
+    // Clean up any existing event listeners
     const handleAddNotification = (event) => {
       const { type, message, duration, action, icon } = event.detail;
       addNotification(type, message, duration, action, icon);
@@ -112,12 +93,11 @@ const NotificationManager = () => {
       const notificationKey = `task-${taskName}-${points}`;
 
       // Skip if already shown recently
-      if (wasNotificationShownRecently(notificationKey, 10000)) {
+      if (wasNotificationShownRecently(notificationKey)) {
         return;
       }
 
-      // Mark as shown and add notification
-      markNotificationAsShown(notificationKey);
+      // Add notification
       addNotification(
         'task-complete',
         `Completed: ${taskName} (+${points} points)`,
@@ -129,15 +109,15 @@ const NotificationManager = () => {
     const handlePatternCompletion = (event) => {
       const { patternType, points } = event.detail;
 
-      // Create a unique key
-      const notificationKey = `pattern-${patternType}`;
+      // Get pattern notification key from localStorage
+      const shownPatterns = localStorage.getItem('shown_pattern_notifications');
+      const parsedPatterns = shownPatterns ? JSON.parse(shownPatterns) : [];
 
-      // Skip if shown recently
-      if (wasNotificationShownRecently(notificationKey, 10000)) {
+      // Skip if this pattern is in our shown patterns list
+      if (parsedPatterns.includes(patternType)) {
+        console.log(`Pattern ${patternType} notification already shown, skipping`);
         return;
       }
-
-      markNotificationAsShown(notificationKey);
 
       // Get emoji
       let emoji;
@@ -158,56 +138,19 @@ const NotificationManager = () => {
       );
     };
 
+    // Progress notifications - skip for now, they're causing too many duplicates
     const handleProgressUpdate = (event) => {
-      const { completed, total } = event.detail;
-
-      // CRITICAL: Skip progress notifications entirely - they cause most problems
+      // Don't create progress notifications at all
       return;
-
-      // Alternatively, implement with strong duplicate prevention
-      /*
-      // Create a unique key
-      const notificationKey = `progress-${completed}-${total}`;
-
-      // Skip if shown in the last minute
-      if (wasNotificationShownRecently(notificationKey, 60000)) {
-        return;
-      }
-
-      markNotificationAsShown(notificationKey);
-
-      // Only process if total > 0
-      if (total > 0) {
-        const percentage = Math.round((completed / total) * 100);
-        addNotification(
-          'progress',
-          `Your progress: ${completed}/${total} tasks (${percentage}%)`,
-          5000
-        );
-      }
-      */
     };
 
-    // Add event listeners with our handlers
+    // Add event listeners
     window.addEventListener('addNotification', handleAddNotification);
     window.addEventListener('taskCompletion', handleTaskCompletion);
     window.addEventListener('patternCompletion', handlePatternCompletion);
     window.addEventListener('progressUpdate', handleProgressUpdate);
 
-    // Clean up all handlers when component unmounts
-    return () => {
-      window.removeEventListener('addNotification', handleAddNotification);
-      window.removeEventListener('taskCompletion', handleTaskCompletion);
-      window.removeEventListener('patternCompletion', handlePatternCompletion);
-      window.removeEventListener('progressUpdate', handleProgressUpdate);
-
-      // Also clear any intervals
-      Object.values(intervalIds).forEach(clearInterval);
-    };
-  }, [addNotification, intervalIds]);
-
-  // Set up global handlers
-  useEffect(() => {
+    // Set up global notification functions
     window.showNotification = (type, message, duration, action, icon) => {
       // Skip progress notifications entirely
       if (type === 'progress') return;
@@ -215,8 +158,8 @@ const NotificationManager = () => {
       // Create unique key
       const notificationKey = `${type}-${message}`;
 
-      // Skip if shown recently
-      if (wasNotificationShownRecently(notificationKey, 5000)) {
+      // Skip if shown recently (within 10 seconds)
+      if (wasNotificationShownRecently(notificationKey, 10000)) {
         return;
       }
 
@@ -244,23 +187,21 @@ const NotificationManager = () => {
     window.showProgressUpdate = (completed, total) => {
       // Skip progress notifications entirely
       return;
-
-      /*
-      // Original code:
-      const event = new CustomEvent('progressUpdate', {
-        detail: { completed, total }
-      });
-      window.dispatchEvent(event);
-      */
     };
 
+    // Clean up
     return () => {
+      window.removeEventListener('addNotification', handleAddNotification);
+      window.removeEventListener('taskCompletion', handleTaskCompletion);
+      window.removeEventListener('patternCompletion', handlePatternCompletion);
+      window.removeEventListener('progressUpdate', handleProgressUpdate);
+
       delete window.showNotification;
       delete window.showTaskCompletion;
       delete window.showPatternCompletion;
       delete window.showProgressUpdate;
     };
-  }, []);
+  }, [addNotification]);
 
   return (
     <div className="notification-container">
