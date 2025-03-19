@@ -180,7 +180,7 @@ const GameKeeper = () => {
   return (
     <div className="gamekeeper-container">
       <div className="header">
-        <h1>Bingo Game Keeper</h1>
+        <h1>BINGO Game - Game Keeper Dashboard</h1>
         <button onClick={handleLogout} className="logout-btn">
           Logout
         </button>
