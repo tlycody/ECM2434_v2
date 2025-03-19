@@ -45,7 +45,7 @@ const Register = () => {
     if (!formData.password) return 'Password is required';
     if (formData.password !== formData.passwordagain) return 'Passwords do not match';
     if (!formData.gdprConsent) return "You need to accept the Privacy Policy to register";
-    return null; // ✅ No errors
+    return null; // No errors
   };
 
   // ============================
@@ -66,7 +66,7 @@ const Register = () => {
     }
 
     try {
-      const response = await fetch(`${API_URL}/api/register/`, {  // ✅ API call to register
+      const response = await fetch(`${API_URL}/api/register/`, {  // API call to register
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -79,13 +79,13 @@ const Register = () => {
         const data = JSON.parse(text); // Convert response to JSON
 
         if (response.ok) {
-            navigate('/login'); // ✅ Redirect to login on successful registration
+            navigate('/login'); // Redirect to login on successful registration
         } else {
             throw new Error(data.detail || data.error || 'Registration failed');
         }
     } catch (err) {
         console.error('Registration error:', err);
-        setError(err.message || 'An error occurred during registration'); // ✅ Show error message
+        setError(err.message || 'An error occurred during registration'); // Show error message
     } finally {
         setLoading(false);
     }

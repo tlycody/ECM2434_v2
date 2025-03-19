@@ -1,0 +1,93 @@
+
+[
+  {
+    "model": "bingo.task",
+    "pk": 1,
+    "fields": {
+      "description": "Walk or cycle to campus instead of driving",
+      "points": 10,
+      "requires_upload": true,
+      "requires_scan": false
+    }
+  },
+  {
+    "model": "bingo.task",
+    "pk": 2,
+    "fields": {
+      "description": "Use a reusable cup/bottle on campus",
+      "points": 7,
+      "requires_upload": true,
+      "requires_scan": false
+    }
+  },
+  {
+    "model": "bingo.task",
+    "pk": 3,
+    "fields": {
+      "description": "Attend a campus sustainability event (e.g., 'Exeter Food presents' or 'Lower Hoopern Valley Celebration')",
+      "points": 10,
+      "requires_upload": false,
+      "requires_scan": true
+    }
+  },
+  {
+    "model": "bingo.task",
+    "pk": 4,
+    "fields": {
+      "description": "Switch your search engine to Ecosia to help plant trees",
+      "points": 8,
+      "requires_upload": true,
+      "requires_scan": false
+    }
+  },
+  {
+    "model": "bingo.task",
+    "pk": 5,
+    "fields": {
+      "description": "Unplug all electronics and switch off appliances when not in use",
+      "points": 5,
+      "requires_upload": true,
+      "requires_scan": false
+    }
+  },
+  {
+    "model": "bingo.task",
+    "pk": 6,
+    "fields": {
+      "description": "Find and reuse an item from the Warp It platform",
+      "points": 8,
+      "requires_upload": true,
+      "requires_scan": false
+    }
+  },
+  {
+    "model": "bingo.task",
+    "pk": 7,
+    "fields": {
+      "description": "Reduce plastic waste by using plastic-free alternatives for a week",
+      "points": 10,
+      "requires_upload": true,
+      "requires_scan": false
+    }
+  },
+  {
+    "model": "bingo.task",
+    "pk": 8,
+    "fields": {
+      "description": "Attend 'Exeter Food presents: Guy & Geetie Singh-Watson' event",
+      "points": 8,
+      "requires_upload": false,
+      "requires_scan": true
+    }
+  },
+  {
+    "model": "bingo.task",
+    "pk": 9,
+    "fields": {
+      "description": "Participate in a campus sustainability initiative or volunteer event",
+      "points": 10,
+      "requires_upload": false,
+      "requires_scan": true
+    }
+  }
+]

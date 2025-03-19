@@ -189,12 +189,12 @@ def register_user(request):
         Leaderboard.objects.get_or_create(user=user)
         
         # Verify the user was created (this will show in your console/logs)
-        print(f"✅ Created user {username} (ID: {user.id})")
-        print(f"✅ Total users in database: {User.objects.count()}")
+        print(f Created user {username} (ID: {user.id})")
+        print(f Total users in database: {User.objects.count()}")
         
         return Response({"message": "User registered successfully!"}, status=status.HTTP_201_CREATED)
     except Exception as e:
-        print(f"❌ Error creating user: {str(e)}")
+        print(f Error creating user: {str(e)}")
         return Response({"error": f"Registration failed: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 

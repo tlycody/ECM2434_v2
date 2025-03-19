@@ -19,7 +19,7 @@ const Leaderboard = () => {
         
         axios.get(`${API_URL}/api/leaderboard/`)
             .then((response) => {
-                console.log("✅ API Raw Response:", response.data);
+                console.log(" API Raw Response:", response.data);
 
                 // Fix: Check if response.data is an array and use it directly
                 if (Array.isArray(response.data)) {
@@ -28,8 +28,8 @@ const Leaderboard = () => {
                     const lifetimeData = response.data;
                     const monthlyData = response.data;
 
-                    console.log("🔥 Setting Lifetime Leaderboard:", lifetimeData);
-                    console.log("🔥 Setting Monthly Leaderboard:", monthlyData);
+                    console.log(" Setting Lifetime Leaderboard:", lifetimeData);
+                    console.log(" Setting Monthly Leaderboard:", monthlyData);
 
                     setLifetimeLeaderboard(lifetimeData);
                     setMonthlyLeaderboard(monthlyData);
@@ -48,7 +48,7 @@ const Leaderboard = () => {
                 setLoading(false);
             })
             .catch((error) => {
-                console.error("❌ Error fetching leaderboard:", error);
+                console.error(" Error fetching leaderboard:", error);
                 setError("Failed to fetch leaderboard");
                 setLoading(false);
             });
@@ -91,7 +91,7 @@ const Leaderboard = () => {
                                         </li>
                                     ))
                                 ) : (
-                                    <p>⚠️ No lifetime leaderboard data available.</p>
+                                    <p> No lifetime leaderboard data available.</p>
                                 )}
                             </ul>
                         </div>
@@ -109,7 +109,7 @@ const Leaderboard = () => {
                                         </li>
                                     ))
                                 ) : (
-                                    <p>⚠️ No monthly leaderboard data available.</p>
+                                    <p> No monthly leaderboard data available.</p>
                                 )}
                             </ul>
                         </div>
@@ -117,10 +117,10 @@ const Leaderboard = () => {
                 </>
             )}
             <button 
-                className="back-to-profile" 
-                onClick={() => window.location.href = '/userprofile'}
+                className="back-to-home" 
+                onClick={() => window.location.href = '/'}
             >
-                ← Back to Profile
+                ← Back to Home
             </button>
         </div>
     );

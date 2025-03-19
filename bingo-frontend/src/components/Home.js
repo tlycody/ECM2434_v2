@@ -26,7 +26,7 @@ const Home = () => {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
 
-        // ✅ Update the task state with API response data
+        // Update the task state with API response data
         setTasks(response.data);
       } catch (error) {
         console.error('Error fetching tasks:', error);
@@ -34,7 +34,7 @@ const Home = () => {
     };
 
     fetchTasks();
-  }, []); // ✅ Empty dependency array ensures it runs only once when the component mounts
+  }, []); // Empty dependency array ensures it runs only once when the component mounts
 
   // ============================
   // Render Home UI
