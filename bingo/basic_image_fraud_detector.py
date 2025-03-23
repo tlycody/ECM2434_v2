@@ -13,7 +13,7 @@ class BasicImageFraudDetector:
     This avoids the need for complex dependencies like OpenCV and ImageHash.
     """
 
-    def __init__(self, similarity_threshold=85):
+    def __init__(self, similarity_threshold=95):
         """
         Initialize the fraud detector with a similarity threshold.
 
