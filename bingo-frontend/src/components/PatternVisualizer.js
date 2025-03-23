@@ -19,84 +19,68 @@ const PatternVisualizer = ({
   // Define all possible bingo patterns
   const patterns = [
     {
-      id: 'h1',
-      name: 'Horizontal Line (Top)',
-      type: 'H',
-      cells: [0, 1, 2],
-      points: 50,
-      icon: '➖'
-    },
-    {
-      id: 'h2',
-      name: 'Horizontal Line (Middle)',
-      type: 'H',
-      cells: [3, 4, 5],
-      points: 50,
-      icon: '➖'
-    },
-    {
-      id: 'h3',
-      name: 'Horizontal Line (Bottom)',
-      type: 'H',
-      cells: [6, 7, 8],
-      points: 50,
-      icon: '➖'
-    },
-    {
-      id: 'v1',
-      name: 'Vertical Line (Left)',
-      type: 'V',
-      cells: [0, 3, 6],
-      points: 50,
-      icon: '⏐'
-    },
-    {
-      id: 'v2',
-      name: 'Vertical Line (Middle)',
-      type: 'V',
-      cells: [1, 4, 7],
-      points: 50,
-      icon: '⏐'
-    },
-    {
-      id: 'v3',
-      name: 'Vertical Line (Right)',
-      type: 'V',
-      cells: [2, 5, 8],
-      points: 50,
-      icon: '⏐'
-    },
-    {
-      id: 'd1',
-      name: 'Diagonal (Top-Left to Bottom-Right)',
+      id: 'x-pattern',
+      name: 'X Pattern',
       type: 'X',
-      cells: [0, 4, 8],
-      points: 75,
+      cells: [0, 2, 4, 6, 8],
+      points: 35,
       icon: '✖️'
     },
     {
-      id: 'd2',
-      name: 'Diagonal (Top-Right to Bottom-Left)',
-      type: 'X',
-      cells: [2, 4, 6],
-      points: 75,
-      icon: '✖️'
-    },
-    {
-      id: 'outer',
-      name: 'Outer Frame',
+      id: 'o-pattern',
+      name: 'O Pattern',
       type: 'O',
       cells: [0, 1, 2, 3, 5, 6, 7, 8],
-      points: 100,
+      points: 35,
       icon: '⭕'
     },
     {
-      id: 'full',
-      name: 'Full Board',
-      type: 'F',
-      cells: [0, 1, 2, 3, 4, 5, 6, 7, 8],
-      points: 200,
-      icon: '🌍'
+      id: 'horiz1',
+      name: 'Horizontal Line (Top)',
+      type: 'HORIZ',
+      cells: [0, 1, 2],
+      points: 5,
+      icon: '➖'
+    },
+    {
+      id: 'horiz2',
+      name: 'Horizontal Line (Middle)',
+      type: 'HORIZ',
+      cells: [3, 4, 5],
+      points: 5,
+      icon: '➖'
+    },
+    {
+      id: 'horiz3',
+      name: 'Horizontal Line (Bottom)',
+      type: 'HORIZ',
+      cells: [6, 7, 8],
+      points: 5,
+      icon: '➖'
+    },
+    {
+      id: 'vert1',
+      name: 'Vertical Line (Left)',
+      type: 'VERT',
+      cells: [0, 3, 6],
+      points: 5,
+      icon: '⏐'
+    },
+    {
+      id: 'vert2',
+      name: 'Vertical Line (Middle)',
+      type: 'VERT',
+      cells: [1, 4, 7],
+      points: 5,
+      icon: '⏐'
+    },
+    {
+      id: 'vert3',
+      name: 'Vertical Line (Right)',
+      type: 'VERT',
+      cells: [2, 5, 8],
+      points: 5,
+      icon: '⏐'
     }
   ];
 
@@ -221,7 +205,9 @@ const PatternVisualizer = ({
           <div className="pattern-list">
             <h3>Your Progress</h3>
             <div className="pattern-progress-list">
-              {patternProgress.map(pattern => (
+              {patternProgress
+                .sort((a, b) => b.points - a.points) // Sort by points (high to low)
+                .map(pattern => (
                 <div
                   key={pattern.id}
                   className={`pattern-progress-item ${pattern.isComplete ? 'complete' : ''} ${activePattern === pattern.id ? 'active' : ''}`}

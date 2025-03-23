@@ -995,15 +995,24 @@ def check_and_award_patterns(user):
 
                 # Get the pattern details
                 try:
+                    bonus_points = 35  # Default for letter patterns (X, O)
+                    if pattern_type in ['HORIZ', 'VERT']:
+                        bonus_points = 5  # Lower points for basic line patterns
+
                     # Get or create the pattern in the database
                     pattern, created = BingoPattern.objects.get_or_create(
                         pattern_type=pattern_type,
                         defaults={
                             'name': get_pattern_name(pattern_type),
                             'description': get_pattern_description(pattern_type),
-                            'bonus_points': 30  # Default bonus points
+                            'bonus_points': bonus_points
                         }
                     )
+
+                    # Even if the pattern already exists, update its bonus points to match our current logic
+                    if not created and pattern.bonus_points != bonus_points:
+                        pattern.bonus_points = bonus_points
+                        pattern.save()
 
                     if DEBUG_PATTERN_CHECKING:
                         if created:
@@ -1041,7 +1050,7 @@ def check_and_award_patterns(user):
 
             # Award extra points
             try:
-                task_completion_bonus = 5
+                task_completion_bonus = 0
                 leaderboard.points += task_completion_bonus
                 leaderboard.save()
                 if DEBUG_PATTERN_CHECKING:
@@ -1082,10 +1091,10 @@ def check_and_award_patterns(user):
 def get_pattern_name(pattern_type):
     """Return a friendly name for each pattern type"""
     pattern_names = {
-        'O': 'Outer Circle Champion',
-        'X': 'Diagonal Master',
-        'H': 'Horizontal Hero',
-        'V': 'Vertical Victory'
+        'O': 'O Pattern Champion',
+        'X': 'X Pattern Master',
+        'HORIZ': 'Horizontal Line',
+        'VERT': 'Vertical Line'
     }
     return pattern_names.get(pattern_type, f"{pattern_type} Pattern")
 
@@ -1093,12 +1102,13 @@ def get_pattern_description(pattern_type):
     """Return a description for each pattern type"""
     pattern_descriptions = {
         'O': 'Complete all tasks along the outer edge of the bingo board',
-        'X': 'Complete tasks diagonally from corner to corner',
-        'H': 'Complete all tasks in any horizontal row',
-        'V': 'Complete all tasks in any vertical column'
+        'X': 'Complete tasks in the corners and center to form an X',
+        'HORIZ': 'Complete all tasks in any horizontal row',
+        'VERT': 'Complete all tasks in any vertical column'
     }
     return pattern_descriptions.get(pattern_type, f"Complete tasks in a {pattern_type} pattern")
-    
+
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def force_award_pattern(request):
