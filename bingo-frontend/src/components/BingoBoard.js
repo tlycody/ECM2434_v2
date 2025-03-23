@@ -248,10 +248,6 @@ const checkForCompletedPatterns = useCallback((userTasksData) => {
 
   // Define patterns to check (these indices match the 3x3 grid layout)
   const patterns = [
-    // H pattern (cells in an H shape)
-    { type: 'H', name: 'H Pattern', cells: [0, 2, 3, 4, 5, 6, 8], points: 35 },
-    // V pattern (cells in a V shape)
-    { type: 'V', name: 'V Pattern', cells: [0, 2, 3, 5, 7], points: 35 },
     // X pattern (corners and center)
     { type: 'X', name: 'X Pattern', cells: [0, 2, 4, 6, 8], points: 35 },
     // Outside frame (O pattern)

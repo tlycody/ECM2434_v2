@@ -70,45 +70,6 @@ class BingoPatternDetector:
 
         return True
 
-    @staticmethod
-    def check_h_pattern(grid, size=3):
-        """
-        Check if H pattern is complete
-        H pattern = [0, 2, 3, 4, 5, 6, 8] in a zero-indexed 3x3 grid
-        """
-        # Check left column (except middle)
-        if not grid[0][0] or not grid[2][0]:
-            return False
-
-        # Check right column (except middle)
-        if not grid[0][2] or not grid[2][2]:
-            return False
-
-        # Check middle row
-        if not grid[1][0] or not grid[1][1] or not grid[1][2]:
-            return False
-
-        return True
-
-    @staticmethod
-    def check_v_pattern(grid, size=3):
-        """
-        Check if V pattern is complete
-        V pattern = [0, 2, 3, 5, 7] in a zero-indexed 3x3 grid
-        """
-        # Check top corners
-        if not grid[0][0] or not grid[0][2]:
-            return False
-
-        # Check middle row edges
-        if not grid[1][0] or not grid[1][2]:
-            return False
-
-        # Check bottom middle
-        if not grid[2][1]:
-            return False
-
-        return True
 
     @staticmethod
     def check_x_pattern(grid, size=3):
@@ -170,26 +131,6 @@ class BingoPatternDetector:
                 print("✓ O pattern detected!")
         elif DEBUG_PATTERNS:
             print("✗ O pattern not detected")
-
-        # Check for H pattern (new letter pattern)
-        if DEBUG_PATTERNS:
-            print("Checking for H pattern...")
-        if BingoPatternDetector.check_h_pattern(grid, size):
-            patterns.append("H")
-            if DEBUG_PATTERNS:
-                print("✓ H pattern detected!")
-        elif DEBUG_PATTERNS:
-            print("✗ H pattern not detected")
-
-        # Check for V pattern (new letter pattern)
-        if DEBUG_PATTERNS:
-            print("Checking for V pattern...")
-        if BingoPatternDetector.check_v_pattern(grid, size):
-            patterns.append("V")
-            if DEBUG_PATTERNS:
-                print("✓ V pattern detected!")
-        elif DEBUG_PATTERNS:
-            print("✗ V pattern not detected")
 
         # Check for X pattern
         if DEBUG_PATTERNS:

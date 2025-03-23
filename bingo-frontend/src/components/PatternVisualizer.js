@@ -19,22 +19,6 @@ const PatternVisualizer = ({
   // Define all possible bingo patterns
   const patterns = [
     {
-      id: 'h-pattern',
-      name: 'H Pattern',
-      type: 'H',
-      cells: [0, 2, 3, 4, 5, 6, 8],
-      points: 35,
-      icon: '🇭'
-    },
-    {
-      id: 'v-pattern',
-      name: 'V Pattern',
-      type: 'V',
-      cells: [0, 2, 3, 5, 7],
-      points: 35,
-      icon: '🇻'
-    },
-    {
       id: 'x-pattern',
       name: 'X Pattern',
       type: 'X',

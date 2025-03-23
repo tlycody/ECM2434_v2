@@ -995,7 +995,7 @@ def check_and_award_patterns(user):
 
                 # Get the pattern details
                 try:
-                    bonus_points = 35  # Default for letter patterns (H, V, X, O)
+                    bonus_points = 35  # Default for letter patterns (X, O)
                     if pattern_type in ['HORIZ', 'VERT']:
                         bonus_points = 5  # Lower points for basic line patterns
 
@@ -1008,6 +1008,11 @@ def check_and_award_patterns(user):
                             'bonus_points': bonus_points
                         }
                     )
+
+                    # Even if the pattern already exists, update its bonus points to match our current logic
+                    if not created and pattern.bonus_points != bonus_points:
+                        pattern.bonus_points = bonus_points
+                        pattern.save()
 
                     if DEBUG_PATTERN_CHECKING:
                         if created:
@@ -1045,7 +1050,7 @@ def check_and_award_patterns(user):
 
             # Award extra points
             try:
-                task_completion_bonus = 5
+                task_completion_bonus = 0
                 leaderboard.points += task_completion_bonus
                 leaderboard.save()
                 if DEBUG_PATTERN_CHECKING:
@@ -1088,8 +1093,6 @@ def get_pattern_name(pattern_type):
     pattern_names = {
         'O': 'O Pattern Champion',
         'X': 'X Pattern Master',
-        'H': 'H Pattern Hero',
-        'V': 'V Pattern Victory',
         'HORIZ': 'Horizontal Line',
         'VERT': 'Vertical Line'
     }
@@ -1100,8 +1103,6 @@ def get_pattern_description(pattern_type):
     pattern_descriptions = {
         'O': 'Complete all tasks along the outer edge of the bingo board',
         'X': 'Complete tasks in the corners and center to form an X',
-        'H': 'Complete tasks that form the letter H on the board',
-        'V': 'Complete tasks that form the letter V on the board',
         'HORIZ': 'Complete all tasks in any horizontal row',
         'VERT': 'Complete all tasks in any vertical column'
     }

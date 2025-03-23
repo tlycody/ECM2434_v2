@@ -13,30 +13,6 @@ const BingoPatterns = () => {
   // Pattern definitions with visual representations
   const patterns = [
     {
-      id: 'h-pattern',
-      name: 'H Pattern',
-      description: 'Complete cells in an H pattern.',
-      points: 35,
-      type: 'H',
-      cells: [
-        [true, false, true],
-        [true, true, true],
-        [true, false, true]
-      ]
-    },
-    {
-      id: 'v-pattern',
-      name: 'V Pattern',
-      description: 'Complete cells in a V pattern.',
-      points: 35,
-      type: 'V',
-      cells: [
-        [true, false, true],
-        [true, false, true],
-        [false, true, false]
-      ]
-    },
-    {
       id: 'x-pattern',
       name: 'X Pattern',
       description: 'Complete cells in an X pattern (corners and center).',
@@ -128,8 +104,6 @@ const BingoPatterns = () => {
               <div className="pattern-details">
                 <p>{pattern.description}</p>
                 <div className="pattern-badge">
-                  {pattern.type === 'H' && '🇭'}
-                  {pattern.type === 'V' && '🇻'}
                   {pattern.type === 'X' && '✖️'}
                   {pattern.type === 'O' && '⭕'}
                   {pattern.type === 'HORIZ' && '➖'}
