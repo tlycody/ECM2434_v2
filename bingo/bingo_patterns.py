@@ -1,4 +1,3 @@
-# Set to False to disable debug output
 DEBUG_PATTERNS = False
 
 
@@ -72,17 +71,57 @@ class BingoPatternDetector:
         return True
 
     @staticmethod
-    def check_x_pattern(grid, size=3):
-        """Check if diagonals are complete (X pattern)"""
-        # Check main diagonal (top-left to bottom-right)
-        for i in range(size):
-            if not grid[i][i]:
-                return False
+    def check_h_pattern(grid, size=3):
+        """
+        Check if H pattern is complete
+        H pattern = [0, 2, 3, 4, 5, 6, 8] in a zero-indexed 3x3 grid
+        """
+        # Check left column (except middle)
+        if not grid[0][0] or not grid[2][0]:
+            return False
 
-        # Check other diagonal (top-right to bottom-left)
-        for i in range(size):
-            if not grid[i][size - 1 - i]:
-                return False
+        # Check right column (except middle)
+        if not grid[0][2] or not grid[2][2]:
+            return False
+
+        # Check middle row
+        if not grid[1][0] or not grid[1][1] or not grid[1][2]:
+            return False
+
+        return True
+
+    @staticmethod
+    def check_v_pattern(grid, size=3):
+        """
+        Check if V pattern is complete
+        V pattern = [0, 2, 3, 5, 7] in a zero-indexed 3x3 grid
+        """
+        # Check top corners
+        if not grid[0][0] or not grid[0][2]:
+            return False
+
+        # Check middle row edges
+        if not grid[1][0] or not grid[1][2]:
+            return False
+
+        # Check bottom middle
+        if not grid[2][1]:
+            return False
+
+        return True
+
+    @staticmethod
+    def check_x_pattern(grid, size=3):
+        """
+        Check if X pattern is complete (corners and center)
+        """
+        # Check corners
+        if not grid[0][0] or not grid[0][size - 1] or not grid[size - 1][0] or not grid[size - 1][size - 1]:
+            return False
+
+        # Check center
+        if not grid[1][1]:
+            return False
 
         return True
 
@@ -118,7 +157,7 @@ class BingoPatternDetector:
         Detect all patterns in the grid
 
         Returns:
-            A list of pattern types found (e.g. ["O", "X", "H", "V"])
+            A list of pattern types found (e.g. ["O", "X", "H", "V", "HORIZ", "VERT"])
         """
         patterns = []
 
@@ -132,6 +171,27 @@ class BingoPatternDetector:
         elif DEBUG_PATTERNS:
             print("✗ O pattern not detected")
 
+        # Check for H pattern (new letter pattern)
+        if DEBUG_PATTERNS:
+            print("Checking for H pattern...")
+        if BingoPatternDetector.check_h_pattern(grid, size):
+            patterns.append("H")
+            if DEBUG_PATTERNS:
+                print("✓ H pattern detected!")
+        elif DEBUG_PATTERNS:
+            print("✗ H pattern not detected")
+
+        # Check for V pattern (new letter pattern)
+        if DEBUG_PATTERNS:
+            print("Checking for V pattern...")
+        if BingoPatternDetector.check_v_pattern(grid, size):
+            patterns.append("V")
+            if DEBUG_PATTERNS:
+                print("✓ V pattern detected!")
+        elif DEBUG_PATTERNS:
+            print("✗ V pattern not detected")
+
+        # Check for X pattern
         if DEBUG_PATTERNS:
             print("Checking for X pattern...")
         if BingoPatternDetector.check_x_pattern(grid, size):
@@ -141,19 +201,21 @@ class BingoPatternDetector:
         elif DEBUG_PATTERNS:
             print("✗ X pattern not detected")
 
+        # Check for horizontal line pattern (basic pattern)
         if DEBUG_PATTERNS:
             print("Checking for horizontal line pattern...")
         if BingoPatternDetector.check_horizontal_line(grid, size):
-            patterns.append("H")
+            patterns.append("HORIZ")
             if DEBUG_PATTERNS:
                 print("✓ Horizontal pattern detected!")
         elif DEBUG_PATTERNS:
             print("✗ Horizontal pattern not detected")
 
+        # Check for vertical line pattern (basic pattern)
         if DEBUG_PATTERNS:
             print("Checking for vertical line pattern...")
         if BingoPatternDetector.check_vertical_line(grid, size):
-            patterns.append("V")
+            patterns.append("VERT")
             if DEBUG_PATTERNS:
                 print("✓ Vertical pattern detected!")
         elif DEBUG_PATTERNS:
