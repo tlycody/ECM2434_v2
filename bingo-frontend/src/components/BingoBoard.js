@@ -233,102 +233,102 @@ const BingoBoard = () => {
     };
   }, [navigate, checkEndOfMonth, showProgressNotification]);
 
-  // ============================
-  // Check for Completed Patterns - FIXED with persistent storage
-  // ============================
+// ============================
+// Check for Completed Patterns - FIXED with persistent storage
+// ============================
 
-  const checkForCompletedPatterns = useCallback((userTasksData) => {
-    // Skip if no tasks or data loaded yet
-    if (!tasks || tasks.length === 0 || !userTasksData || userTasksData.length === 0) return;
+const checkForCompletedPatterns = useCallback((userTasksData) => {
+  // Skip if no tasks or data loaded yet
+  if (!tasks || tasks.length === 0 || !userTasksData || userTasksData.length === 0) return;
 
-    // Get completed task IDs
-    const completedTaskIds = userTasksData
-      .filter(task => task.completed)
-      .map(task => task.task_id);
+  // Get completed task IDs
+  const completedTaskIds = userTasksData
+    .filter(task => task.completed)
+    .map(task => task.task_id);
 
-    // Define patterns to check (these indices match the 3x3 grid layout)
-    const patterns = [
-      // Horizontal rows
-      { type: 'H', name: 'Horizontal Bingo', cells: [0, 1, 2], points: 50 },
-      { type: 'H', name: 'Horizontal Bingo', cells: [3, 4, 5], points: 50 },
-      { type: 'H', name: 'Horizontal Bingo', cells: [6, 7, 8], points: 50 },
-      // Vertical columns
-      { type: 'V', name: 'Vertical Bingo', cells: [0, 3, 6], points: 50 },
-      { type: 'V', name: 'Vertical Bingo', cells: [1, 4, 7], points: 50 },
-      { type: 'V', name: 'Vertical Bingo', cells: [2, 5, 8], points: 50 },
-      // Diagonals
-      { type: 'X', name: 'Diagonal Bingo', cells: [0, 4, 8], points: 75 },
-      { type: 'X', name: 'Diagonal Bingo', cells: [2, 4, 6], points: 75 },
-      // Outside frame (O)
-      { type: 'O', name: 'Outside Frame', cells: [0, 1, 2, 3, 5, 6, 7, 8], points: 100 }
-    ];
+  // Define patterns to check (these indices match the 3x3 grid layout)
+  const patterns = [
+    // X pattern (corners and center)
+    { type: 'X', name: 'X Pattern', cells: [0, 2, 4, 6, 8], points: 35 },
+    // Outside frame (O pattern)
+    { type: 'O', name: 'O Pattern', cells: [0, 1, 2, 3, 5, 6, 7, 8], points: 35 },
+    // Horizontal lines (only 5 points each)
+    { type: 'HORIZ', name: 'Horizontal Line (Top)', cells: [0, 1, 2], points: 5 },
+    { type: 'HORIZ', name: 'Horizontal Line (Middle)', cells: [3, 4, 5], points: 5 },
+    { type: 'HORIZ', name: 'Horizontal Line (Bottom)', cells: [6, 7, 8], points: 5 },
+    // Vertical lines (only 5 points each)
+    { type: 'VERT', name: 'Vertical Line (Left)', cells: [0, 3, 6], points: 5 },
+    { type: 'VERT', name: 'Vertical Line (Middle)', cells: [1, 4, 7], points: 5 },
+    { type: 'VERT', name: 'Vertical Line (Right)', cells: [2, 5, 8], points: 5 }
+  ];
 
-    // Map task IDs to their indices in the grid (0-8)
-    const taskIndices = {};
-    tasks.forEach((task, index) => {
-      taskIndices[task.id] = index;
+  // Map task IDs to their indices in the grid (0-8)
+  const taskIndices = {};
+  tasks.forEach((task, index) => {
+    taskIndices[task.id] = index;
+  });
+
+  // Keep track of newly detected patterns
+  const newlyDetectedPatterns = [];
+
+  // Check each pattern for completion
+  patterns.forEach(pattern => {
+    // Check if all cells in pattern are completed
+    const isComplete = pattern.cells.every(cellIndex => {
+      if (cellIndex >= tasks.length) return false;
+      const taskId = tasks[cellIndex]?.id;
+      return taskId && completedTaskIds.includes(taskId);
     });
 
-    // Keep track of newly detected patterns
-    const newlyDetectedPatterns = [];
+    // If pattern is complete and not already tracked
+    if (isComplete && !completedPatterns.includes(pattern.type)) {
+      // Add to newly detected patterns
+      newlyDetectedPatterns.push(pattern.type);
 
-    // Check each pattern for completion
-    patterns.forEach(pattern => {
-      // Check if all cells in pattern are completed
-      const isComplete = pattern.cells.every(cellIndex => {
-        if (cellIndex >= tasks.length) return false;
-        const taskId = tasks[cellIndex]?.id;
-        return taskId && completedTaskIds.includes(taskId);
-      });
+      // Only if we haven't shown a popup for this pattern yet in this session
+      if (!displayedPatternPopups.includes(pattern.type)) {
+        // Schedule popup after a short delay
+        setTimeout(() => {
+          setAchievementDetails({
+            title: 'Pattern Complete!',
+            achievement: pattern.name,
+            points: pattern.points,
+            badgeEmoji: pattern.type === 'H' ? '🇭' :
+                        pattern.type === 'V' ? '🇻' :
+                        pattern.type === 'X' ? '✖️' :
+                        pattern.type === 'O' ? '⭕' :
+                        pattern.type === 'HORIZ' ? '➖' :
+                        pattern.type === 'VERT' ? '⏐' : '🏆'
+          });
+          setShowAchievementPopup(true);
 
-      // If pattern is complete and not already tracked
-      if (isComplete && !completedPatterns.includes(pattern.type)) {
-        // Add to newly detected patterns
-        newlyDetectedPatterns.push(pattern.type);
+          // Highlight the pattern in visualizer
+          setHighlightPattern(pattern.type);
 
-        // Only if we haven't shown a popup for this pattern yet in this session
-        if (!displayedPatternPopups.includes(pattern.type)) {
-          // Schedule popup after a short delay
-          setTimeout(() => {
-            setAchievementDetails({
-              title: 'Pattern Complete!',
-              achievement: pattern.name,
-              points: pattern.points,
-              badgeEmoji: pattern.type === 'H' ? '➖' :
-                          pattern.type === 'V' ? '⏐' :
-                          pattern.type === 'X' ? '✖️' :
-                          pattern.type === 'O' ? '⭕' : '🏆'
-            });
-            setShowAchievementPopup(true);
-
-            // Highlight the pattern in visualizer
-            setHighlightPattern(pattern.type);
-
-            // Mark this pattern as having shown a popup (in state and localStorage)
-            setDisplayedPatternPopups(prev => {
-              const updated = [...prev, pattern.type];
-              saveShownPatternNotification(pattern.type);
-              return updated;
-            });
-          }, 1000);
-        }
-
-        // Send pattern completion event only if we haven't shown a notification for this pattern
-        if (window.showPatternCompletion && !displayedPatternPopups.includes(pattern.type)) {
-          window.showPatternCompletion(pattern.type, pattern.points);
-        }
+          // Mark this pattern as having shown a popup (in state and localStorage)
+          setDisplayedPatternPopups(prev => {
+            const updated = [...prev, pattern.type];
+            saveShownPatternNotification(pattern.type);
+            return updated;
+          });
+        }, 1000);
       }
-    });
 
-    // Update completed patterns state if we found new ones
-    if (newlyDetectedPatterns.length > 0) {
-      setCompletedPatterns(prev => [...prev, ...newlyDetectedPatterns]);
-      return [newlyDetectedPatterns, true];
+      // Send pattern completion event only if we haven't shown a notification for this pattern
+      if (window.showPatternCompletion && !displayedPatternPopups.includes(pattern.type)) {
+        window.showPatternCompletion(pattern.type, pattern.points);
+      }
     }
+  });
 
-    return [[], false];
-  }, [tasks, completedPatterns, displayedPatternPopups]);
+  // Update completed patterns state if we found new ones
+  if (newlyDetectedPatterns.length > 0) {
+    setCompletedPatterns(prev => [...prev, ...newlyDetectedPatterns]);
+    return [newlyDetectedPatterns, true];
+  }
 
+  return [[], false];
+}, [tasks, completedPatterns, displayedPatternPopups]);
   // ============================
   // Get Task Status Helper
   // ============================
