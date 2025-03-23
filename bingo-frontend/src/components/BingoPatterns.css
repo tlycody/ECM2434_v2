@@ -175,7 +175,7 @@
 }
 
 .pattern-cell.highlighted {
-  background-color: #8B5CF6;
+  background-color: #5E318A;
   border-color: #6D28D9;
   transform: scale(1.05);
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
