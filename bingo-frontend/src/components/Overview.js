@@ -81,7 +81,7 @@ const Overview = () => {
   return (
     <div className="overview-container">
       {/* Title */}
-      <h2>Bingo Game Overview</h2>
+      <h2>Bingo Game Guide</h2>
 
       {/* Game Description Section */}
       <div className="overview-section">
