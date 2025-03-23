@@ -259,11 +259,14 @@
     margin-top: 10px;
   }
   
-  .edit-profile-form input {
-    padding: 10px;
-    border: 1px solid #d1c1ef;
+  .edit-profile-form input[type="file"] {
+    background-color: #f0e9fc;
+    padding: 12px;
     border-radius: 8px;
-    font-size: 14px;
+    border: 1px solid #d1c1ef;
+    width: 100%;
+    color: #4c3b6d;
+    cursor: pointer;
   }
   
   .edit-profile-form button {

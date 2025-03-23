@@ -226,8 +226,6 @@ useEffect(() => {
       }
     }
   };
-
-
   
 
   // Helper function to get proper image URL

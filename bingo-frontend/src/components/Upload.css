@@ -2,6 +2,87 @@
 /* Import Google Font: Poppins for a modern look */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
 
+body {
+  background-color: #f3e8ff;
+  font-family: 'Poppins', sans-serif;
+  color: #4C3B6D;
+  margin: 0;
+  padding: 0;
+}
+
+.upload-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+h1 {
+  color: #5E318A;
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  text-align: center;
+  border-bottom: 2px solid #D1A3FF;
+  padding-bottom: 10px;
+  width: 100%;
+  max-width: 800px;
+}
+
+.upload-form-card {
+  max-width: 800px;
+  width: 100%;
+  background-color: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  height: auto;
+  max-height: 80vh;
+  overflow-y: auto;
+  margin-top: 10px;
+}
+
+/* Scrollbar styling */
+.upload-form-card::-webkit-scrollbar {
+  width: 8px;
+}
+
+.upload-form-card::-webkit-scrollbar-track {
+  background: #F8F5FC;
+  border-radius: 10px;
+}
+
+.upload-form-card::-webkit-scrollbar-thumb {
+  background: #8B5CF6;
+  border-radius: 10px;
+}
+
+.upload-form-card::-webkit-scrollbar-thumb:hover {
+  background: #6D28D9;
+}
+
+.selected-task {
+  background-color: #f9f4ff;
+  border: 1px solid #D0B7F1;
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.selected-task h3 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  color: #4C3B6D;
+}
+
+.selected-task p {
+  margin: 0;
+  font-size: 15px;
+  color: #6a5a8a;
+}
+
 /* Main container for the gamekeeper page */
 .gamekeeper-container {
   max-width: 1000px;
@@ -52,18 +133,16 @@
 
 /* Error message styling */
 .error-message {
-  padding: 15px;
-  border-radius: 6px;
   background-color: #FFD2D2;
   color: #D8000C;
-  margin-bottom: 20px;
-  font-weight: 500;
-  text-align: center;
+  border-left: 4px solid #D8000C;
 }
 
 /* ============================
    Sections Styling
    ============================ */
+/* Import Google Font: Poppins for modern UI consistency */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
 
 .pending-tasks-section,
 .create-task-section,
@@ -385,27 +464,30 @@ table tr:hover {
     padding: 6px 12px;
   }
 }
+ 
+/* Message styling */
+.resubmission-notice,
+.error-message,
+.success-message,
+.similarity-warning {
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  font-weight: 500;
+  font-size: 14px;
+}
 
 /* Resubmission notice styling */
 .resubmission-notice {
   background-color: #FFF3CD;
   color: #856404;
-  padding: 15px;
-  border-radius: 6px;
-  margin-bottom: 20px;
   border-left: 4px solid #FFD700;
-  font-weight: 500;
 }
 
 /* Success message styling */
 .success-message {
   background-color: #D4EDDA;
   color: #155724;
-  padding: 15px;
-  border-radius: 6px;
-  margin-bottom: 20px;
-  font-weight: 500;
-  text-align: center;
   border-left: 4px solid #28A745;
 }
 
@@ -414,9 +496,6 @@ table tr:hover {
 .similarity-warning {
   background-color: #FFEFD5;
   border-left: 4px solid #FFA500;
-  padding: 15px;
-  margin-bottom: 20px;
-  border-radius: 6px;
 }
 
 .similarity-warning h4 {
@@ -453,3 +532,189 @@ table tr:hover {
   margin-bottom: 5px;
   font-size: 13px;
 }
+
+/* ============================
+   File Input Styling
+   ============================ */
+
+.file-input-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.custom-file-upload {
+  background-color: #8B5CF6;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s, transform 0.1s;
+  display: inline-block;
+  font-size: 14px;
+}
+
+.custom-file-upload:hover {
+  background-color: #6D28D9;
+  transform: scale(1.05);
+}
+
+.custom-file-upload:active {
+  transform: scale(0.95);
+}
+
+input[type="file"] {
+  display: none;
+}
+
+.file-name {
+  font-size: 14px;
+  color: #6a5a8a;
+  margin-left: 10px;
+}
+
+/* ============================
+   Image Preview Styling
+   ============================ */
+
+   .image-preview {
+    margin-top: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .image-preview h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 18px;
+    color: #4C3B6D;
+  }
+  
+  .image-preview-container {
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #D0B7F1;
+    height: 250px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f9f9f9;
+  }
+  
+  .image-preview-container img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+
+  /* ============================
+   Button Styling
+   ============================ */
+
+.button-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.back-button, .submit-button {
+  padding: 12px 25px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Poppins', sans-serif;
+  transition: all 0.2s;
+  min-width: 120px;
+  font-size: 14px;
+}
+
+.back-button {
+  background-color: #8B5CF6;
+  color: white;
+}
+
+.back-button:hover {
+  background-color: #6D28D9;
+  transform: scale(1.05);
+}
+
+.back-button:active {
+  transform: scale(0.95);
+}
+
+.submit-button {
+  background-color: #10B981;
+  color: white;
+}
+
+.submit-button:hover:not(:disabled) {
+  background-color: #059669;
+  transform: scale(1.05);
+}
+
+.submit-button:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.submit-button:disabled {
+  background-color: #A7F3D0;
+  cursor: not-allowed;
+}
+
+
+/* ============================
+   Responsive Styling
+   ============================ */
+
+   @media screen and (max-width: 768px) {
+    .upload-form-card {
+      padding: 20px;
+      max-height: 85vh;
+      border-radius: 15px;
+    }
+    
+    h1 {
+      font-size: 24px;
+      margin-bottom: 15px;
+    }
+    
+    .selected-task h3 {
+      font-size: 16px;
+    }
+    
+    .selected-task p {
+      font-size: 14px;
+    }
+    
+    .image-preview-container {
+      height: 200px;
+    }
+  }
+  
+  @media screen and (max-width: 576px) {
+    .button-container {
+      flex-direction: column;
+    }
+    
+    .back-button, .submit-button {
+      width: 100%;
+    }
+    
+    .file-input-container {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    
+    .file-name {
+      margin-left: 0;
+      margin-top: 5px;
+    }
+    
+    .custom-file-upload {
+      width: 100%;
+      text-align: center;
+    }
+  }
