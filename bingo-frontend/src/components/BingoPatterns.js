@@ -8,7 +8,6 @@ import './BingoPatterns.css';
 
 const BingoPatterns = () => {
   const navigate = useNavigate();
-  const [activePattern, setActivePattern] = useState(null);
 
   // Pattern definitions with visual representations
   const patterns = [
@@ -62,11 +61,6 @@ const BingoPatterns = () => {
     }
   ];
 
-  // Handle clicking on a pattern to show details
-  const handlePatternClick = (pattern) => {
-    setActivePattern(activePattern === pattern.id ? null : pattern.id);
-  };
-
   return (
     <div className="patterns-container">
       <h1 className="patterns-header">Bingo Patterns</h1>
@@ -79,8 +73,7 @@ const BingoPatterns = () => {
         {patterns.map((pattern) => (
           <div
             key={pattern.id}
-            className={`pattern-card ${activePattern === pattern.id ? 'active' : ''}`}
-            onClick={() => handlePatternClick(pattern)}
+            className="pattern-card"
           >
             <div className="pattern-header">
               <h3 className="pattern-name">{pattern.name}</h3>
@@ -100,7 +93,6 @@ const BingoPatterns = () => {
               ))}
             </div>
 
-            {activePattern === pattern.id && (
               <div className="pattern-details">
                 <p>{pattern.description}</p>
                 <div className="pattern-badge">
@@ -110,7 +102,6 @@ const BingoPatterns = () => {
                   {pattern.type === 'VERT' && '⏐'}
                 </div>
               </div>
-            )}
           </div>
         ))}
       </div>
