@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os
 from pathlib import Path
 
@@ -5,10 +6,10 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # 2️⃣ Security Settings
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'your-secret-key')
-DEBUG = True # Change to False in production
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'rhjm(c63k+l*w6(kgr%q+a-nmvh6c5fq0i435mq%zm0$1#g73@')
+DEBUG = False # Change to False in production
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'shinshinpywml.pythonanywhere.com']
 TIME_ZONE = 'Europe/London'
 
 # 3️⃣ Installed Apps
@@ -179,7 +180,6 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',  # Keep the default backend as fallback
 ]
 
-SSTATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),  # This path needs to match the directory you created
 ]

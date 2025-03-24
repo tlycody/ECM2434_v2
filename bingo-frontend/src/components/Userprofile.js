@@ -90,32 +90,74 @@ useEffect(() => {
   // Handle profile picture selection
   const handleFileChange = (e) => {
     const file = e.target.files[0];
+    
     if (file) {
+      // Check file size (limit to 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('File is too large. Please select an image under 5MB.');
+        e.target.value = ''; // Reset the input
+        return;
+      }
+      
+      // Check file type
+      if (!file.type.match('image.*')) {
+        alert('Please select an image file (JPEG, PNG, etc.)');
+        e.target.value = ''; // Reset the input
+        return;
+      }
+      
+      // Set the file for upload
       setProfileImage(file);
       
       // Create a preview URL for the selected image
       const previewUrl = URL.createObjectURL(file);
+      
+      // Clear any previous preview first
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
+      }
+      
       setImagePreview(previewUrl);
+      
+      console.log('File selected:', file.name);
     }
   };
-
+  
   // ============================
   // Handle Profile Update
   // ============================
 
+  // Update your form submission function to ensure proper FormData handling:
   const handleSubmit = async (e) => {
     e.preventDefault();
+  
+    // Create FormData object for file upload
     const formData = new FormData();
-
+  
+    // Add the profile image if one is selected
     if (profileImage) {
+      console.log('Adding profile image to form data:', profileImage.name);
       formData.append('profile_picture', profileImage);
     }
-
+  
+    // Add all user data fields that need to be updated
     Object.keys(updatedUser).forEach((key) => {
-      formData.append(key, updatedUser[key]);
+      // Skip null/undefined values and don't override profile_picture if not changed
+      if (updatedUser[key] !== null && updatedUser[key] !== undefined &&
+          !(key === 'profile_picture' && !profileImage)) {
+        formData.append(key, updatedUser[key]);
+      }
     });
+    
+    // Log FormData contents for debugging (can't directly view FormData contents)
+    console.log('FormData entries:');
+    for (let pair of formData.entries()) {
+      console.log(pair[0] + ': ' + (pair[1] instanceof File ? pair[1].name : pair[1]));
+    }
 
     try {
+      console.log('Sending profile update request...');
+      
       const response = await axios.put(`${API_URL}/api/profile/update/`, formData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('accessToken')}`,
@@ -124,38 +166,54 @@ useEffect(() => {
       });
 
       console.log('Profile update response:', response.data);
-
-      // Log the updated profile picture URL
-      if (response.data.profile_picture) {
-        console.log('Updated profile picture path:', response.data.profile_picture);
-      }
-
-      alert('Profile updated successfully');
-      setEditMode(false);
-
-      // Update state with new profile data
-      setUserData(response.data);
-
-      // Clean up preview URL
-      if (imagePreview) {
-        URL.revokeObjectURL(imagePreview);
-        setImagePreview(null);
-      }
-
-
-      setProfileImage(null); // Clear the selected image after upload
-
-      // Make sure to save the updated profile picture URL in localStorage for persistence
-      if (response.data.profile_picture) {
-        localStorage.setItem('profilePicture', response.data.profile_picture);
-      }
-
-
-    } catch (error) {
-      console.error('Error updating profile:', error);
-      alert('Failed to update profile');
+    
+    // Update the UI with the new profile data
+    setUserData(response.data);
+    
+    // If the update included a new profile picture, update localStorage
+    if (response.data.profile_picture) {
+      localStorage.setItem('profilePicture', response.data.profile_picture);
     }
-  };
+    
+    // Clean up preview URL
+    if (imagePreview) {
+      URL.revokeObjectURL(imagePreview);
+      setImagePreview(null);
+    }
+
+
+    // Reset state
+    setProfileImage(null);
+    setEditMode(false);
+
+    alert('Profile updated successfully');
+    
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    
+    // More detailed error handling
+    if (error.response) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx
+      console.error('Error response data:', error.response.data);
+      console.error('Error response status:', error.response.status);
+      
+      if (error.response.data && error.response.data.detail) {
+        alert(`Failed to update profile: ${error.response.data.detail}`);
+      } else {
+        alert(`Failed to update profile: Server returned ${error.response.status}`);
+      }
+    } else if (error.request) {
+      // The request was made but no response was received
+      console.error('No response received:', error.request);
+      alert('Failed to update profile: No response from server. Please check your connection.');
+    } else {
+      // Something happened in setting up the request that triggered an Error
+      console.error('Error message:', error.message);
+      alert(`Failed to update profile: ${error.message}`);
+    }
+  }
+};
 
   // ============================
   // Handle Profile Deletion
@@ -226,8 +284,6 @@ useEffect(() => {
       }
     }
   };
-
-
   
 
   // Helper function to get proper image URL
@@ -378,12 +434,30 @@ useEffect(() => {
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="edit-profile-form">
-            <input type="text" name="username" value={updatedUser.username} onChange={handleInputChange} placeholder="Enter your username"/>
-            <input type="email" name="email" value={updatedUser.email} onChange={handleInputChange} placeholder="Email"/>
-            <input type="file" accept="image/*" onChange={handleFileChange} />
-            <button type="submit">Save Changes</button>
-            <button type="button" onClick={() => setEditMode(false)}>Cancel</button>
-          </form>
+            <input type="text" name="username" value={updatedUser.username} onChange={handleInputChange} placeholder="Enter your username" />
+            <input type="email" name="email" value={updatedUser.email} onChange={handleInputChange} placeholder="Email" />
+  
+            {/* Improved file input with better visibility and feedback */}
+            <div className="file-input-container">
+              <label htmlFor="profile-image-upload" className="file-input-label">
+                Choose Profile Picture
+              </label>
+            <input
+              id="profile-image-upload"
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="file-input" />
+            {imagePreview && ( <div className="image-preview-container">
+            <img src={imagePreview} alt="Preview" className="image-preview" />
+            </div>
+          )}
+          </div>
+  
+        <button type="submit">Save Changes</button>
+        <button type="button" onClick={handleCancel}>Cancel</button>
+        </form>
+
         )}
       </div>
 
