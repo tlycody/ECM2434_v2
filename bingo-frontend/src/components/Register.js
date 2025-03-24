@@ -1,7 +1,6 @@
 
 // Register Component
 
-
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Register.css';
@@ -164,7 +163,7 @@ const Register = () => {
               required
             />
             I have read and agree to the&nbsp;
-            <Link to="/privacy-policy" target="_blank">Privacy Policy</Link>
+            <Link to="/privacy-policy">Privacy Policy</Link>
           </label>
         </div>
 
