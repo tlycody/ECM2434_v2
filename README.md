@@ -138,6 +138,15 @@ python manage.py test
 ```bash
 npm test
 ```
+To be able to log in as GAMEKEEPER and DEVELOPER 
+you can also use specific usernames and passowords
+For GameKeeper
+username - GAMEKEEPER
+password - MYPASS123
+
+For Developer
+usename - DEVELOPER
+password- MYDEV123
 
 ## **Environment Variables (Optional)**
 
