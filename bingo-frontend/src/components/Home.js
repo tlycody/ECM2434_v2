@@ -1,23 +1,18 @@
-// ============================
 // Home Component - Bingo Game
-// ============================
 
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import './Home.css';
 
-// Fetch API URL from environment variables (fallback to localhost if not defined)
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
 const Home = () => {
   // State to store fetched tasks (optional for later functionality)
   const [tasks, setTasks] = useState([]);
-  const navigate = useNavigate(); // React Router navigation hook
+  const navigate = useNavigate(); 
 
-  // ============================
   // Fetch Tasks on Component Mount
-  // ============================
   useEffect(() => {
     const fetchTasks = async () => {
       try {
@@ -36,9 +31,7 @@ const Home = () => {
     fetchTasks();
   }, []); // Empty dependency array ensures it runs only once when the component mounts
 
-  // ============================
   // Render Home UI
-  // ============================
   return (
     <div className="home-container">
       {/* Header Section */}

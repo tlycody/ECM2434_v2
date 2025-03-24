@@ -7,9 +7,7 @@ import uuid
 from datetime import timedelta
 
 
-# ============================
 # Custom User Model
-# ============================
 
 class User(AbstractUser):
     """
@@ -37,9 +35,7 @@ class User(AbstractUser):
         return self.username
 
 
-# ============================
 # User Consent Model
-# ============================
 
 class UserConsent(models.Model):
     """
@@ -59,9 +55,7 @@ class UserConsent(models.Model):
         return f"{self.user.username} - Consent on {self.consented_at}"
 
 
-# ============================
 # Password Reset Token Model
-# ============================
 
 class PasswordResetToken(models.Model):
     """
@@ -93,9 +87,7 @@ class PasswordResetToken(models.Model):
         return not self.used and self.expires_at > now()
 
 
-# ============================
 # Profile Model
-# ============================
 
 class Profile(models.Model):
     """
@@ -122,9 +114,7 @@ class Profile(models.Model):
         return self.user.username
 
 
-# ============================
 # Task Model
-# ============================
 
 class Task(models.Model):
     """
@@ -141,9 +131,7 @@ class Task(models.Model):
         return self.description
 
 
-# ============================
 # UserTask Model
-# ============================
 
 class UserTask(models.Model):
     STATUS_CHOICES = [
@@ -181,9 +169,7 @@ class UserTask(models.Model):
         unique_together = ('user', 'task')
 
 
-# ============================
 # Leaderboard Model
-# ============================
 
 class Leaderboard(models.Model):
     """Model to track and rank players based on points earned."""
@@ -203,7 +189,6 @@ class Leaderboard(models.Model):
         self.save()
 
 
-# models.py - Add this model
 class AccessCode(models.Model):
     """Model to store access codes for admin roles"""
     code = models.CharField(max_length=20, unique=True)

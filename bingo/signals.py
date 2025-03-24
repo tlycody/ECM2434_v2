@@ -1,4 +1,3 @@
-# signals.py - Add this to your existing signals.py file
 
 from django.db.models.signals import post_migrate
 from django.dispatch import receiver
@@ -10,12 +9,11 @@ def create_special_users(sender, **kwargs):
     Creates special users (gamekeeper and developer) after migrations are completed
     This ensures they exist when the server starts
     """
-    # Skip if this isn't the app that contains the User model
-    if sender.name != 'bingo':  # Change to your actual app name
+    if sender.name != 'bingo':  
         return
     
     # Avoid circular imports
-    User = apps.get_model('bingo', 'User')  # Change 'bingo' to your app name
+    User = apps.get_model('bingo', 'User')  
     
     # Special passwords from your form
     GAMEKEEPER_PASSWORD = "MYPASS123"

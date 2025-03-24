@@ -85,7 +85,7 @@ const GameKeeper = () => {
         requires_upload: false,
         requires_scan: false
       });
-      fetchData(); // Refresh tasks
+      fetchData();
     } catch (error) {
       console.error('Error creating task:', error);
     }
@@ -123,7 +123,7 @@ const GameKeeper = () => {
       await axios.post(`${API_URL}/api/reject-task/`, {
         user_id: userId,
         task_id: taskId,
-        reason: rejectionComment || "Task rejected by game keeper" // Use default if empty
+        reason: rejectionComment || "Task rejected by game keeper" 
       });
 
       // Clear the rejection comment and close modal

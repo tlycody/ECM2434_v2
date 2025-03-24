@@ -1,13 +1,10 @@
-// ============================
 // Homeboard Component
-// ============================
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; 
 import axios from 'axios';
 import './Homeboard.css';
 
-// Fetch API URL from environment variables (fallback to localhost if not set)
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
 const Homeboard = () => {
@@ -15,30 +12,26 @@ const Homeboard = () => {
   const [players, setPlayers] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate(); // React Router navigation hook
+  const navigate = useNavigate();
 
-  // ============================
   // Fetch Leaderboard Data on Component Mount
-  // ============================
 
   useEffect(() => {
-    setLoading(true); // Start loading
+    setLoading(true); 
     axios.get(`${API_URL}/api/leaderboard/`)
       .then(response => {
         console.log("Leaderboard fetched:", response.data);
-        setPlayers(response.data); // Store fetched players in state
+        setPlayers(response.data);
         setLoading(false);
       })
       .catch(error => {
         console.error("Error fetching leaderboard:", error);
-        setError("Failed to load leaderboard. Please try again."); // Display error message
+        setError("Failed to load leaderboard. Please try again."); 
         setLoading(false);
       });
   }, []); // Runs only on mount (empty dependency array)
 
-  // ============================
   // Render Leaderboard UI
-  // ============================
 
   return (
     <div className="leaderboard-container">

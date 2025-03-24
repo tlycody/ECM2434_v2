@@ -1,8 +1,7 @@
-/* ============================
-   Achievement Popup Styling - Enhanced
-   ============================ */
+/* 
+Achievement Popup Styling - Enhanced
+*/
 
-/* Import Google Font: Poppins for consistency */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
 
 .achievement-popup-overlay {
@@ -87,7 +86,7 @@
   transform: rotate(90deg);
 }
 
-/* Content styling - Enhanced */
+/* Content styling  */
 .achievement-content {
   padding: 25px;
   text-align: center;

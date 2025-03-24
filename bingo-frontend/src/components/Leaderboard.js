@@ -23,10 +23,8 @@ const Leaderboard = () => {
             .then((response) => {
                 console.log(" API Raw Response:", response.data);
 
-                // Fix: Check if response.data is an array and use it directly
                 if (Array.isArray(response.data)) {
                     // Assuming the first item is lifetime and second is monthly
-                    // or simply use the same data for both if that makes sense for your app
                     const lifetimeData = response.data;
                     const monthlyData = response.data;
 
@@ -56,7 +54,6 @@ const Leaderboard = () => {
             });
     }, []);
 
-    // You may also need to adjust the field names in the rendering logic
     return (
         <div className="leaderboard-container">
             {error && <p className="error-message">{error}</p>}

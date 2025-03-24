@@ -1,9 +1,6 @@
-# ============================
 # Django Test Suite for API and Models
 # Run Test: python manage.py test
-# ============================
 
-# Import necessary modules for testing
 from django.test import TestCase, RequestFactory
 from django.contrib.auth import get_user_model
 from django.urls import reverse
@@ -25,9 +22,7 @@ import json
 User = get_user_model()
 
 
-# ============================
 # Load Initial Tasks Tests
-# ============================
 
 class LoadInitialTasksTestCase(TestCase):
     @patch("builtins.open", new_callable=mock_open, read_data='[{"pk": 2, "fields": {"description": "New Task", "points": 15, "requires_upload": false, "requires_scan": true}}]')
@@ -64,9 +59,7 @@ class LoadInitialTasksTestCase(TestCase):
         mock_file.assert_not_called()
 
 
-# ============================
 # User Profile Tests
-# ============================
 
 class ProfileTests(TestCase):
     def setUp(self):
@@ -102,9 +95,7 @@ class ProfileTests(TestCase):
         response = self.client.put(url, data, format='multipart')
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-# ============================
 # User Registration Tests
-# ============================
 
 class RegisterUserTestCase(TestCase):
     def setUp(self):
@@ -138,7 +129,7 @@ class RegisterUserTestCase(TestCase):
 
     def test_register_missing_fields(self):
         """Test registering a user with missing required fields."""
-        data = {"username": "user1"}  # Missing password and email
+        data = {"username": "user1"}  
         response = self.client.post(self.url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -180,9 +171,7 @@ class RegisterUserTestCase(TestCase):
         response = self.client.post(self.url, data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-# ============================
 # User Login Tests
-# ============================
 
 class LoginUserTestCase(TestCase):
     def setUp(self):
@@ -226,9 +215,7 @@ class LoginUserTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(response.json()["error"], "Invalid username or password")
 
-# ============================
 # Task Tests
-# ============================
 
 class TasksTestCase(TestCase):
     def setUp(self):
@@ -239,11 +226,11 @@ class TasksTestCase(TestCase):
     @patch("bingo.views.load_initial_tasks", autospec=True)
     def test_tasks_retrieval(self, mock_load_initial_tasks):
         """Test retrieving tasks and ensuring task preloading is called."""
-        mock_load_initial_tasks.return_value = None  # Ensure function is patched properly
+        mock_load_initial_tasks.return_value = None  
         response = self.client.get(reverse('tasks'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertGreaterEqual(len(response.json()), 1)
-        self.assertTrue(mock_load_initial_tasks.called)  # Ensure it was called at least once
+        self.assertTrue(mock_load_initial_tasks.called) 
 
     @patch("bingo.views.load_initial_tasks", autospec=True)
     def test_tasks_retrieval_no_tasks(self, mock_load_initial_tasks):
@@ -261,9 +248,7 @@ class TasksTestCase(TestCase):
             self.client.get(reverse('tasks'))
         self.assertEqual(str(context.exception), "Task loading error")
 
-# ============================
 # Task Completion Tests
-# ============================
 
 class CompleteTaskTests(TestCase):
     """
@@ -296,9 +281,7 @@ class CompleteTaskTests(TestCase):
         self.assertIn("Task already completed and approved!", response.data["message"])
 
 
-# ============================
 # Leaderboard Tests
-# ============================
 
 class LeaderboardTests(TestCase):
     """
@@ -336,9 +319,7 @@ class LeaderboardTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data[0]["points"], response.data[1]["points"])
 
-# ============================
 # Check Developer Role Tests
-# ============================
 
 class CheckDeveloperRoleTestCase(TestCase):
     """
@@ -363,9 +344,7 @@ class CheckDeveloperRoleTestCase(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertFalse(response.json()["is_developer"])
 
-# ============================
 #Retrieve User Profile Test
-# ============================
 
 class GetUserProfileTestCase(TestCase):
     """
@@ -395,9 +374,7 @@ class GetUserProfileTestCase(TestCase):
         self.assertEqual(response.json()["total_points"], 0)
         self.assertEqual(response.json()["rank"], "Beginner")
 
-# ============================
 # User Rank Tests
-# ============================
 
 class UserRankTests(TestCase):
     """

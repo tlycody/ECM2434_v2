@@ -1,7 +1,7 @@
 # backends.py - Create this file in your app directory
 
 from django.contrib.auth.backends import ModelBackend
-from .models import User  # Import your custom User model
+from .models import User  
 
 class SpecialUserBackend(ModelBackend):
     """

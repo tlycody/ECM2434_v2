@@ -1,6 +1,4 @@
-// ============================
 // Achievement Popup Component - Enhanced
-// ============================
 
 import React, { useEffect, useState } from 'react';
 import './AchievementPopup.css';

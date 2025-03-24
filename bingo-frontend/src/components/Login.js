@@ -1,12 +1,9 @@
-// ============================
 // Login Component
-// ============================
 
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Login.css';
 
-// Fetch API URL from environment variables (fallback to localhost if not set)
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
 const Login = () => {
@@ -14,23 +11,21 @@ const Login = () => {
   const [formData, setFormData] = useState({
     username: '',
     password: '',
-    profile: 'Player', // Default role selection
+    profile: 'Player', 
     
   });
 
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate(); // React Router navigation hook
+  const navigate = useNavigate(); 
 
-  // ============================
   // Handle Input Changes
-  // ============================
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: value, // Dynamically update input fields
+      [name]: value, 
     }));
   };
 
@@ -38,14 +33,12 @@ const Login = () => {
     const { value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      profile: value, // Update profile selection
+      profile: value, 
       extraPassword: value === 'Player' ? '' : prev.extraPassword, // Clear special password if switching back to Player
     }));
   };
 
-  // ============================
   // Validate Form Inputs
-  // ============================
 
   const validateForm = () => {
     if (!formData.username.trim()) return 'Username is required';
@@ -54,9 +47,7 @@ const Login = () => {
     return null; // No errors
   };
 
-  // ============================
   // Handle Login Submission
-  // ============================
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -85,7 +76,7 @@ const Login = () => {
         }),
       });
 
-      const text = await response.text(); // Handle plain text responses
+      const text = await response.text(); 
       console.log("Raw response:", text);
       const data = JSON.parse(text); // Convert response to JSON
 
@@ -102,7 +93,7 @@ const Login = () => {
 
       // Redirect based on user role
       if (formData.profile === 'Developer') {
-        window.location.href = '/developer-front.html'; // Developer dashboard
+        window.location.href = '/developer-front.html'; 
       } else if (formData.profile === 'GameKeeper') {
         window.location.href = '/gamekeeper';
       } else {
@@ -116,9 +107,7 @@ const Login = () => {
     }
   };
 
-  // ============================
   // Render Login UI
-  // ============================
 
   return (
     <div className="login-container">

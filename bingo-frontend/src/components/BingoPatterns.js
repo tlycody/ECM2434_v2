@@ -1,6 +1,4 @@
-// ============================
-// Bingo Patterns Component - Enhanced with Visualizations
-// ============================
+// Bingo Patterns Component
 
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';

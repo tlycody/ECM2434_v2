@@ -1,12 +1,9 @@
-// ============================
 // Forgot Password Component
-// ============================
 
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import './Login.css'; // Reusing the login styles
+import './Login.css'; 
 
-// Fetch API URL from environment variables (fallback to localhost if not set)
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
 // For debugging
@@ -20,9 +17,7 @@ const ForgotPassword = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // ============================
   // Handle Input Changes
-  // ============================
 
   const handleEmailChange = (e) => {
     setEmail(e.target.value);
@@ -31,9 +26,7 @@ const ForgotPassword = () => {
     setSuccess('');
   };
 
-  // ============================
   // Validate Form Inputs
-  // ============================
 
   const validateForm = () => {
     if (!email.trim()) return 'Email is required';
@@ -45,9 +38,7 @@ const ForgotPassword = () => {
     return null; // No errors
   };
 
-  // ============================
   // Handle Password Reset Request
-  // ============================
 
   const handleResetRequest = async (e) => {
     e.preventDefault();
@@ -105,9 +96,7 @@ const ForgotPassword = () => {
     }
   };
 
-  // ============================
   // Render Password Reset UI
-  // ============================
 
   return (
     <div className="login-container">

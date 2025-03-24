@@ -197,26 +197,24 @@
 .leaderboard-item:nth-child(2),
 .leaderboard-item:nth-child(3),
 .leaderboard-item:nth-child(4) {
-  background-color: #4C1D95 !important; /* Dark purple with !important to override */
+  background-color: #4C1D95 !important; 
   color: white !important;
   border-color: #845EC2 !important;
 }
 
 /* Points text for the first 4 users */
 .leaderboard-item:nth-child(-n+4) .points {
-  color: #FFB86C !important; /* Bright orange-yellow for contrast */
+  color: #FFB86C !important; 
 }
 
 /* Keep the 5th user and beyond with light purple */
 .leaderboard-item:nth-child(n+5) {
-  background-color: #DDD6FE !important; /* Light purple */
+  background-color: #DDD6FE !important;
   color: #4C1D95 !important;
 }
 
 
-/* ============================
-   Mobile Responsiveness
-   ============================ */
+/* Mobile Responsiveness */
 
 @media (max-width: 600px) {
   .leaderboard-container {

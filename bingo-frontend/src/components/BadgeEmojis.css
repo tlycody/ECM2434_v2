@@ -1,8 +1,5 @@
-/* ============================
-   Badge Emojis Styling
-   ============================ */
+/* Badge Emojis Styling */
 
-/* Import Google Font: Poppins for consistency */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
 
 .badge-emoji-container {
@@ -13,8 +10,8 @@
   border-radius: 50%;
   position: relative;
   justify-content: center;
-  --badge-color: #8E44AD; /* Default color if none provided */
-  --badge-color-rgb: 142, 68, 173; /* Default RGB */
+  --badge-color: #8E44AD; 
+  --badge-color-rgb: 142, 68, 173; 
 }
 
 /* Calculate RGB values from HEX for opacity control */

@@ -11,9 +11,7 @@ import logging
 # Set up logging for debugging purposes
 logger = logging.getLogger(__name__)
 
-# ============================
 # User Registration Serializer
-# ============================
 
 class RegisterUserSerializer(serializers.ModelSerializer):
     """
@@ -49,7 +47,7 @@ class RegisterUserSerializer(serializers.ModelSerializer):
         Create a new user instance, remove the password confirmation field,
         and initialize the user's leaderboard entry.
         """
-        validated_data.pop('passwordagain')  # Remove redundant password field
+        validated_data.pop('passwordagain')  
 
         # Create the user with the provided credentials
         user = User.objects.create_user(
@@ -64,9 +62,7 @@ class RegisterUserSerializer(serializers.ModelSerializer):
 
         return user
 
-# ============================
 # Task Serializer
-# ============================
 
 class TaskSerializer(serializers.ModelSerializer):
     """
@@ -76,9 +72,7 @@ class TaskSerializer(serializers.ModelSerializer):
         model = Task
         fields = ['id', 'description', 'points', 'requires_upload', 'requires_scan']
 
-# ============================
 # UserTask Serializer
-# ============================
 
 class UserTaskSerializer(serializers.ModelSerializer):
     """
@@ -88,15 +82,13 @@ class UserTaskSerializer(serializers.ModelSerializer):
         model = UserTask
         fields = '__all__'  # Expose all fields in the API response
 
-# ============================
 # Leaderboard Serializer
-# ============================
 
 class LeaderboardSerializer(serializers.ModelSerializer):
     """
     Serializer for the Leaderboard model to display user rankings.
     """
-    user = serializers.CharField(source='user.username')  # Display username instead of user ID
+    user = serializers.CharField(source='user.username')  
 
     class Meta:
         model = Leaderboard

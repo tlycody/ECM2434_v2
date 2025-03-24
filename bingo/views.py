@@ -66,9 +66,7 @@ def load_initial_tasks():
             logger.error(f"Failed to load initial tasks: {e}")
 
 
-# ============================
 # User Profile Update
-# ============================
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
@@ -137,9 +135,7 @@ def update_user_profile(request):
         "profile_picture": profile.profile_picture.url if profile.profile_picture else None,
     })
 
-# ============================
 # User Registration
-# ============================
 
 @api_view(['POST'])
 def register_user(request):
@@ -199,9 +195,7 @@ def register_user(request):
         return Response({"error": f"Registration failed: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-# ============================
 # User Login
-# ============================
 
 @api_view(['POST'])
 def login_user(request):
@@ -237,14 +231,12 @@ def login_user(request):
             'refresh': str(refresh),
             'access': str(refresh.access_token),
             'user': username,
-            'role': user.role  # Include the updated role in the response
+            'role': user.role 
         }, status=status.HTTP_200_OK)
 
     return Response({"error": "Invalid username or password"}, status=status.HTTP_401_UNAUTHORIZED)
 
-# ============================
 # Task Retrieval
-# ============================
 
 @api_view(['GET'])
 def tasks(request):
@@ -257,11 +249,8 @@ def tasks(request):
     serializer = TaskSerializer(task_list, many=True)
     return JsonResponse(serializer.data, safe=False)
 
-# ============================
 # Task Completion
-# ============================
 
-# Update the complete_task function in views.py
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -366,7 +355,7 @@ def complete_task(request):
         user_task.status = 'approved' if should_auto_approve else 'pending'
         user_task.completed = should_auto_approve
         user_task.completion_date = timezone.now()
-        user_task.rejection_reason = None  # Clear previous rejection reason
+        user_task.rejection_reason = None  
 
         # Save the new photo if provided
         if 'photo' in request.FILES:
@@ -441,9 +430,8 @@ def complete_task(request):
 
     message = "Task completed successfully!" if should_auto_approve else "Task submitted successfully and awaiting GameKeeper approval!"
     return Response({"message": message}, status=status.HTTP_200_OK)
-# ============================
+
 # Leaderboard Retrieval
-# ============================
 
 
 @api_view(['GET'])
@@ -453,7 +441,6 @@ def leaderboard_view(request):
         lifetime_leaderboard = list(Leaderboard.objects.order_by('-points')[:10].values('user__username', 'points'))
         monthly_leaderboard = list(Leaderboard.objects.order_by('-monthly_points')[:10].values('user__username', 'monthly_points'))
 
-        # Rename "monthly_points" to "points" to match React expectations
         formatted_monthly_leaderboard = [
             {"user": entry["user__username"], "points": entry["monthly_points"]}
             for entry in monthly_leaderboard
@@ -487,9 +474,7 @@ def leaderboard(request):
 
 
 
-# ============================
 # Check Developer Role
-# ============================
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -568,8 +553,7 @@ def get_user_profile(request):
         "profile_picture": request.build_absolute_uri(profile.profile_picture.url) if profile.profile_picture else None,
         "rank": profile.rank,
         "user_tasks": user_tasks_data,
-        "badges": badges_data  # Add badges to the response
-    }
+        "badges": badges_data 
 
     return Response(profile_data)
 
@@ -680,7 +664,7 @@ def pending_tasks(request):
             'task_description': item.task.description,
             'points': item.task.points,
             'requires_upload': item.task.requires_upload,
-            'completion_date': item.completion_date,  # Changed from submission_date to completion_date
+            'completion_date': item.completion_date,  
             'photo_url': None
         }
         
@@ -693,7 +677,6 @@ def pending_tasks(request):
 
     return Response(result)
 
-# Update the approve_task function in views.py
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -707,7 +690,7 @@ def approve_task(request):
         return Response({'error': "Permission denied"}, status=status.HTTP_403_FORBIDDEN)
 
     user_id = request.data.get('user_id')
-    task_id = request.data.get('task_id')  # Changed 'task' to 'task_id' for consistency
+    task_id = request.data.get('task_id') 
 
     user = get_object_or_404(User, id=user_id)
     task = get_object_or_404(Task, id=task_id)
@@ -932,7 +915,6 @@ def check_and_award_patterns(user):
         if DEBUG_PATTERN_CHECKING:
             print(f"Found {completed_tasks.count()} completed tasks: {[t.task.id for t in completed_tasks]}")
 
-            # DETAILED DEBUG: Print each completed task description
             for task in completed_tasks:
                 print(f"  - Task {task.task.id}: {task.task.description}")
 
@@ -1009,7 +991,6 @@ def check_and_award_patterns(user):
                         }
                     )
 
-                    # Even if the pattern already exists, update its bonus points to match our current logic
                     if not created and pattern.bonus_points != bonus_points:
                         pattern.bonus_points = bonus_points
                         pattern.save()
@@ -1075,7 +1056,6 @@ def check_and_award_patterns(user):
                 except Exception as tb_error:
                     if DEBUG_PATTERN_CHECKING:
                         print(f"ERROR creating TaskBonus: {str(tb_error)}")
-                    # Don't let TaskBonus creation failure prevent points from being awarded
                     pass
             except Exception as bonus_error:
                 if DEBUG_PATTERN_CHECKING:
@@ -1172,9 +1152,8 @@ def login_view(request):
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
-        role = request.POST.get('user_type', 'Player')  # Assuming 'user_type' from dropdown
+        role = request.POST.get('user_type', 'Player') 
         
-        # Special passwords from your form
         GAMEKEEPER_PASSWORD = "MYPASS123"
         DEVELOPER_PASSWORD = "MYDEV123"
         
@@ -1217,8 +1196,8 @@ def login_view(request):
             if user is not None:
                 login(request, user)
                 if role in ['Game Keeper', 'Developer']:
-                    return redirect('/admin/')  # Redirect to admin
-                return redirect('/')  # Or your game home
+                    return redirect('/admin/')  
+                return redirect('/')  
             else:
                 messages.error(request, "Authentication failed")
         else:
@@ -1226,7 +1205,7 @@ def login_view(request):
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
-                return redirect('/')  # Your main game page
+                return redirect('/')  
             else:
                 messages.error(request, "Invalid username or password")
     
@@ -1304,7 +1283,6 @@ def password_reset_request(request):
             )
         except Exception as e:
             print(f"Error sending email: {str(e)}")
-            # Still return success to prevent user enumeration
 
     return Response({'message': 'If your email address is registered, you will receive a password reset link'})
 @api_view(['POST'])

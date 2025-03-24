@@ -12,14 +12,11 @@ from typing import List, Optional, Dict, Any
 import os
 from datetime import datetime
 
-# ============================
+
 # Initialize FastAPI application
-# ============================
 app = FastAPI(title="Developer Dashboard")
 
-# ============================
 # Data Models for API Responses
-# ============================
 class Repository(BaseModel):
     """Model representing repository metadata."""
     name: str
@@ -44,9 +41,7 @@ class DeploymentStep(BaseModel):
     code_snippet: Optional[str] = None 
     note: Optional[str] = None 
 
-# ============================
 # API Endpoints
-# ============================
 
 # Serve the HTML dashboard
 @app.get("/", response_class=HTMLResponse)
@@ -162,9 +157,7 @@ async def get_deployment_guide():
     ]
 
 
-# ============================
 # Application Entry Point
-# ============================
 
 if __name__ == "__main__":
     import uvicorn

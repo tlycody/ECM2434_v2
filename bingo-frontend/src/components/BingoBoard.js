@@ -1,6 +1,4 @@
-// ============================
 // Final Bingo Board Component
-// ============================
 
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import axios from 'axios';
@@ -12,11 +10,10 @@ import AchievementPopup from './AchievementPopup';
 import PatternVisualizer from './PatternVisualizer';
 import EndOfMonthReminder from './EndOfMonthReminder';
 
-// Define the API URL (fallback to localhost if not set in environment variables)
+// Define the API URL (
 const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
 
 // For storing already shown pattern notifications across sessions/renders
-// We can use localStorage to make sure these persist even if the component remounts
 const getShownPatternNotifications = () => {
   try {
     const stored = localStorage.getItem('shown_pattern_notifications');
@@ -81,16 +78,14 @@ const BingoBoard = () => {
   const hasShownProgressNotification = useRef(false);
   const hasShownEndOfMonthReminder = useRef(false);
 
-  const navigate = useNavigate(); // Hook for programmatic navigation
+  const navigate = useNavigate(); 
 
   // Initialize displayedPatternPopups from localStorage on component mount
   useEffect(() => {
     setDisplayedPatternPopups(getShownPatternNotifications());
   }, []);
 
-  // ============================
   // Check End of Month Status
-  // ============================
 
   const checkEndOfMonth = useCallback(() => {
     const now = new Date();
@@ -116,9 +111,7 @@ const BingoBoard = () => {
     }
   }, [showEndOfMonthReminder, setShowPatternVisualizer]);
 
-  // ============================
   // Show Progress Notification
-  // ============================
 
   const showProgressNotification = useCallback((userTasksData) => {
     // Only show progress if tasks are loaded and notification hasn't been shown yet
@@ -130,7 +123,6 @@ const BingoBoard = () => {
     const completedTasks = userTasksData.filter(task => task.completed).length;
     const pendingTasks = userTasksData.filter(task => task.status === 'pending').length;
 
-    // Make sure we have total tasks before calculating percentage
     const totalTasks = tasks.length;
 
     if (totalTasks > 0 && window.showProgressUpdate) {
@@ -148,9 +140,7 @@ const BingoBoard = () => {
     }
   }, [tasks, setShowPatternVisualizer]);
 
-  // ============================
   // Fetch Tasks and User Tasks on Component Mount
-  // ============================
 
   useEffect(() => {
     // Get auth token
@@ -176,7 +166,6 @@ const BingoBoard = () => {
         return axios.get(`${API_URL}/api/check-auth/`, { headers });
       })
       .then(authResponse => {
-        // Confirm we're authenticated
         console.log('Auth check:', authResponse.data);
 
         // Get all user tasks to check status (pending or completed)
@@ -211,7 +200,6 @@ const BingoBoard = () => {
           }, 3000);
         }
 
-        // Check if we need to show end-of-month reminder
         checkEndOfMonth();
       })
       .catch(error => {
@@ -233,9 +221,7 @@ const BingoBoard = () => {
     };
   }, [navigate, checkEndOfMonth, showProgressNotification]);
 
-// ============================
 // Check for Completed Patterns - FIXED with persistent storage
-// ============================
 
 const checkForCompletedPatterns = useCallback((userTasksData) => {
   // Skip if no tasks or data loaded yet
@@ -285,7 +271,6 @@ const checkForCompletedPatterns = useCallback((userTasksData) => {
       // Add to newly detected patterns
       newlyDetectedPatterns.push(pattern.type);
 
-      // Only if we haven't shown a popup for this pattern yet in this session
       if (!displayedPatternPopups.includes(pattern.type)) {
         // Schedule popup after a short delay
         setTimeout(() => {
@@ -314,14 +299,12 @@ const checkForCompletedPatterns = useCallback((userTasksData) => {
         }, 1000);
       }
 
-      // Send pattern completion event only if we haven't shown a notification for this pattern
       if (window.showPatternCompletion && !displayedPatternPopups.includes(pattern.type)) {
         window.showPatternCompletion(pattern.type, pattern.points);
       }
     }
   });
 
-  // Update completed patterns state if we found new ones
   if (newlyDetectedPatterns.length > 0) {
     setCompletedPatterns(prev => [...prev, ...newlyDetectedPatterns]);
     return [newlyDetectedPatterns, true];
@@ -329,9 +312,7 @@ const checkForCompletedPatterns = useCallback((userTasksData) => {
 
   return [[], false];
 }, [tasks, completedPatterns, displayedPatternPopups]);
-  // ============================
   // Get Task Status Helper
-  // ============================
 
   const getTaskStatus = useCallback((taskId) => {
     // Find the user task with matching task ID
@@ -345,9 +326,7 @@ const checkForCompletedPatterns = useCallback((userTasksData) => {
     return 'not_started';
   }, [userTasks]);
 
-  // ============================
   // Get Task Rejection Reason
-  // ============================
 
   const getTaskRejectionReason = useCallback((taskId) => {
     // Find the user task with matching task ID
@@ -357,9 +336,7 @@ const checkForCompletedPatterns = useCallback((userTasksData) => {
     return userTask.rejection_reason || "Task was rejected by game keeper";
   }, [userTasks]);
 
-  // ============================
   // Handle Task Click (Enhanced for Rejection Feedback)
-  // ============================
 
   const handleTaskClick = async (task) => {
     if (!task) return;
@@ -498,9 +475,7 @@ const checkForCompletedPatterns = useCallback((userTasksData) => {
     }
   };
 
-  // ============================
   // Close Rejection Feedback Modal
-  // ============================
 
   const closeRejectionFeedback = () => {
     setShowRejectionFeedback(false);
@@ -508,9 +483,7 @@ const checkForCompletedPatterns = useCallback((userTasksData) => {
     setSelectedRejectedTaskId(null);
   };
 
-  // ============================
   // Handle Task Retry after Rejection
-  // ============================
 
   const handleRetryTask = () => {
     if (!selectedRejectedTaskId) return;
@@ -523,7 +496,6 @@ const checkForCompletedPatterns = useCallback((userTasksData) => {
     // Close the rejection feedback modal
     closeRejectionFeedback();
 
-    // Set flag to indicate we're resubmitting a rejected task
     localStorage.setItem("isResubmission", "true");
 
     // Show notification
@@ -611,9 +583,7 @@ const checkForCompletedPatterns = useCallback((userTasksData) => {
     }
   };
 
-  // ============================
   // Check for Achievements (Enhanced)
-  // ============================
 
   const checkForAchievements = (currentUserTasks) => {
     // Count completed and pending tasks
@@ -682,9 +652,7 @@ const checkForCompletedPatterns = useCallback((userTasksData) => {
     }
   };
 
-  // ============================
   // Get CSS Class Based on Task Status
-  // ============================
 
   const getTaskStatusClass = (taskId) => {
     let classes = [];
@@ -703,9 +671,7 @@ const checkForCompletedPatterns = useCallback((userTasksData) => {
     return classes.join(' ');
   };
 
-  // ============================
   // Render Bingo Board UI
-  // ============================
 
   return (
     <div className="bingo-container">
@@ -809,7 +775,6 @@ const checkForCompletedPatterns = useCallback((userTasksData) => {
           badgeEmoji={achievementDetails.badgeEmoji}
           onClose={() => {
             setShowAchievementPopup(false);
-            // Don't reset displayedPatternPopups - we want to remember which ones we've shown
           }}
         />
       )}

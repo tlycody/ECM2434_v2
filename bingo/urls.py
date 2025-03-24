@@ -6,9 +6,7 @@ from .views import (
     , reject_task, password_reset_request, password_reset_confirm,get_user_badges
 )
 
-# ============================
 # URL Patterns
-# ============================
 
 from django.urls import path
 

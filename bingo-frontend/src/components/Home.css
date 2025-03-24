@@ -1,24 +1,19 @@
-/* ============================
-   Home Page Styling - Ensuring Consistency
-   ============================ */
+/* Home Page Styling - Ensuring Consistency*/
 
-/* Import Google Font: Poppins for a clean and modern look */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
 
-/* ============================
-   Main Container Styling
-   ============================ */
+/* Main Container Styling */
 
 /* Styles the main home container to match the leaderboard box */
 .home-container {
-    max-width: 420px; /* Matches leaderboard width for uniformity */
+    max-width: 420px;
     margin: auto;
     padding: 20px;
     text-align: center;
-    background-color: #d5c5f1; /* Soft purple background, same as leaderboard */
-    border-radius: 15px; /* Smooth rounded corners */
-    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2); /* Soft shadow for depth */
-    font-family: 'Poppins', sans-serif; /* Ensures text consistency */
+    background-color: #d5c5f1; 
+    border-radius: 15px; 
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2); 
+    font-family: 'Poppins', sans-serif; 
 
     /* Fix alignment */
     display: flex;
@@ -27,78 +22,73 @@
     justify-content: center;
 }
 
-/* ============================
-   Header and Text Styling
-   ============================ */
+/* Header and Text Styling */
 
 /* Title Styling - Matches Leaderboard Title */
 h1 {
     font-size: 24px;
     font-weight: bold;
-    color: #4c3b6d; /* Consistent dark purple shade */
+    color: #4c3b6d; 
     margin-bottom: 10px;
 }
 
 /* Subtitle Styling - Matches Leaderboard Text */
 p {
     font-size: 16px;
-    color: #6a5a8a; /* Matching lighter purple text */
+    color: #6a5a8a;
     margin-bottom: 20px;
 }
 
-/* ============================
-   Button Styling - Ensuring Consistency
-   ============================ */
+/* Button Styling - Ensuring Consistency
+  */
 
 /* Buttons container */
 .buttons {
     display: flex;
-    flex-direction: column; /* Stack buttons vertically */
-    align-items: center; /* Fixes centering */
-    gap: 10px; /* Space between buttons */
+    flex-direction: column;
+    align-items: center; 
+    gap: 10px; 
     width: 100%;
 }
 
 /* Standard button styles - Matches Leaderboard buttons */
 button {
-    background-color: #7548d4; /* Same purple as leaderboard buttons */
+    background-color: #7548d4; 
     color: white;
     border: none;
     padding: 12px;
     font-size: 16px;
     font-weight: bold;
-    border-radius: 10px; /* Rounded corners for modern UI */
+    border-radius: 10px;
     cursor: pointer;
     transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
-    width: 80%; /* Ensures buttons align correctly */
-    max-width: 250px; /* Prevents overly wide buttons */
+    width: 80%; 
+    max-width: 250px; 
     text-align: center;
 }
 
 /* Button hover effect */
 button:hover {
-    background-color: #5b36a6; /* Slightly darker purple on hover */
-    transform: scale(1.05); /* Slight enlargement */
+    background-color: #5b36a6; 
+    transform: scale(1.05); 
 }
 
 /* Button click effect */
 button:active {
-    transform: scale(0.95); /* Slight shrink on click */
+    transform: scale(0.95); 
 }
 
-/* ============================
-   Responsive Styling
-   ============================ */
+/* Responsive Styling */
 
 /* Ensure consistency on smaller screens */
 @media (max-width: 500px) {
     .home-container {
-        width: 90%; /* Matches leaderboard responsive behavior */
+        width: 90%;
         padding: 15px;
     }
 
     h1 {
-        font-size: 22px; /* Slightly smaller for better readability */
+        font-size: 22px;
     }
 
     p {
@@ -106,6 +96,6 @@ button:active {
     }
 
     button {
-        width: 90%; /* Ensures buttons fit on smaller screens */
+        width: 90%; 
     }
 }

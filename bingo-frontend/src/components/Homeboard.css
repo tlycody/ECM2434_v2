@@ -1,76 +1,63 @@
-/* ============================
-   Leaderboard CSS Styling
-   ============================ */
+/* Leaderboard CSS Styling */
 
-/* Import Google Font: Poppins for modern UI consistency */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
 
-/* ============================
-   Leaderboard Container Styling
-   ============================ */
+/* Leaderboard Container Styling*/
 
 .leaderboard-container {
-  max-width: 800px; /* Ensures leaderboard is centered and readable */
+  max-width: 800px; 
   margin: 40px auto;
   padding: 30px;
   text-align: center;
-  background-color: #d5c5f1; /* Soft purple background for consistency */
-  border-radius: 15px; /* Smooth rounded corners */
-  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2); /* Adds depth */
-  font-family: 'Poppins', sans-serif; /* Matches the entire app's typography */
+  background-color: #d5c5f1; 
+  border-radius: 15px; 
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+  font-family: 'Poppins', sans-serif; 
 }
 
-/* ============================
-   Leaderboard Title Styling
-   ============================ */
+/*Leaderboard Title Styling */
 
 .leaderboard-title {
-  font-size: 36px; /* Large and readable title */
+  font-size: 36px;
   font-weight: 700;
-  color: #4c3b6d; /* Dark purple text for contrast */
+  color: #4c3b6d; 
   margin-bottom: 15px;
 }
 
-/* ============================
-   Leaderboard List Styling
-   ============================ */
+/*Leaderboard List Styling */
 
 .leaderboard-list {
-  list-style: none; /* Removes default bullet points */
+  list-style: none; 
   padding: 0;
   margin: 0;
 }
 
-/* ============================
-   Leaderboard Item Styling
-   ============================ */
+/* Leaderboard Item Styling */
 
 .leaderboard-item {
-  display: flex; /* Aligns items in a row */
-  justify-content: space-between; /* Spreads content evenly */
-  align-items: center; /*  Keeps text vertically aligned */
+  display: flex;
+  justify-content: space-between; 
+  align-items: center;
   padding: 12px 20px;
-  border-radius: 8px; /* Smooth rounded corners */
+  border-radius: 8px; 
   font-size: 20px;
   font-weight: bold;
-  border: 2px solid #4c3b6d; /* Dark purple border for separation */
+  border: 2px solid #4c3b6d; 
   margin-bottom: 10px;
-  background-color: #b5a1dd; /* Default background for leaderboard items */
+  background-color: #b5a1dd; 
   color: #4c3b6d;
 }
 
 /* Alternating row colors for better readability */
 .leaderboard-item.even {
-  background-color: #b5a1dd; /* Light purple */
+  background-color: #b5a1dd;
 }
 
 .leaderboard-item.odd {
-  background-color: #d5c5f1; /* Slightly lighter shade */
+  background-color: #d5c5f1; 
 }
 
-/* ============================
-   Leaderboard Content Styling
-   ============================ */
+/* Leaderboard Content Styling */
 
 /* Rank Styling */
 .rank {
@@ -79,7 +66,7 @@
 
 /* Name Styling */
 .name {
-  flex: 1; /* Allows names to take up available space */
+  flex: 1; 
   text-align: left;
   padding-left: 10px;
 }
@@ -87,5 +74,5 @@
 /* Points Styling */
 .points {
   font-weight: bold;
-  color: #000000; /* Black text for clear readability */
+  color: #000000;
 }

@@ -1,8 +1,5 @@
-/* ============================
-   Bingo Patterns Styling 
-   ============================ */
+/* Bingo Patterns Styling  */
 
-/* Import Google Font: Poppins for consistency */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
 
 .patterns-container {
@@ -15,7 +12,7 @@
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   height: 80vh; 
-  overflow-y: auto; /* Enable vertical scrolling */
+  overflow-y: auto; 
 }
 
 

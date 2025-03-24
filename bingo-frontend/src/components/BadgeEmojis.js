@@ -1,6 +1,4 @@
-// ============================
 // Badge Emojis Component
-// ============================
 
 import React from 'react';
 import './BadgeEmojis.css';

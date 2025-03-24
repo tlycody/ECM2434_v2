@@ -1,25 +1,20 @@
 
-/* Import Google Font: Poppins for a modern look */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
 
-/* ============================
-   Bingo Container Styling
-   ============================ */
+/* Bingo Container Styling */
 
 .bingo-container {
-  max-width: 900px; /* Limits board width for responsiveness */
-  margin: 40px auto; /* Centers the board */
+  max-width: 900px; 
+  margin: 40px auto; 
   padding: 30px;
   text-align: center;
   background-color: #E6D9F5; /* Light purple background */
-  border-radius: 15px; /* Smooth rounded corners */
-  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
-  font-family: 'Poppins', sans-serif; /* Uses Poppins for readability */
+  border-radius: 15px; 
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1); 
+  font-family: 'Poppins', sans-serif; 
 }
 
-/* ============================
-   Bingo Header Styling
-   ============================ */
+/* Bingo Header Styling */
 
 .bingo-header {
   font-size: 36px;
@@ -28,94 +23,87 @@
   margin-bottom: 20px;
 }
 
-/* ============================
-   Bingo Board Grid Layout
-   ============================ */
+/*  Bingo Board Grid Layout */
 
 .bingo-board {
   display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 3x3 grid */
-  gap: 15px;
+  grid-template-columns: repeat(3, 1fr); 
   padding: 20px;
-  background-color: #D0B7F1; /* Lighter purple background */
+  background-color: #D0B7F1; 
   border-radius: 12px;
-  max-width: 650px; /* Ensures board doesn't stretch too much */
-  margin: 0 auto; /* Centers the board */
-  border: 3px solid #4C3B6D; /* Matches header text color */
+  max-width: 650px; 
+  margin: 0 auto; 
+  border: 3px solid #4C3B6D; 
 }
 
-/* ============================
-   Bingo Cell Styling
-   ============================ */
+/* Bingo Cell Styling */
 
 .bingo-cell {
-  background-color: #FFFFFF; /* Default white background */
+  background-color: #FFFFFF; 
   border: 2px solid #7D67A5;
-  border: 2px solid hsl(340, 26%, 53%); /* Medium purple border */
+  border: 2px solid hsl(340, 26%, 53%); 
   border-radius: 10px;
   padding: 15px;
   display: flex;
-  flex-direction: column; /* Organizes text vertically */
+  flex-direction: column; 
   justify-content: center;
   align-items: center;
   text-align: center;
-  width: 160px; /* Ensures uniform cell size */
+  width: 160px; 
   height: 160px;
   font-size: 14px;
   font-weight: 500;
-  color: #4C3B6D; /* Dark purple text */
-  transition: all 0.2s ease; /* Smooth transition for hover & status changes */
-  position: relative; /* For positioning status indicators */
-}
+  color: #4C3B6D; 
+  transition: all 0.2s ease;
+    position: relative;
+  }
 
 /* Hover effect for cells */
 .bingo-cell:hover {
-  transform: scale(1.05); /* Slight zoom-in effect */
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15); /* Subtle shadow */
-  background-color: #EFE2FB; /* Light lavender on hover */
+  transform: scale(1.05); 
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15); 
+  background-color: #EFE2FB; 
 }
 
 /* Status styling for cells */
 
 /* Completed cells - green background */
 .bingo-cell.completed {
-  background-color: #8BC34A; /* Green background for completed tasks */
-  border-color: #689F38; /* Darker green border */
-  color: white; /* White text for better contrast */
+  background-color: #8BC34A;
+  border-color: #689F38; 
+  color: white; 
 }
 
 .bingo-cell.completed:hover {
-  background-color: #7CB342; /* Slightly darker green on hover */
+  background-color: #7CB342; 
 }
 
 /* Pending cells - yellow background */
 .bingo-cell.pending {
-  background-color: #FFC107; /* Yellow background for pending tasks */
-  border-color: #FFA000; /* Darker yellow border */
+  background-color: #FFC107; 
+  border-color: #FFA000; 
 }
 
 .bingo-cell.pending:hover {
-  background-color: #FFB300; /* Slightly darker yellow on hover */
+  background-color: #FFB300;
 }
 
 /* Rejected cells - light red background */
 .bingo-cell.rejected {
-  background-color: #FFCDD2; /* Light red background for rejected tasks */
-  border-color: #E57373; /* Red border */
+  background-color: #FFCDD2; 
+  border-color: #E57373; 
 }
 
 .bingo-cell.rejected:hover {
-  background-color: #EF9A9A; /* Slightly darker red on hover */
+  background-color: #EF9A9A; 
 }
 
-/* ============================
-   Task Details Styling
-   ============================ */
+/* Task Details Styling*/
 
 /* Points indicator inside each bingo cell */
 .points {
   font-weight: 600;
-  color: #FF9800; /* Orange to stand out */
+  color: #FF9800; 
   font-size: 14px;
   margin-bottom: 5px;
 }
@@ -149,9 +137,7 @@
   color: white;
 }
 
-/* ============================
-   Task Indicators (Upload & Scan)
-   ============================ */
+/* Task Indicators (Upload & Scan) */
 
 /* Upload and scan task indicators */
 .upload-indicator, .scan-indicator {
@@ -161,12 +147,12 @@
 
 /* Upload required task indicator */
 .upload-indicator {
-  color: #8E44AD; /* Dark purple */
+  color: #8E44AD; 
 }
 
 /* QR code scan required task indicator */
 .scan-indicator {
-  color: #3498DB; /* Blue */
+  color: #3498DB; 
 }
 
 /* Change icon colors for better visibility on colored backgrounds */
@@ -177,9 +163,7 @@
   color: #FFFFFF;
 }
 
-/* ============================
-   Status Legend
-   ============================ */
+/* Status Legend */
 
 .status-legend {
   display: flex;
@@ -223,9 +207,7 @@
   border: 1px solid #E57373;
 }
 
-/* ============================
-   Navigation Bar
-   ============================ */
+/* Navigation Bar */
 
 .navigation-bar {
   margin-top: 20px;
@@ -257,9 +239,7 @@
   font-weight: 500;
 }
 
-/* ============================
-   Rejection Feedback Modal
-   ============================ */
+/* Rejection Feedback Modal */
 
 .rejection-feedback-overlay {
   position: fixed;

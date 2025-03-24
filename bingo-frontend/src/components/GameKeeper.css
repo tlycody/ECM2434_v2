@@ -1,6 +1,4 @@
-/* ============================
-   Gamekeeper Page Styling 
-   ============================ */
+/* Gamekeeper Page Styling */
 /* Main container for the gamekeeper page */
 .gamekeeper-container {
   max-width: 1200px; 
@@ -14,9 +12,7 @@
   background-color: #f3e8ff;
 }
 
-/* ============================
-   Header and Logout Button Styling
-   ============================ */
+/* Header and Logout Button Styling */
 
 /* Header section - Aligns content horizontally */
   .header {
@@ -44,9 +40,7 @@
     cursor: pointer;
   }
 
-/* ============================
-   Sections Styling - Tasks, Leaderboard, and Forms
-   ============================ */
+/* Sections Styling - Tasks, Leaderboard, and Forms */
 
 /* Section containers for separation and readability */
   .create-task-section, 
@@ -58,9 +52,7 @@
     border-radius: 4px;
   }
 
-/* ============================
-   Form Styling 
-   ============================ */
+/* Form Styling  */
 
 /* General form group styling */
   .form-group {

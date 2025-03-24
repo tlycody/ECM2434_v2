@@ -1,6 +1,4 @@
-// ============================
 // NotificationManager.js - Fixed Version
-// ============================
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Notification from './Notification';
@@ -51,7 +49,6 @@ const NotificationManager = () => {
     // Create a unique key for this notification
     const notificationKey = `${type}-${message}`;
 
-    // Check if we've shown this notification recently
     if (wasNotificationShownRecently(notificationKey)) {
       console.log("Preventing duplicate notification:", message);
       return null;

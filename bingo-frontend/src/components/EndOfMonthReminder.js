@@ -1,6 +1,4 @@
-// ============================
 // End of Month Reminder Component
-// ============================
 
 import React, { useState, useEffect } from 'react';
 import './EndOfMonthReminder.css';
@@ -25,7 +23,7 @@ const EndOfMonthReminder = ({ onClose, onViewPatterns }) => {
     setClosing(true);
     setTimeout(() => {
       if (onClose) onClose();
-    }, 500); // Match the CSS animation duration
+    }, 500); 
   };
 
   // Handle view patterns button

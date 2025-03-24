@@ -3,7 +3,7 @@ from .models import Task, UserTask, Leaderboard, User, Profile, UserConsent
 
 # Import Django's admin module to register models for the admin interface
 from django.contrib import admin
-from django.urls import path, include  # Not used in this file but commonly needed for URL routing
+from django.urls import path, include  
 
 # Register models with the Django admin site to manage them through the admin panel
 admin.site.register(Task)  # Task model for managing tasks

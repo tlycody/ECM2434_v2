@@ -1,6 +1,4 @@
-// ============================
 // Notification Component - Enhanced
-// ============================
 
 import React, { useState, useEffect } from 'react';
 import './Notification.css';
@@ -11,7 +9,7 @@ const Notification = ({
   duration = 4000,
   onClose,
   action,
-  icon // Custom icon override
+  icon 
 }) => {
   const [isVisible, setIsVisible] = useState(true);
   const [progress, setProgress] = useState(100);
@@ -19,7 +17,6 @@ const Notification = ({
 
   // Icons based on notification type
   const getIcon = () => {
-    // If custom icon is provided, use it
     if (icon) return icon;
 
     switch (type) {
@@ -57,11 +54,11 @@ const Notification = ({
         if (remainingPercentage <= 0) {
           clearInterval(id);
           setIsVisible(false);
-          if (onClose) setTimeout(onClose, 400); // Allow animation to complete before removing
+          if (onClose) setTimeout(onClose, 400); 
         } else {
           setProgress(remainingPercentage);
         }
-      }, 16); // ~60fps update
+      }, 16); 
 
       setIntervalId(id);
 
