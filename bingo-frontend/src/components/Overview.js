@@ -3,16 +3,13 @@ import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import './Overview.css';
 
-// Define API URL (should be moved to environment variable in production)
 const API_URL = 'https://your-api-endpoint.com';
 
 const Overview = () => {
-  const navigate = useNavigate(); // React Router navigation hook
+  const navigate = useNavigate(); 
   const [badges, setBadges] = useState([]);
 
-  // ============================
   // Badge Emoji Selector
-  // ============================
   
   const getBadgeEmoji = (type) => {
     switch (type) {
@@ -74,7 +71,7 @@ const Overview = () => {
 
     fetchUserData();
     fetchCompletedTasks();
-    debugFetch(); // Add this to get extra debug information
+    debugFetch(); 
     fetchUserBadges();
   }, []);
   

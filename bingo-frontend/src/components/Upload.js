@@ -14,10 +14,8 @@ const Upload = () => {
   const [isResubmission, setIsResubmission] = useState(false);
   const navigate = useNavigate();
 
-  // ============================
-  // Retrieve Selected Task from Local Storage
-  // ============================
-
+   // Retrieve Selected Task from Local Storage
+ 
   useEffect(() => {
     const choice = localStorage.getItem('selectedChoice');
     const isResubmitting = localStorage.getItem('isResubmission') === 'true';
@@ -34,10 +32,8 @@ const Upload = () => {
     }
   }, []);
 
-  // ============================
-  // Handle File Selection
-  // ============================
-
+   // Handle File Selection
+ 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
 
@@ -79,10 +75,8 @@ const Upload = () => {
     reader.readAsDataURL(file);
   };
 
-  // ============================
-  // Handle File Submission
-  // ============================
-
+   // Handle File Submission
+ 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -175,20 +169,16 @@ const Upload = () => {
     }
   };
 
-  // ============================
-  // Handle Back Button
-  // ============================
-
+   // Handle Back Button
+ 
   const handleBack = () => {
     // Clear the resubmission flag from localStorage
     localStorage.removeItem('isResubmission');
     navigate('/bingo');
   };
 
-  // ============================
-  // Render Upload UI
-  // ============================
-
+   // Render Upload UI
+ 
   return (
     <div className="upload-container">
       <div className="scrollable-box"> 

@@ -1,14 +1,14 @@
-/* ============================
+/*  
    Global App Styling
-   ============================ */
+     */
 
    .App {
     text-align: center; /*   Centers all content within the App */
   }
   
-  /* ============================
+  /*  
      App Logo Styling
-     ============================ */
+       */
   
   /* Logo Styling */
   .App-logo {
@@ -23,9 +23,9 @@
     }
   }
   
-  /* ============================
+  /*  
      Header Styling
-     ============================ */
+       */
   
   .App-header {
     background-color: #282c34; /*   Dark background for contrast */
@@ -38,17 +38,17 @@
     color: white; /*   Ensures readability */
   }
   
-  /* ============================
+  /*  
      Link Styling
-     ============================ */
+       */
   
   .App-link {
     color: #61dafb; /*   React blue for branding */
   }
   
-  /* ============================
+  /*  
      Logo Animation Keyframes
-     ============================ */
+       */
   
   @keyframes App-logo-spin {
     from {

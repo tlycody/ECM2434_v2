@@ -1,10 +1,10 @@
-/* ============================
+/*  
    Profile Page Styling - Matches Leaderboard
-   ============================ */
+     */
 
-/* ============================
+/*  
    Profile Page Container
-   ============================ */
+     */
 
    .profile-container {
     max-width: 420px;
@@ -30,9 +30,9 @@
     flex-direction: column;
   }
   
-  /* ============================
+  /*  
      Profile Header (Image + Name)
-     ============================ */
+       */
   
   .profile-header {
     display: flex;
@@ -53,9 +53,9 @@
     transition: all 0.3s ease;
   }
   
-  /* ============================
+  /*  
      User Information Styling
-     ============================ */
+       */
   
   .profile-details p {
     font-size: 14px;
@@ -64,9 +64,9 @@
     margin: 5px 0;
   }
   
-  /* ============================
+  /*  
      Edit Profile Button
-     ============================ */
+       */
   
   .edit-profile-btn {
     background-color: #7548d4; /*   Matches leaderboard button styling */
@@ -90,9 +90,9 @@
     transform: scale(0.95);
   }
 
-  /* ============================
+  /*  
    Delete Profile Button
-   ============================ */
+     */
 
   .delete-profile-btn {
     background-color: #d44848; /* Red background for delete action */
@@ -116,9 +116,9 @@
     transform: scale(0.95);
   }
 
-  /* ============================
+  /*  
     Delete Confirmation Dialog
-    ============================ */
+      */
 
   .delete-confirmation-overlay {
     position: fixed;
@@ -195,9 +195,9 @@
     background-color: #5a6268;
   }
   
-  /* ============================
+  /*  
      Completed Tasks Section
-     ============================ */
+       */
   
   .completed-tasks {
     margin-top: 20px;
@@ -227,9 +227,9 @@
     border-radius: 10px;
   }
   
-  /* ============================
+  /*  
      Navigation Buttons
-     ============================ */
+       */
   
   .buttons {
     display: flex;
@@ -288,9 +288,9 @@
     background-color: #9275d1;
   }
   
-  /* ============================
+  /*  
      Mobile Responsive Styling
-     ============================ */
+       */
   
   @media (max-width: 500px) {
     .profile-container {

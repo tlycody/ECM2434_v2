@@ -1,8 +1,7 @@
-/* ============================
+/* 
    Popup Styling
-   ============================ */
+    */
 
-/* Import Google Font: Poppins for consistency */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
 
 /* Popup Overlay */
@@ -125,7 +124,7 @@
 }
 
 .popup-button.confirm {
-  background-color: #8B5CF6; /* Purple primary button */
+  background-color: #8B5CF6; 
   color: white;
   border: none;
 }

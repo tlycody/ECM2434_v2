@@ -1,13 +1,12 @@
-/* ============================
-   Overview Component Styling
-   ============================ */
+/* Overview Component Styling
+   */
 
   /* Import Google Font: Poppins for modern UI consistency */
   @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
 
-  /* ============================
+  /* 
    Overview Container
-   ============================ */
+  */
    .overview-container {
     max-width: 800px;
     margin: 40px auto;
@@ -16,8 +15,8 @@
     border-radius: 20px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    height: 80vh; /* Set height to 80% of viewport height */
-    overflow-y: auto; /* Enable vertical scrolling */
+    height: 80vh; 
+    overflow-y: auto; 
   }
 
 
@@ -142,9 +141,7 @@
     transform: scale(0.95);
   }
 
-  /* ============================
-     Sustainability Badges Section
-     ============================ */
+  /* Sustainability Badges Section*/
   
      .sustainability-badges {
       margin-top: 25px;
@@ -236,14 +233,13 @@
       box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1);
     }
 
-  /* ============================
-     Mobile Responsive Styling
-     ============================ */
+  /*Mobile Responsive Styling
+       */
   
      @media screen and (max-width: 768px) {
       .profile-container {
         padding: 20px;
-      height: 85vh; /* Slightly taller on mobile */
+      height: 85vh; 
       margin: 20px auto;
       border-radius: 15px;
       }

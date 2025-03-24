@@ -21,11 +21,9 @@ const Profile = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const navigate = useNavigate(); // React Router navigation hook
 
-  // ============================
-  // Fetch User Data, Completed Tasks & Badges
-  // ============================
-// Inside your useEffect function
-useEffect(() => {
+   // Fetch User Data, Completed Tasks & Badges
+ 
+  useEffect(() => {
   // Fetch user profile data
   const fetchUserData = async () => {
     try {
@@ -78,10 +76,8 @@ useEffect(() => {
 
   }, []);
 
-  // ============================
-  // Handle Input & File Changes
-  // ============================
-
+   // Handle Input & File Changes
+ 
   // Handle text input changes for updating user details
   const handleInputChange = (e) => {
     setUpdatedUser({ ...updatedUser, [e.target.name]: e.target.value });
@@ -99,10 +95,8 @@ useEffect(() => {
     }
   };
 
-  // ============================
-  // Handle Profile Update
-  // ============================
-
+   // Handle Profile Update
+ 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
@@ -157,10 +151,8 @@ useEffect(() => {
     }
   };
 
-  // ============================
-  // Handle Profile Deletion
-  // ============================
-  
+   // Handle Profile Deletion
+   
   const handleDeleteProfile = async () => {
     try {
       // First, try to see what API endpoints are available by checking profile data
@@ -177,7 +169,6 @@ useEffect(() => {
         
         console.log('Profile deletion response:', response.data);
         
-        // If we get here, deletion was successful
         localStorage.clear();
         alert('Your profile has been successfully deleted');
         window.location.href = '/login';
@@ -253,7 +244,6 @@ useEffect(() => {
       return picturePath;
     }
     
-    // Check if we have a saved profile picture in localStorage as fallback
     const savedPicture = localStorage.getItem('profilePicture');
     if (savedPicture) {
       if (!savedPicture.startsWith('http') && !savedPicture.startsWith('/')) {
@@ -299,10 +289,8 @@ useEffect(() => {
     }
   };
 
-  // ============================
-  // Render Profile UI
-  // ============================
-
+   // Render Profile UI
+ 
   return (
     <div className="profile-container">
       {/* Profile Title */}

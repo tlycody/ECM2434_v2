@@ -1,6 +1,4 @@
-// ============================
 // Popup Manager Component
-// ============================
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Popup from './Popup';

@@ -1,6 +1,4 @@
-// ============================
 // Pattern Visualizer Component
-// ============================
 
 import React, { useState, useEffect } from 'react';
 import './PatternVisualizer.css';
@@ -206,7 +204,7 @@ const PatternVisualizer = ({
             <h3>Your Progress</h3>
             <div className="pattern-progress-list">
               {patternProgress
-                .sort((a, b) => b.points - a.points) // Sort by points (high to low)
+                .sort((a, b) => b.points - a.points) 
                 .map(pattern => (
                 <div
                   key={pattern.id}

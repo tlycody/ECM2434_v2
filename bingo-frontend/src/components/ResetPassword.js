@@ -1,6 +1,6 @@
-// ============================
+ 
 // Reset Password Component
-// ============================
+ 
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -30,9 +30,9 @@ const ResetPassword = () => {
     }
   }, [token, navigate]);
 
-  // ============================
+   
   // Handle Input Changes
-  // ============================
+   
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -45,9 +45,9 @@ const ResetPassword = () => {
     setSuccess('');
   };
 
-  // ============================
+   
   // Validate Form Inputs
-  // ============================
+   
 
   const validateForm = () => {
     if (!formData.password) return 'Password is required';
@@ -57,9 +57,9 @@ const ResetPassword = () => {
     return null; // No errors
   };
 
-  // ============================
+   
   // Handle Reset Password Submission
-  // ============================
+   
 
   const handleResetPassword = async (e) => {
     e.preventDefault();
@@ -135,9 +135,9 @@ const ResetPassword = () => {
     }
   };
 
-  // ============================
+   
   // Render Reset Password UI
-  // ============================
+   
 
   return (
     <div className="login-container">

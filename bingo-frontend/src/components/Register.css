@@ -1,32 +1,31 @@
-/* ============================
+/* 
    Register Page CSS Styling
-   ============================ */
+    */
 
-/* Import Google Font: Poppins for modern UI consistency */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
 
-/* ============================
+/* 
    General Body Styling
-   ============================ */
+    */
 
 body {
-    background-color: #F3E8FF; /* Light lavender background for a soft look */
-    font-family: 'Poppins', sans-serif; /* Consistent typography */
+    background-color: #F3E8FF;
+    font-family: 'Poppins', sans-serif; 
     display: flex;
-    justify-content: center; /* Centers content horizontally */
-    align-items: center; /* Centers content vertically */
-    height: 100vh; /* Full screen height */
+    justify-content: center; 
+    align-items: center; 
+    height: 100vh; 
     margin: 0;
 }
 
-/* ============================
+/* 
    Register Form Container
-   ============================ */
+    */
 
 .register-container {
-    background: white; /* Clean white background */
-    border-radius: 20px; /* Smooth rounded corners */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Soft shadow for depth */
+    background: white; 
+    border-radius: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); 
     padding: 40px;
     width: 420px;
     text-align: center;
@@ -35,19 +34,19 @@ body {
     align-items: center;
 }
 
-/* ============================
+/* 
    Header Styling
-   ============================ */
+    */
 
 h2 {
-    color: #5E318A; /* Dark purple for emphasis */
+    color: #5E318A; 
     font-weight: 600;
     margin-bottom: 20px;
 }
 
-/* ============================
+/* 
    Form Styling
-   ============================ */
+    */
 
 /* Form Group */
 .form-group {
@@ -63,10 +62,10 @@ h2 {
 input {
     width: 100%;
     padding: 14px;
-    border: 2px solid #D1A3FF; /* Soft purple border */
+    border: 2px solid #D1A3FF; 
     border-radius: 10px;
     font-size: 16px;
-    background-color: #F8F5FC; /* Light background */
+    background-color: #F8F5FC; 
     outline: none;
     transition: 0.3s;
     box-sizing: border-box;
@@ -75,13 +74,13 @@ input {
 
 /* Input Focus Effect */
 input:focus {
-    border-color: #5E318A; /* Darker purple focus effect */
+    border-color: #5E318A; 
     background-color: white;
 }
 
-/* ============================
+/* 
    Checkbox Styling
-   ============================ */
+    */
 
 /* Privacy Policy Checkbox Group */
 .privacy-policy {
@@ -106,12 +105,12 @@ input:focus {
     height: 18px;
 }
 
-/* ============================
+/* 
    Button Styling
-   ============================ */
+    */
 
 button {
-    background: #8B5CF6; /* Primary purple button */
+    background: #8B5CF6; 
     color: white;
     font-size: 18px;
     font-weight: bold;
@@ -127,22 +126,22 @@ button {
 
 /* Button Hover Effect */
 button:hover {
-    background: #6D28D9; /* Darker purple on hover */
+    background: #6D28D9; 
 }
 
 /* Disabled Button */
 button:disabled {
-    background: #D1A3FF; /* Light purple for disabled state */
+    background: #D1A3FF; 
     cursor: not-allowed;
 }
 
-/* ============================
+/* 
    Error Message Styling
-   ============================ */
+    */
 
 .error-message {
-    color: #D32F2F; /* Red error text */
-    background: #FFEBEE; /* Light red background */
+    color: #D32F2F; 
+    background: #FFEBEE; 
     padding: 10px;
     border-radius: 8px;
     margin-bottom: 15px;
@@ -150,9 +149,9 @@ button:disabled {
     text-align: center;
 }
 
-/* ============================
+/* 
    Link Styling
-   ============================ */
+    */
 
 /* Paragraph Text */
 p {
@@ -163,7 +162,7 @@ p {
 
 /* Anchor Links */
 p a {
-    color: #5E318A; /* Dark purple link */
+    color: #5E318A; 
     text-decoration: none;
     font-weight: bold;
 }

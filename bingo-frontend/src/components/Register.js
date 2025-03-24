@@ -1,6 +1,6 @@
-// ============================
+
 // Register Component
-// ============================
+
 
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -23,9 +23,9 @@ const Register = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate(); // React Router navigation hook
 
-  // ============================
+  
   // Handle Input Changes
-  // ============================
+  
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -35,9 +35,9 @@ const Register = () => {
     }));
   };
 
-  // ============================
+  
   // Validate Form Inputs
-  // ============================
+  
 
   const validateForm = () => {
     if (!formData.username.trim()) return 'Username is required';
@@ -48,9 +48,9 @@ const Register = () => {
     return null; // No errors
   };
 
-  // ============================
+  
   // Handle Form Submission
-  // ============================
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -91,9 +91,9 @@ const Register = () => {
     }
   };
 
-  // ============================
+  
   // Render Registration Form UI
-  // ============================
+  
 
   return (
     <div className="register-container">

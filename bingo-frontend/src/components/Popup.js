@@ -1,6 +1,4 @@
-// ============================
 // Popup Component
-// ============================
 
 import React, { useEffect, useState } from 'react';
 import './Popup.css';
@@ -40,7 +38,7 @@ const Popup = ({
     setIsVisible(false);
     setTimeout(() => {
       if (onClose) onClose();
-    }, 300); // Wait for animation to complete
+    }, 300); 
   };
 
   // Handle confirm action
