@@ -14,6 +14,8 @@ const Leaderboard = () => {
     const [searchParams] = useSearchParams();
     const leaderboardType = searchParams.get('type') || 'lifetime';
 
+    const isLoggedIn = localStorage.getItem('accessToken') !== null;
+
     useEffect(() => {
         setLoading(true);
         
@@ -117,12 +119,14 @@ const Leaderboard = () => {
                 </>
             )}
             <button 
-                className="back-to-home" 
-                onClick={() => window.location.href = '/'}
+                    className="back-to-home" 
+                    onClick={() => window.location.href = isLoggedIn ? '/userprofile' : '/'}
             >
-                ← Back to Home
+                ← Back to {isLoggedIn ? 'Profile' : 'Home'}
             </button>
         </div>
+
+
     );
 };
 
