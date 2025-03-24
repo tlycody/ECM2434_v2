@@ -191,21 +191,22 @@ const Upload = () => {
 
   return (
     <div className="upload-container">
-      {/* Page Header */}
-      <h1>{isResubmission ? 'Resubmit Your Task' : 'Upload your proof of Gameplay'}</h1>
+      <div className="scrollable-box"> 
+        {/* Page Header */}
+        <h1>{isResubmission ? 'Resubmit Your Task' : 'Upload your proof of Gameplay'}</h1>
 
-      {/* Display the selected task */}
-      <div className="selected-task">
-        <h3>Selected Task:</h3>
-        <p>{selectedTask}</p>
-      </div>
-
-      {/* Display resubmission message if applicable */}
-      {isResubmission && (
-        <div className="resubmission-notice">
-          <p>You are resubmitting a previously rejected task. Please address the feedback from the game keeper.</p>
+        {/* Display the selected task */}
+        <div className="selected-task">
+          <h3>Selected Task:</h3>
+          <p>{selectedTask}</p>
         </div>
-      )}
+
+        {/* Display resubmission message if applicable */}
+        {isResubmission && (
+          <div className="resubmission-notice">
+            <p>You are resubmitting a previously rejected task. Please address the feedback from the game keeper.</p>
+          </div>
+          )}
 
       {/* Error and Success Messages */}
       {errorMessage && (
@@ -214,8 +215,8 @@ const Upload = () => {
         </div>
       )}
 
-      {/* Similarity Details (for fraud detection) */}
-      {similarityDetails && (
+        {/* Similarity Details (for fraud detection) */}
+        {similarityDetails && (
         <div className="similarity-warning">
           <h4>Duplicate Image Detected</h4>
           <p>{similarityDetails.message}</p>
@@ -277,6 +278,7 @@ const Upload = () => {
           </button>
         </div>
       </form>
+      </div>
     </div>
   );
 };
