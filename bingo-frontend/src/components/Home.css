@@ -11,7 +11,7 @@
 
 /* Styles the main home container to match the leaderboard box */
 .home-container {
-    max-width: 400px; /* Matches leaderboard width for uniformity */
+    max-width: 420px; /* Matches leaderboard width for uniformity */
     margin: auto;
     padding: 20px;
     text-align: center;

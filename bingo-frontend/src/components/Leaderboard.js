@@ -66,7 +66,8 @@ const Leaderboard = () => {
                         <button 
                             className={`leaderboard-nav-button ${leaderboardType === 'lifetime' ? 'active' : ''}`}
                             onClick={() => window.location.href = '/leaderboard?type=lifetime'}
-                        > 🏆 Lifetime Leaderboard
+                        >
+                            🏆 Lifetime Leaderboard
                         </button>
                         <button 
                             className={`leaderboard-nav-button ${leaderboardType === 'monthly' ? 'active' : ''}`}
