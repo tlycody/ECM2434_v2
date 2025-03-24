@@ -259,11 +259,14 @@
     margin-top: 10px;
   }
   
-  .edit-profile-form input {
-    padding: 10px;
-    border: 1px solid #d1c1ef;
+  .edit-profile-form input[type="file"] {
+    background-color: #f0e9fc;
+    padding: 12px;
     border-radius: 8px;
-    font-size: 14px;
+    border: 1px solid #d1c1ef;
+    width: 100%;
+    color: #4c3b6d;
+    cursor: pointer;
   }
   
   .edit-profile-form button {
@@ -308,4 +311,94 @@
       font-size: 14px; /*   Adjust font size for readability */
     }
   }
+  
+  /* File input styling */
+.file-input-container {
+  margin: 15px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.file-input-label {
+  background-color: #7548d4;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  display: inline-block;
+  transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+  margin-bottom: 10px;
+  text-align: center;
+  width: 100%;
+}
+
+.file-input-label:hover {
+  background-color: #5b36a6;
+  transform: scale(1.05);
+}
+
+.file-input {
+  opacity: 0;
+  position: absolute;
+  z-index: -1;
+  width: 0.1px;
+  height: 0.1px;
+  overflow: hidden;
+}
+
+/* Image preview styling */
+.image-preview-container {
+  margin-top: 10px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.image-preview {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #7548d4;
+}
+
+/* Make form buttons more prominent */
+.edit-profile-form button {
+  margin-top: 10px;
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+}
+
+.edit-profile-form button[type="submit"] {
+  background-color: #7548d4;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+}
+
+.edit-profile-form button[type="submit"]:hover {
+  background-color: #5b36a6;
+  transform: scale(1.05);
+}
+
+.edit-profile-form button[type="button"] {
+  background-color: #9275d1;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+}
+
+.edit-profile-form button[type="button"]:hover {
+  background-color: #8365c1;
+  transform: scale(1.05);
+}
   

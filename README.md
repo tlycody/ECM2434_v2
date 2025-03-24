@@ -1,10 +1,12 @@
-# ECM2434 Project - Bingo Game
+# ECM2434 Project - Bingo Sustainability Game
 
-## **Project Overview**
+## Project Overview
 
-This project is a **gamified Bingo challenge** where players complete sustainability-related tasks to earn points and rewards. It is built using **Django (backend)** and a **frontend framework (React/other, if applicable)**. Players verify tasks via **QR codes** and can earn bonus points for completing challenges within a set timeframe.
+This project is the **Sprint Two Final Submission of the Bingo Sustainability Game** developed by the **Caffeinated Divas Team** at **Exeter University**. It is a gamified experience aimed at promoting sustainability where players complete tasks to earn points and rewards. The application consists of a **Django backend** and a **React frontend**. Tasks are verified via **QR codes**, and there is a bonus points system for completing tasks within a set timeframe.
 
-## **Features**
+---
+
+## Features
 
 - **9 Task-Based Games:** Players complete challenges to earn stamps.
 - **QR Code Verification:** Users scan QR codes to confirm task completion.
@@ -12,170 +14,132 @@ This project is a **gamified Bingo challenge** where players complete sustainabi
 - **Leaderboard:** Tracks top-scoring players.
 - **User Authentication:** Secure login using JWT.
 
-## **Setup Instructions**
+---
 
-### **Prerequisites**
+## Prerequisites
 
 Ensure you have the following installed:
-
 - Python (>= 3.8)
 - pip (Python package manager)
-- Node.js & npm (if frontend exists)
-- Git (for version control)
+- Node.js & npm
+- Git
 - Virtual Environment (Recommended for Python dependencies)
 
-### **Backend Setup (Django)**
+---
 
-#### 1. Clone the Repository
+## Backend Setup (Django)
 
+1. **Clone the Repository**
 ```bash
-git clone <your-repo-url>
-cd <your-project-folder>
+   git clone <your-repo-url>
+   cd <your-project-folder>
 ```
 
-#### 2. Create a Virtual Environment
-
+2. **Set up a virtual environment:**
 ```bash
-python -m venv venv
-source venv/bin/activate  # Mac/Linux
-venv\Scripts\activate  # Windows
+   python -m venv venv
+   source venv/bin/activate  # Mac/Linux
+   venv\Scripts\activate    # Windows
 ```
 
-#### 3. Install Dependencies
-
+3. **Install dependencies:**
 ```bash
-pip install -r requirements.txt
+   pip install -r requirements.txt
 ```
 
-#### 4. Configure the Database
-
+4. **Apply migrations:**
 ```bash
-python manage.py makemigrations
-python manage.py migrate
+   python manage.py makemigrations
+   python manage.py migrate
 ```
 
-#### 5. Create a Superuser (Admin)
-
+5. **Run the server:**
 ```bash
-python manage.py createsuperuser
+   python manage.py runserver
+```
+   The backend will be running at: `http://localhost:8000/`
+
+---
+
+## Frontend Setup (React)
+
+1. **Navigate to the frontend folder:**
+```bash
+   cd path/to/ECM2434_v2/bingo-frontend
 ```
 
-Follow the prompts to set up an admin account.
-
-#### 6. Run the Server
-
+2. **Install dependencies:**
 ```bash
-python manage.py runserver
+   npm install
+   npm install jsqr  # If required
 ```
 
-The backend should now be running at **[http://127.0.0.1:8000/](http://127.0.0.1:8000/)**.
-
-### **Frontend Setup (If Applicable)**
-
-#### 1. Navigate to the Frontend Directory
-
+3. **Run the React frontend:**
 ```bash
-cd frontend
+   npm start
+```
+   The frontend will be running at: `http://localhost:3000/`
+
+---
+
+## Stopping the Application
+
+To stop both frontend and backend servers, run:
+```bash
+   pkill -f node
+   pkill -f python
 ```
 
-#### 2. Install Node.js Dependencies
+---
 
+## Running Tests
+
+### Backend Tests (Django)
 ```bash
-npm install
+   python manage.py test
 ```
 
-#### 3. Start the Development Server
-
+### Frontend Tests (React)
 ```bash
-npm start
+   npm test
 ```
 
-The frontend should now be running at **[http://localhost:3000/](http://localhost:3000/)**.
+---
 
-## **Stopping and Restarting the Application**
+## Environment Variables (Optional)
 
-### **Stop Frontend and Backend**
-
-```bash
-pkill -f node
-pkill -f python
-```
-
-### **Start Frontend and Backend**
-
-```bash
-cd path/to/backend    # Go to your Django project folder manually
-source venv/bin/activate  # (Mac/Linux) Activate virtual environment
-
-pip install -r requirements.txt
-npm install jsqr
-
-python manage.py makemigrations
-python manage.py migrate
-
-python manage.py runserver  # Start Django backend
-
-cd path/to/frontend   # Go to React frontend folder manually
-npm install           # Install dependencies (only if not already installed)
-npm start             # Start React frontend
-```
-
-Now the server should be running:
-
-- Backend: **[http://localhost:8000/](http://localhost:8000/)**
-- Frontend: **[http://localhost:3000/](http://localhost:3000/)**
-
-## **Running Tests**
-
-### **Backend Tests (Django)**
-
-```bash
-python manage.py test
-```
-
-### **Frontend Tests (If Applicable)**
-
-```bash
-npm test
-```
-
-## **Environment Variables (Optional)**
-
-If using environment variables for secrets, create a `.env` file in the project root and add:
-
+Create a `.env` file in the project root and add:
 ```env
-SECRET_KEY=your_secret_key
-DEBUG=True
-DATABASE_URL=your_database_url
+   SECRET_KEY=your_secret_key
+   DEBUG=True
+   DATABASE_URL=your_database_url
 ```
 
-## **Deployment Guide (Optional)**
+---
 
+## Deployment Guide (Optional)
 For production deployment on Heroku, AWS, or DigitalOcean:
-
 - Use **Gunicorn** instead of the Django development server.
 - Set up a **PostgreSQL database** for production.
 - Configure **whitenoise** for static file handling.
 
-## **Common Issues & Troubleshooting**
+---
 
-### **Virtual Environment Issues**
+## Common Issues & Troubleshooting
 
-If `pip install -r requirements.txt` fails, try:
+- **Virtual Environment Issues:**
+   ```bash
+   python -m pip install --upgrade pip
+   ```
 
-```bash
-python -m pip install --upgrade pip
-```
+- **Database Issues:**
+   ```bash
+   python manage.py flush
+   ```
 
-### **Database Issues**
+---
 
-If migrations fail, reset the database:
-
-```bash
-python manage.py flush
-```
-
-## **Contributing**
+## Contributing
 
 1. Fork the repository.
 2. Create a feature branch (`git checkout -b feature-xyz`).
@@ -183,16 +147,16 @@ python manage.py flush
 4. Push the branch (`git push origin feature-xyz`).
 5. Create a pull request for review.
 
-## **License**
+---
 
-This project is licensed under the **MIT License**.
+## License
 
-## **Contact**
-
-For questions or contributions, contact \*\*[lyt202\@exeter.ac.uk, wllt201\@exeter.ac.uk, mk811\@exeter.ac.uk, ncm206\@exeter.ac.uk, stl214\@exeter.ac.uk, sc1332\@exeter.ac.uk, lc1025\@exeter.ac.uk]\*\*.
-
-
+This project is part of an academic submission for **Sprint Two Final Submission of the Bingo Sustainability Game** by the **Caffeinated Divas Team at Exeter University**. It is licensed under the **MIT License**, but certain restrictions may apply based on academic guidelines. Contact the team for further details.
 
 ---
 
+## Contact
+
+For questions or contributions, contact the Caffeinated Divas Team at:
+**lyt202@exeter.ac.uk, wllt201@exeter.ac.uk, mk811@exeter.ac.uk, ncm206@exeter.ac.uk, stl214@exeter.ac.uk, sc1332@exeter.ac.uk, lc1025@exeter.ac.uk**.
 
