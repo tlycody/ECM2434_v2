@@ -7,15 +7,27 @@
    ============================ */
 
    .profile-container {
-    max-width: 420px; /*   Matches leaderboard width for uniformity */
-    margin: auto;
-    padding: 20px;
-    text-align: center;
-    background-color: #d5c5f1; /*   Consistent soft purple background */
-    border-radius: 15px;
+    max-width: 420px;
+    width: 380px; /* Set a fixed width for consistency */
+    margin: 40px auto;
+    padding: 30px;
+    background-color: #d5c5f1;
+    border-radius: 20px;
     box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
     font-family: 'Poppins', sans-serif;
-    position: relative; /* For absolute positioning of overlay */
+    position: relative;
+    min-height: 640px; /* Set a minimum height to ensure containers are the same size */
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .edit-profile-form {
+    width: 100%;
+    margin-top: 10px;
+    /* Make form take up appropriate space within container */
+    flex: 1;
+    display: flex;
+    flex-direction: column;
   }
   
   /* ============================
@@ -251,19 +263,14 @@
   }
   
   /* Edit profile form */
+  
   .edit-profile-form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
     width: 100%;
     margin-top: 10px;
-  }
-  
-  .edit-profile-form input {
-    padding: 10px;
-    border: 1px solid #d1c1ef;
-    border-radius: 8px;
-    font-size: 14px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Add space between form elements */
   }
   
   .edit-profile-form button {
