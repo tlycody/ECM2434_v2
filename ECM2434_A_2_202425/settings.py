@@ -5,7 +5,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # 2️⃣ Security Settings
-SECRET_KEY = os.getenv('m=0zdqq#^97c9y&d(dxw(gvy#n$p(@03j3--3_so!k9ep3)7m!')
+SECRET_KEY = os.getenv('SECRET_KEY', 'your-fallback-secret-key')
 DEBUG = False
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
@@ -19,9 +19,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django_extensions',
-    'debug_toolbar',
-
+    
     # Third-party apps
     'rest_framework',
     'rest_framework_simplejwt',
@@ -31,18 +29,26 @@ INSTALLED_APPS = [
     'bingo',
 ]
 
+# Include these only when in development mode
+if DEBUG:
+    INSTALLED_APPS += ['django_extensions', 'debug_toolbar']
+
+
 # 4️⃣ Middleware
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware', 
     'django.middleware.security.SecurityMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware', # Allow frontend requests
+    'django.contrib.sessions.middleware.SessionMiddleware', 
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+if DEBUG:  # Only include Debug Toolbar Middleware when in debug mode
+    MIDDLEWARE.insert(0, 'debug_toolbar.middleware.DebugToolbarMiddleware')
+
 
 # 5️⃣ CORS Settings (Allow Frontend to Access Backend)
 CORS_ALLOWED_ORIGINS = [
@@ -179,7 +185,7 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',  # Keep the default backend as fallback
 ]
 
-SSTATIC_URL = '/static/'
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),  # This path needs to match the directory you created
 ]
