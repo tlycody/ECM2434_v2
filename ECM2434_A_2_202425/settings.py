@@ -5,8 +5,8 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # 2️⃣ Security Settings
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'your-secret-key')
-DEBUG = True # Change to False in production
+SECRET_KEY = os.getenv('m=0zdqq#^97c9y&d(dxw(gvy#n$p(@03j3--3_so!k9ep3)7m!')
+DEBUG = False
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 TIME_ZONE = 'Europe/London'
