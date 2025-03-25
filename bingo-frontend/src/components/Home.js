@@ -5,7 +5,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import './Home.css';
 
-const API_URL = "https://ecm2434-v3.onrender.com";
+const API_URL = process.env.REACT_APP_API_URL;
 
 const Home = () => {
   // State to store fetched tasks (optional for later functionality)

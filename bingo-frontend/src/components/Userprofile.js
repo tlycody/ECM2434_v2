@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import './UserProfile.css';
 
 // Fetch API URL from environment variables (fallback to localhost if not set)
-const API_URL = "https://ecm2434-v3.onrender.com";
+const API_URL = process.env.REACT_APP_API_URL;
 
 // Default profile picture path with the correct filename
 const DEFAULT_PROFILE_PIC = "/media/profile_pics/default.png";

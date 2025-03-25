@@ -4,7 +4,7 @@ import axios from 'axios';
 import './GameKeeper.css';
 import { useNavigate } from 'react-router-dom';
 
-const API_URL = "https://ecm2434-v3.onrender.com";
+const API_URL = process.env.REACT_APP_API_URL;
 
 const GameKeeper = () => {
   const [error, setError] = useState('');
