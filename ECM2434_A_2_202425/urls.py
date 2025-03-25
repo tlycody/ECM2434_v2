@@ -4,6 +4,9 @@ from django.http import HttpResponse
 from django.conf import settings
 from django.conf.urls.static import static
 
+from django.views.generic import TemplateView
+
+
 # Test homepage
 def home(request):
     return HttpResponse("Hello, Django is running!")
@@ -12,6 +15,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),  # Django Admin Panel
     path('', home),  # Homepage at '/'
     path('api/', include('bingo.urls')),  # Include API routes with 'api/' prefix
+    path('', TemplateView.as_view(template_name='index.html')),  # React Frontend
 ]
 
 # Debug Toolbar (Only if settings.DEBUG is True)

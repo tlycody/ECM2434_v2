@@ -123,6 +123,9 @@ STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'bingo-frontend', 'build', 'static')]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
 INTERNAL_IPS = [
     "127.0.0.1",
 ]
