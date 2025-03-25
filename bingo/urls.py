@@ -8,7 +8,7 @@ from .views import (
 
 # URL Patterns
 
-from django.urls import path
+from django.urls import path, re_path
 
 urlpatterns = [
     path('register/', register_user, name='register_user'),
@@ -29,4 +29,6 @@ urlpatterns = [
     path('reject-task/', reject_task, name='reject_task'),
     path('password-reset/', password_reset_request, name='password_reset_request'),
     path('password-reset/confirm/', password_reset_confirm, name='password_reset_confirm'),
+    re_path(r'^.*$', TemplateView.as_view(template_name='index.html')),
+
 ]

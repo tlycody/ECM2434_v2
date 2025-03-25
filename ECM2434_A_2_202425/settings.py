@@ -69,7 +69,7 @@ CORS_ALLOW_METHODS = ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
 CORS_ALLOW_HEADERS = ["*"]
 
 
-CORS_ALLOWED_ALL_ORGINS = True
+CORS_ALLOW_ALL_ORIGINS = True
 
 # 6️⃣ Django REST Framework Config
 REST_FRAMEWORK = {
@@ -119,11 +119,20 @@ AUTH_PASSWORD_VALIDATORS = [
 AUTH_USER_MODEL = 'bingo.User' 
 
 # 9️⃣ Static & Media Files
-STATIC_URL = '/static/'
+
+# Static URL for serving static files
+STATIC_URL = '/staticfiles/' 
+
+# Directory where Django will collect static files
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'staticfiles')  
+]
+
+# Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'ECM2434_A_2_202425', 'build', 'static')]
 
 
 INTERNAL_IPS = [
