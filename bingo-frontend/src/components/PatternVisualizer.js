@@ -1,6 +1,6 @@
 // Pattern Visualizer Component
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import './PatternVisualizer.css';
 
 const PatternVisualizer = ({
@@ -33,25 +33,25 @@ const PatternVisualizer = ({
       icon: '⭕'
     },
     {
-      id: 'horiz1',
+      id: 'horizontal1',
       name: 'Horizontal Line (Top)',
-      type: 'HORIZ',
+      type: 'HORIZONTAL',
       cells: [0, 1, 2],
       points: 5,
       icon: '➖'
     },
     {
-      id: 'horiz2',
+      id: 'horizontal2',
       name: 'Horizontal Line (Middle)',
-      type: 'HORIZ',
+      type: 'HORIZONTAL',
       cells: [3, 4, 5],
       points: 5,
       icon: '➖'
     },
     {
-      id: 'horiz3',
+      id: 'horizontal3',
       name: 'Horizontal Line (Bottom)',
-      type: 'HORIZ',
+      type: 'HORIZONTAL',
       cells: [6, 7, 8],
       points: 5,
       icon: '➖'
