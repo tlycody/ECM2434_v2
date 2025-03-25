@@ -1,8 +1,8 @@
 // GameKeeper.js - Enhanced with rejection comments
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import './GameKeeper.css';
-import { useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, useNavigate } from 'react-router-dom';
 
 const API_URL = "https://ecm2434-v3.onrender.com";
 
@@ -19,7 +19,7 @@ const GameKeeper = () => {
     points: 10,
     requires_upload: false,
     requires_scan: false
-  });
+  }, []);
 
   // New state variables for rejection modal
   const [rejectionModalOpen, setRejectionModalOpen] = useState(false);
@@ -30,7 +30,7 @@ const GameKeeper = () => {
   const token = localStorage.getItem('accessToken');
 
   // Fetch initial data
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       // Get tasks
@@ -64,7 +64,7 @@ const GameKeeper = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   // Set up auth header
   useEffect(() => {
@@ -72,7 +72,7 @@ const GameKeeper = () => {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       fetchData();
     }
-  }, [token, fetchData]);
+  });
 
   // Handle creating a new task
   const handleCreateTask = async (e) => {
@@ -419,5 +419,10 @@ const GameKeeper = () => {
     </div>
   );
 };
+const GameKeeperWrapper = () => (
+  <Router>
+    <GameKeeper />
+  </Router>
+);
 
-export default GameKeeper;
+export default GameKeeperWrapper;

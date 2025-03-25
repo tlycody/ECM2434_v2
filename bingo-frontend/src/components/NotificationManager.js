@@ -14,7 +14,7 @@ const NotificationManager = () => {
   const [notifications, setNotifications] = useState([]);
 
   // Function to get shown notifications from localStorage
-  const getShownNotifications = () => {
+  const getShownNotifications = useCallback(() => {
     try {
       const stored = localStorage.getItem('shown_notifications');
       return stored ? JSON.parse(stored) : {};
@@ -22,7 +22,7 @@ const NotificationManager = () => {
       console.error("Error reading notifications from storage:", e);
       return {};
     }
-  };
+  }, []);
 
   // Function to mark a notification as shown
   const markNotificationAsShown = useCallback((key) => {
