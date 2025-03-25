@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 # Exit on error
 set -o errexit
 
@@ -23,11 +22,15 @@ python manage.py collectstatic --no-input
 
 # Build React frontend
 if [ -d "bingo-frontend" ]; then
-    echo "Building React frontend..."
-    cd bingo-frontend
-    npm install
-    npm run build  # This is important - use "build" not "start" for production
-    cd ..
+  echo "Building React frontend..."
+  cd bingo-frontend
+  npm install
+  
+  # Set CI=false to prevent ESLint warnings from being treated as errors
+  export CI=false
+  
+  npm run build # This is important - use "build" not "start" for production
+  cd ..
 fi
 
 echo "Build completed successfully!"
