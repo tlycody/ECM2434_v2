@@ -10,3 +10,4 @@ git add db.sqlite3
 git commit -m "Add database file for persistence"
 git push
 .qodo
+.env

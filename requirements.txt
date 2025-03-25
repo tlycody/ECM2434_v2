@@ -10,3 +10,4 @@ PyJWT==2.10.1
 sqlparse==0.5.3
 fpdf==1.7.2
 qrcode
+python-dotenv==1.0.1
