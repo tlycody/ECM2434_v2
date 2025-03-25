@@ -125,6 +125,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'ECM2434_A_2_202425', 'build', 'static')]
 
+
 INTERNAL_IPS = [
     "127.0.0.1",
 ]

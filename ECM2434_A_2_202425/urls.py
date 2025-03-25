@@ -16,6 +16,7 @@ urlpatterns = [
     path('', home),  # Homepage at '/'
     path('api/', include('bingo.urls')),  # Include API routes with 'api/' prefix
     path('', TemplateView.as_view(template_name='build/index.html')),  # Pointing to the React index.html
+    re_path(r'^.*$', TemplateView.as_view(template_name='build/index.html')),
 
 ]
 
