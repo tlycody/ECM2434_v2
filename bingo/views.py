@@ -1259,7 +1259,7 @@ def password_reset_request(request):
         )
 
         # For development, use localhost URL
-        frontend_url = 'http://localhost:3000'
+        frontend_url = 'https://ecm2434-v2-km7t.onrender.com'
         reset_url = f"{frontend_url}/reset-password/{reset_token.token}"
 
         # Debug print
