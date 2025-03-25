@@ -12,7 +12,7 @@ const DEFAULT_PROFILE_PIC = "/media/profile_pics/default.png";
 const Profile = () => {
   // State variables for user data, completed tasks, edit mode, and profile image
   const [userData, setUserData] = useState(null);
-  const [tasks, setTasks] = useState([]);
+  const [/*tasks,*/ setTasks] = useState([]);
   const [badges, setBadges] = useState([]);
   const [editMode, setEditMode] = useState(false);
   const [updatedUser, setUpdatedUser] = useState({});
@@ -256,16 +256,6 @@ const Profile = () => {
     return `${API_URL}${DEFAULT_PROFILE_PIC}`;
   };
 
-  // Handle cancel with preview cleanup
-  const handleCancel = () => {
-    setEditMode(false);
-    // Clean up preview URL when canceling
-    if (imagePreview) {
-      URL.revokeObjectURL(imagePreview);
-      setImagePreview(null);
-    }
-    setProfileImage(null);
-  };
 
   const getBadgeEmoji = (badgeType) => {
     console.log("Badge type:", badgeType);

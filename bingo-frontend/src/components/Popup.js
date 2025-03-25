@@ -31,7 +31,7 @@ const Popup = ({
 
       return () => clearTimeout(timer);
     }
-  }, [autoClose, autoCloseTime]);
+  }, [autoClose, autoCloseTime, handleClose]);
 
   // Handle close animation
   const handleClose = () => {

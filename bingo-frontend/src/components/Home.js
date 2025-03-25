@@ -9,7 +9,7 @@ const API_URL = "https://ecm2434-v3.onrender.com";
 
 const Home = () => {
   // State to store fetched tasks (optional for later functionality)
-  const [tasks, setTasks] = useState([]);
+  const [/*tasks,*/ setTasks] = useState([]);
   const navigate = useNavigate(); 
 
   // Fetch Tasks on Component Mount

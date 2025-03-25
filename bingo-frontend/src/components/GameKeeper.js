@@ -35,7 +35,7 @@ const GameKeeper = () => {
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       fetchData();
     }
-  }, [token]);
+  }, [token, fetchData]);
 
   // Fetch initial data
   const fetchData = async () => {
@@ -166,7 +166,7 @@ const GameKeeper = () => {
   };
 
   // Check user submissions for the same task
-  const checkUserSubmissions = async (userId, taskId) => {
+  /*const checkUserSubmissions = async (userId, taskId) => {
     try {
       const response = await axios.get(`${API_URL}/api/user-submissions/?user_id=${userId}&task_id=${taskId}`);
       return response.data.submissions || [];
@@ -174,7 +174,7 @@ const GameKeeper = () => {
       console.error("Error checking user submissions:", error);
       return [];
     }
-  };
+  }; */
 
   // Enhanced render method with user image history and fraud detection tools
   return (

@@ -130,7 +130,7 @@ const PatternVisualizer = ({
         setAnimation(true);
       }
     }
-  }, [userTasks, tasks, highlightPattern]);
+  }, [userTasks, tasks, highlightPattern, patterns]);
 
   // Toggle the active pattern
   const togglePattern = (patternId) => {

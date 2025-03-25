@@ -121,7 +121,7 @@ const BingoBoard = () => {
     hasShownProgressNotification.current = true;
 
     const completedTasks = userTasksData.filter(task => task.completed).length;
-    const pendingTasks = userTasksData.filter(task => task.status === 'pending').length;
+    // const pendingTasks = userTasksData.filter(task => task.status === 'pending').length;
 
     const totalTasks = tasks.length;
 
@@ -219,7 +219,7 @@ const BingoBoard = () => {
       hasShownProgressNotification.current = false;
       hasShownEndOfMonthReminder.current = false;
     };
-  }, [navigate, checkEndOfMonth, showProgressNotification]);
+  }, [navigate, checkEndOfMonth, showProgressNotification, checkForCompletedPatterns, tasks.length]);
 
 // Check for Completed Patterns - FIXED with persistent storage
 

@@ -1,6 +1,12 @@
 // NotificationManager.js - Fixed Version
 
 import React, { useState, useEffect, useCallback } from 'react';
+
+// Extend the window object to include custom properties
+window.showNotification = window.showNotification || function(type, message, duration, action, icon) {};
+window.showTaskCompletion = window.showTaskCompletion || function(taskName, points) {};
+window.showPatternCompletion = window.showPatternCompletion || function(patternType, points) {};
+window.showProgressUpdate = window.showProgressUpdate || function(completed, total) {};
 import Notification from './Notification';
 
 const NotificationManager = () => {
@@ -68,7 +74,7 @@ const NotificationManager = () => {
     });
 
     return id;
-  }, []);
+  }, [markNotificationAsShown, wasNotificationShownRecently]);
 
   // Function to remove a notification
   const removeNotification = useCallback((id) => {
@@ -198,7 +204,7 @@ const NotificationManager = () => {
       delete window.showPatternCompletion;
       delete window.showProgressUpdate;
     };
-  }, [addNotification]);
+  }, [addNotification, wasNotificationShownRecently]);
 
   return (
     <div className="notification-container">

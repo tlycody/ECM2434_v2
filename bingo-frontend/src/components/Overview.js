@@ -30,7 +30,7 @@ const Overview = () => {
     // Fetch user data
     const fetchUserData = async () => {
       try {
-        const response = await axios.get(`${API_URL}/api/user/`, {
+        await axios.get(`${API_URL}/api/user/`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
         });
         // Handle user data
@@ -42,7 +42,7 @@ const Overview = () => {
     // Fetch completed tasks
     const fetchCompletedTasks = async () => {
       try {
-        const response = await axios.get(`${API_URL}/api/tasks/completed`, {
+        await axios.get(`${API_URL}/api/tasks/completed`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` },
         });
         // Handle completed tasks
