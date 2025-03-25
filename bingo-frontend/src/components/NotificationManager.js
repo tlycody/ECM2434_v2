@@ -25,7 +25,7 @@ const NotificationManager = () => {
   };
 
   // Function to mark a notification as shown
-  const markNotificationAsShown = (key) => {
+  const markNotificationAsShown = useCallback((key) => {
     try {
       const shown = getShownNotifications();
       shown[key] = Date.now();
@@ -33,10 +33,10 @@ const NotificationManager = () => {
     } catch (e) {
       console.error("Error saving notification to storage:", e);
     }
-  };
+  }, []);
 
   // Function to check if a notification was shown recently
-  const wasNotificationShownRecently = (key, timeWindowMs = 60000) => { // 1 minute default
+  const wasNotificationShownRecently = useCallback((key, timeWindowMs = 60000) => { // 1 minute default
     try {
       const shown = getShownNotifications();
       const timestamp = shown[key];
@@ -49,7 +49,7 @@ const NotificationManager = () => {
       console.error("Error checking notification history:", e);
       return false;
     }
-  };
+  }, [getShownNotifications]);
 
   // Function to add a new notification with duplicate prevention
   const addNotification = useCallback((type, message, duration = 4000, action = null, icon = null) => {

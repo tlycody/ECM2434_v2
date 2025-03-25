@@ -29,14 +29,6 @@ const GameKeeper = () => {
   // Get token from localStorage
   const token = localStorage.getItem('accessToken');
 
-  // Set up auth header
-  useEffect(() => {
-    if (token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      fetchData();
-    }
-  }, [token, fetchData]);
-
   // Fetch initial data
   const fetchData = async () => {
     setLoading(true);
@@ -73,6 +65,14 @@ const GameKeeper = () => {
       setLoading(false);
     }
   };
+
+  // Set up auth header
+  useEffect(() => {
+    if (token) {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      fetchData();
+    }
+  }, [token, fetchData]);
 
   // Handle creating a new task
   const handleCreateTask = async (e) => {

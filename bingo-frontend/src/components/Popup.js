@@ -19,6 +19,14 @@ const Popup = ({
 }) => {
   const [isVisible, setIsVisible] = useState(false);
 
+  // Handle close animation
+  const handleClose = useCallback(() => {
+    setIsVisible(false);
+    setTimeout(() => {
+      if (onClose) onClose();
+    }, 300); 
+  }, [onClose]);
+
   // Animation timing
   useEffect(() => {
     setIsVisible(true);
@@ -32,14 +40,6 @@ const Popup = ({
       return () => clearTimeout(timer);
     }
   }, [autoClose, autoCloseTime, handleClose]);
-
-  // Handle close animation
-  const handleClose = () => {
-    setIsVisible(false);
-    setTimeout(() => {
-      if (onClose) onClose();
-    }, 300); 
-  };
 
   // Handle confirm action
   const handleConfirm = () => {

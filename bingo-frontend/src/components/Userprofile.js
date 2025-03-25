@@ -74,7 +74,7 @@ const Profile = () => {
     fetchUserData();
     fetchCompletedTasks();
 
-  }, []);
+  }, [setTasks]);
 
    // Handle Input & File Changes
  

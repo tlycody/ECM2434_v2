@@ -66,6 +66,7 @@ const App = () => {
             localStorage.getItem('userProfile') === 'Developer'
               ? <iframe
                   src="/developer-front.html"
+                  title="Developer Dashboard"
                   style={{ width: '100%', height: '100vh', border: 'none' }}
                 />
               : <Navigate to="/login" /> // Redirect to login if user is not a developer

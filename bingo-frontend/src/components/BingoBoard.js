@@ -140,87 +140,6 @@ const BingoBoard = () => {
     }
   }, [tasks, setShowPatternVisualizer]);
 
-  // Fetch Tasks and User Tasks on Component Mount
-
-  useEffect(() => {
-    // Get auth token
-    const token = localStorage.getItem('accessToken');
-
-    if (!token) {
-      navigate('/login');
-      return;
-    }
-
-    // Set up headers
-    const headers = {
-      Authorization: `Bearer ${token}`
-    };
-
-    // Fetch all tasks
-    axios.get(`${API_URL}/api/tasks/`)
-      .then(response => {
-        console.log('Tasks fetched:', response.data);
-        setTasks(response.data);
-
-        // After tasks are fetched, get user's task status
-        return axios.get(`${API_URL}/api/check-auth/`, { headers });
-      })
-      .then(authResponse => {
-        console.log('Auth check:', authResponse.data);
-
-        // Get all user tasks to check status (pending or completed)
-        return axios.get(`${API_URL}/api/profile/`, { headers });
-      })
-      .then(profileResponse => {
-        // Extract user tasks from profile if available
-        if (profileResponse.data && profileResponse.data.user_tasks) {
-          console.log('User tasks fetched:', profileResponse.data.user_tasks);
-          setUserTasks(profileResponse.data.user_tasks);
-
-          // Check for completed patterns after setting user tasks
-          setTimeout(() => {
-            checkForCompletedPatterns(profileResponse.data.user_tasks);
-          }, 500);
-        }
-        setLoading(false);
-
-        // Show welcome notification (only once)
-        if (window.showNotification && !hasShownWelcomeNotification.current) {
-          hasShownWelcomeNotification.current = true;
-          window.showNotification('info', 'Welcome to Sustainability Bingo! Complete tasks to earn points and unlock achievements.');
-        }
-
-        // Schedule a reminder to show progress after 3 seconds
-        // This delay helps ensure all data is loaded and prevents division by zero
-        if (!hasShownProgressNotification.current) {
-          setTimeout(() => {
-            if (profileResponse.data && profileResponse.data.user_tasks && tasks.length > 0) {
-              showProgressNotification(profileResponse.data.user_tasks);
-            }
-          }, 3000);
-        }
-
-        checkEndOfMonth();
-      })
-      .catch(error => {
-        console.error("Error fetching data:", error);
-        setError("Failed to load tasks. Please try again or log in.");
-        setLoading(false);
-
-        // Show error notification
-        if (window.showNotification) {
-          window.showNotification('error', 'Failed to load tasks. Please try again or log in.');
-        }
-      });
-
-    // Clean up function to reset notification flags on unmount
-    return () => {
-      hasShownWelcomeNotification.current = false;
-      hasShownProgressNotification.current = false;
-      hasShownEndOfMonthReminder.current = false;
-    };
-  }, [navigate, checkEndOfMonth, showProgressNotification, checkForCompletedPatterns, tasks.length]);
-
 // Check for Completed Patterns - FIXED with persistent storage
 
 const checkForCompletedPatterns = useCallback((userTasksData) => {
@@ -312,6 +231,87 @@ const checkForCompletedPatterns = useCallback((userTasksData) => {
 
   return [[], false];
 }, [tasks, completedPatterns, displayedPatternPopups]);
+
+// Fetch Tasks and User Tasks on Component Mount
+
+  useEffect(() => {
+    // Get auth token
+    const token = localStorage.getItem('accessToken');
+
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+
+    // Set up headers
+    const headers = {
+      Authorization: `Bearer ${token}`
+    };
+
+    // Fetch all tasks
+    axios.get(`${API_URL}/api/tasks/`)
+      .then(response => {
+        console.log('Tasks fetched:', response.data);
+        setTasks(response.data);
+
+        // After tasks are fetched, get user's task status
+        return axios.get(`${API_URL}/api/check-auth/`, { headers });
+      })
+      .then(authResponse => {
+        console.log('Auth check:', authResponse.data);
+
+        // Get all user tasks to check status (pending or completed)
+        return axios.get(`${API_URL}/api/profile/`, { headers });
+      })
+      .then(profileResponse => {
+        // Extract user tasks from profile if available
+        if (profileResponse.data && profileResponse.data.user_tasks) {
+          console.log('User tasks fetched:', profileResponse.data.user_tasks);
+          setUserTasks(profileResponse.data.user_tasks);
+
+          // Check for completed patterns after setting user tasks
+          setTimeout(() => {
+            checkForCompletedPatterns(profileResponse.data.user_tasks);
+          }, 500);
+        }
+        setLoading(false);
+
+        // Show welcome notification (only once)
+        if (window.showNotification && !hasShownWelcomeNotification.current) {
+          hasShownWelcomeNotification.current = true;
+          window.showNotification('info', 'Welcome to Sustainability Bingo! Complete tasks to earn points and unlock achievements.');
+        }
+
+        // Schedule a reminder to show progress after 3 seconds
+        // This delay helps ensure all data is loaded and prevents division by zero
+        if (!hasShownProgressNotification.current) {
+          setTimeout(() => {
+            if (profileResponse.data && profileResponse.data.user_tasks && tasks.length > 0) {
+              showProgressNotification(profileResponse.data.user_tasks);
+            }
+          }, 3000);
+        }
+
+        checkEndOfMonth();
+      })
+      .catch(error => {
+        console.error("Error fetching data:", error);
+        setError("Failed to load tasks. Please try again or log in.");
+        setLoading(false);
+
+        // Show error notification
+        if (window.showNotification) {
+          window.showNotification('error', 'Failed to load tasks. Please try again or log in.');
+        }
+      });
+
+    // Clean up function to reset notification flags on unmount
+    return () => {
+      hasShownWelcomeNotification.current = false;
+      hasShownProgressNotification.current = false;
+      hasShownEndOfMonthReminder.current = false;
+    };
+  }, [navigate, checkEndOfMonth, showProgressNotification, checkForCompletedPatterns, tasks.length]);
   // Get Task Status Helper
 
   const getTaskStatus = useCallback((taskId) => {

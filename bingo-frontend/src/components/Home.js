@@ -29,7 +29,7 @@ const Home = () => {
     };
 
     fetchTasks();
-  }, []); // Empty dependency array ensures it runs only once when the component mounts
+  }, [setTasks]); // Include setTasks in the dependency array
 
   // Render Home UI
   return (

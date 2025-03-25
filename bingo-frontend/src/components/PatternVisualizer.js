@@ -15,7 +15,7 @@ const PatternVisualizer = ({
   const [animation, setAnimation] = useState(false);
 
   // Define all possible bingo patterns
-  const patterns = [
+  const patterns = useMemo(() => [
     {
       id: 'x-pattern',
       name: 'X Pattern',
@@ -80,7 +80,7 @@ const PatternVisualizer = ({
       points: 5,
       icon: '⏐'
     }
-  ];
+  ], []);
 
   // Calculate pattern progress when user tasks change
   useEffect(() => {
