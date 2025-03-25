@@ -19,7 +19,7 @@ const GameKeeper = () => {
     points: 10,
     requires_upload: false,
     requires_scan: false
-  }, []);
+  }, [token]);
 
   // New state variables for rejection modal
   const [rejectionModalOpen, setRejectionModalOpen] = useState(false);

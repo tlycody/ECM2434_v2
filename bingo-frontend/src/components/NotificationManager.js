@@ -22,7 +22,7 @@ const NotificationManager = () => {
       console.error("Error reading notifications from storage:", e);
       return {};
     }
-  }, []);
+  }, [getShownNotifications]);
 
   // Function to mark a notification as shown
   const markNotificationAsShown = useCallback((key) => {
