@@ -2,12 +2,13 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 
+import Notification from './Notification';
+
 // Extend the window object to include custom properties
 window.showNotification = window.showNotification || function(type, message, duration, action, icon) {};
 window.showTaskCompletion = window.showTaskCompletion || function(taskName, points) {};
 window.showPatternCompletion = window.showPatternCompletion || function(patternType, points) {};
 window.showProgressUpdate = window.showProgressUpdate || function(completed, total) {};
-import Notification from './Notification';
 
 const NotificationManager = () => {
   const [notifications, setNotifications] = useState([]);
