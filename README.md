@@ -120,6 +120,10 @@ npm install           # Install dependencies (only if not already installed)
 npm start             # Start React frontend
 ```
 
+To be able to log in as GAMEKEEPER and DEVELOPER you can also use specific usernames and passowords For GameKeeper username - GAMEKEEPER password - MYPASS123
+
+For Developer usename - DEVELOPER password- MYDEV123
+
 Now the server should be running:
 
 - Backend: **[http://localhost:8000/](http://localhost:8000/)**
