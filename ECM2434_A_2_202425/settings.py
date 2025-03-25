@@ -1,20 +1,14 @@
 import os
 from pathlib import Path
-from dotenv import load_dotenv
-
-# Load environment variables from .env file
-load_dotenv()
 
 # 1️⃣ Base Directory
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # 2️⃣ Security Settings
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', '4!lxh&c#g*sm)8uq7l9yk5_vpq8^4v1id0*+_vmg!%$v6wt1(@')
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'your-secret-key')
+DEBUG = True # Change to False in production
 
-# Turn off DEBUG in production
-DEBUG = False
-
-ALLOWED_HOSTS = ['caffeinateddivas.pythonanywhere.com', 'www.caffeinateddivas.pythonanywhere.com', '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 TIME_ZONE = 'Europe/London'
 
 # 3️⃣ Installed Apps
@@ -185,6 +179,7 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',  # Keep the default backend as fallback
 ]
 
+SSTATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),  # This path needs to match the directory you created
 ]
@@ -194,18 +189,3 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # For collected static file
 # Email settings for development
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DEFAULT_FROM_EMAIL = 'noreply@yourgame.com'
-
-# HTTPS settings
-SECURE_SSL_REDIRECT = True
-SECURE_HSTS_SECONDS = 31536000  # 1 year
-SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-SECURE_HSTS_PRELOAD = True
-
-# Cookie settings
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
-
-# Additional security settings
-SECURE_CONTENT_TYPE_NOSNIFF = True
-SECURE_BROWSER_XSS_FILTER = True
-X_FRAME_OPTIONS = 'DENY'
