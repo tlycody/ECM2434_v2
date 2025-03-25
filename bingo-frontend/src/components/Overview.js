@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import './Overview.css';
 
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = "https://ecm2434-v3.onrender.com";
 
 const Overview = () => {
   const navigate = useNavigate(); 

@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Login.css';
 
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = "https://ecm2434-v3.onrender.com";
 
 const Login = () => {
   // State variables for form data, error messages, and loading status

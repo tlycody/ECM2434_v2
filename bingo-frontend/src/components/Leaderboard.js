@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import axios from 'axios';
 import './Leaderboard.css';
 
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = "https://ecm2434-v3.onrender.com";
 
 const Leaderboard = () => {
     const [lifetimeLeaderboard, setLifetimeLeaderboard] = useState([]);
