@@ -22,7 +22,8 @@ const NotificationManager = () => {
       console.error("Error reading notifications from storage:", e);
       return {};
     }
-  }, [getShownNotifications]);
+  }, []);
+
 
   // Function to mark a notification as shown
   const markNotificationAsShown = useCallback((key) => {
@@ -33,7 +34,7 @@ const NotificationManager = () => {
     } catch (e) {
       console.error("Error saving notification to storage:", e);
     }
-  }, []);
+  }, [getShownNotifications]);
 
   // Function to check if a notification was shown recently
   const wasNotificationShownRecently = useCallback((key, timeWindowMs = 60000) => { // 1 minute default
