@@ -9,7 +9,7 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'your-secret-key')
 DEBUG = True # Change to False in production
 
 
-ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', '*').split(',')
+ALLOWED_HOSTS = ['ecm2434-v2-km7t.onrender.com' , '127.0.0.1' , 'localhost']
 TIME_ZONE = 'Europe/London'
 
 # 3️⃣ Installed Apps
